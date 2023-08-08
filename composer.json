@@ -1,0 +1,36 @@
+{
+  "name": "forumpay/woocommerce-payment-gateway-plugin",
+  "description": "Payment Gateway Module for Woocommerce",
+  "version": "2.0.0",
+  "type": "wordpress-plugin",
+  "keywords": [
+    "payment",
+    "gateway"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=7.4",
+    "forumpay/payment-gateway-php-client": "^1.0.0",
+    "psr/log":"^1.1.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6.0",
+    "php-stubs/wordpress-stubs": "^5.0@stable",
+    "php-stubs/woocommerce-stubs": "^5.0@stable"
+  },
+  "autoload": {
+    "psr-4": {
+      "ForumPay\\PaymentGateway\\WoocommercePlugin\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packagist.org"
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+    }
+  }
+}
