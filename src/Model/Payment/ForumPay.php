@@ -2,6 +2,8 @@
 
 namespace ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment;
 
+use ForumPay\PaymentGateway\PHPClient\Http\Exception\ApiExceptionInterface;
+use ForumPay\PaymentGateway\PHPClient\Response\RequestKycResponse;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ForumPayException;
 use ForumPay\PaymentGateway\WoocommercePlugin\ForumPayPaymentGateway;
 use ForumPay\PaymentGateway\PHPClient\Response\GetTransactions\TransactionInvoice;
@@ -102,7 +104,7 @@ class ForumPay
         return $this->apiClient->getRate(
             $this->gateway->getPosId(),
             $this->orderManager->getOrderCurrency($orderId),
-            (string)$this->orderManager->getOrderTotal($orderId),
+            $this->orderManager->getOrderTotal($orderId),
             $currency,
             $this->gateway->isAcceptZeroConfirmations() ? 'true' : 'false',
             null,
@@ -112,37 +114,52 @@ class ForumPay
     }
 
     /**
-     * Initiate a start payment and crate order on ForumPay
+     * @param string $orderId
+     * @return RequestKycResponse
+     * @throws ApiExceptionInterface
+     */
+    public function requestKyc(string $orderId): RequestKycResponse
+    {
+        return $this->apiClient->requestKyc($this->orderManager->getOrderCustomerEmail($orderId));
+    }
+
+    /**
+     * Initiate a start payment and create order on ForumPay
      *
      * @param string $orderId
      * @param string $currency
      * @param string $paymentId
+     * @param string|null $kycPin
      * @return StartPaymentResponse
+     * @throws ApiExceptionInterface
      */
     public function startPayment(
         string $orderId,
         string $currency,
-        string $paymentId
+        string $paymentId,
+        ?string $kycPin
     ): StartPaymentResponse
     {
         $response = $this->apiClient->startPayment(
             $this->gateway->getPosId(),
             $this->orderManager->getOrderCurrency($orderId),
             $paymentId,
-            (string)$this->orderManager->getOrderTotal($orderId),
+            $this->orderManager->getOrderTotal($orderId),
             $currency,
             $orderId,
             $this->gateway->isAcceptZeroConfirmations() ? 'true' : 'false',
             $this->orderManager->getOrderCustomerIpAddress($orderId),
             $this->orderManager->getOrderCustomerEmail($orderId),
             $this->orderManager->getOrderCustomerId($orderId),
-            false,
-            false,
-            false,
+            'false',
+            '',
+            'false',
             null,
             null,
             null,
-            null
+            null,
+            null,
+            $kycPin
         );
 
         $this->orderManager->saveOrderMetaData($orderId, 'startPayment', $response->toArray());
@@ -262,7 +279,10 @@ class ForumPay
 
         /** @var TransactionInvoice $existingPayment */
         foreach ($existingPayments->getInvoices() as $existingPayment) {
-            if (strtolower($existingPayment->getStatus()) !== 'cancelled') {
+            if (
+                strtolower($existingPayment->getStatus()) !== 'cancelled'
+                && $existingPayment->getPosId() === $this->gateway->getPosId()
+            ) {
                 return false;
             }
         }

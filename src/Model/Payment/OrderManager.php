@@ -50,11 +50,11 @@ class OrderManager
      * Get order total by order id from db
      *
      * @param $orderId
-     * @return float
+     * @return string
      */
     public function getOrderTotal($orderId) {
         $order = new WC_Order($orderId);
-        return $order->get_total();
+        return number_format($order->get_total(), 2, '.', '');
     }
 
     /**

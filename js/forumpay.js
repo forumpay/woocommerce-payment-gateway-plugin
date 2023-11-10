@@ -36,6 +36,12 @@ const initPlugin = function () {
         'act': 'cancelPayment'
       },
     },
+    restRestoreCart: {
+      'path': '',
+      'params': {
+        'act': 'restoreCart'
+      },
+    },
     successResultUrl: forumPayData('forumpay-returnurl'),
     errorResultUrl: forumPayData('forumpay-cancelurl'),
     messageReceiver: function (name, data) {

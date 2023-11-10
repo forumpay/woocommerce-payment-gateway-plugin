@@ -11,6 +11,7 @@ use ForumPay\PaymentGateway\WoocommercePlugin\Model\CheckPayment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyList;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyRate;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\RestoreCart;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\StartPayment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Webhook;
 
@@ -62,7 +63,8 @@ class Router
             'startPayment' => new StartPayment($this->forumPay, $this->logger),
             'checkPayment' => new CheckPayment($this->forumPay, $this->logger),
             'cancelPayment' => new CancelPayment($this->forumPay, $this->logger),
-            'webhook' => new Webhook($this->forumPay, $this->logger)
+            'webhook' => new Webhook($this->forumPay, $this->logger),
+            'restoreCart' => new RestoreCart($this->forumPay, $this->logger),
         ];
     }
 

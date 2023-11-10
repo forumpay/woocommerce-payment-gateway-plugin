@@ -1,19 +1,23 @@
-# Wordpress Woocommerce Forumpay payment module <br> Installation guide
+# WordPress WooCommerce Forumpay payment module
+# Installation guide
 
 ## Requirements
 
-> Make sure you have at least Wordpress Version 5.0 or higher and Woocommerce plugin is up to date.
+> Make sure you have at least WordPress Version 6.2 or higher and WooCommerce plugin is up-to-date.
 
-> You should already have downloaded .zip archive with Forumpay plugin
+> You should already have downloaded the latest release of ForumPay plugin from [this link](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest).
+Download the file named woocommerce-payment-gateway-plugin-vX.X.X.zip
 
 ## Installation
+
+### Using admin panel
 
 Open your admin panel and select **Plugins** tab. Click **Add New** and then **Upload Plugin**.
 Select the downloaded ForumPay module .zip file.
 
 ### Manual method (through filesystem):
 
-Transfer the downloaded .zip archive to your server and unzip it, so the **module** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
+Transfer the downloaded .zip archive to your server and unzip it, so the **woocommerce-forumpay** directory goes into the **/wp-content/plugins/** directory **relative** to your **WordPress** root.
 Directory structure should be as follows: **/wp-content/plugins/woocommerce-forumpay**.
 
 After the module is installed, go back to the **Plugins** page and activate it.
@@ -24,8 +28,9 @@ Open your admin panel and select **Plugins** tab. Click **Add New** and then **U
 Select the downloaded ForumPay module .zip file.
 
 ### Manual method (through filesystem):
+
 As you already have **/wp-content/plugins/woocommerce-forumpay** folder from previous version, you need to remove it first.
-Transfer the downloaded .zip archive to your server and unzip it, so the **module** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
+Transfer the downloaded .zip archive to your server and unzip it, so the **woocommerce-forumpay** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
 Directory structure should be as follows: **/wp-content/plugins/woocommerce-forumpay**.
 
 After the module is installed, go back to the **Plugins** page and activate it.
@@ -53,8 +58,7 @@ Navigate to **WooCommerce > Settings > Payments**, find the Forumpay module and 
 5. **API Secret**
    *Important:* never share it to anyone!
    Think of it as a password.
-   API Secret consists of two parts: the first one will be displayed in your profile.
-   The second part will be sent to your e-mail.
+   API Secret consists of two parts. When generated in [ForumPay dashboard](https://dashboard.forumpay.com/pay/userPaymentGateway.api_settings), the first one will be displayed in your profile, while the second part will be sent to your e-mail. You need to enter both parts here (one after the other).
 
 Don't forget to click *Save changes* button after the settings are filled in.
 
@@ -89,3 +93,10 @@ After the customer clicks the **START PAYMENT** button, they have 5 minutes to p
 > **Can not select cryptocurrency, there is no dropdown:**
 This issue probably happens because webshop's backend cannot access ForumPay.
 Please check if your API keys in the configuration are correct.
+
+> **The plugin has been installed and activated successfully, but it does not appear in the WooCommerce payments settings**
+Please ensure that you have installed the latest release of the ForumPay Payment Gateway plugin from [this](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest) url.
+
+## Logs
+
+To access logs, navigate to the admin dashboard and select WooCommerce > Status > Logs

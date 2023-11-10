@@ -7,6 +7,7 @@ namespace ForumPay\PaymentGateway\WoocommercePlugin;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\ForumPayLogger;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\OrderManager;
+use ForumPay\PaymentGateway\WoocommercePlugin\Logger\PrivateTokenMasker;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\WcPsrLoggerAdapter;
 use WC_Admin_Settings;
 use WC_Logger;
@@ -95,7 +96,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'title' => __('Title:', 'forumpay'),
                 'type' => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'forumpay'),
-                'default' => __('Forumpay', 'forumpay')),
+                'default' => __('Pay with Crypto', 'forumpay')),
             'description' => array(
                 'title' => __('Description:', 'forumpay'),
                 'type' => 'textarea',
@@ -289,6 +290,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     function on_api_callback()
     {
         $forumPayLogger = new ForumPayLogger(new WcPsrLoggerAdapter(new WC_Logger(), 'ForumPayWebApi'));
+        $forumPayLogger->addParser(new PrivateTokenMasker());
         $forumPay = new ForumPay(
             $this,
             new OrderManager(),

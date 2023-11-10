@@ -18,16 +18,20 @@ require_once(ABSPATH . 'wp-includes/version.php');
 
 define('FORUMPAY_FILE', __FILE__);
 define('FORUMPAY_DIR', dirname(FORUMPAY_FILE));
-define('FORUMPAY_VERSION', '2.0.0');
+define('FORUMPAY_VERSION', '2.1.0');
 
 /**
  * When plugin is activated
  */
 function forumpay_activation_hook()
 {
-    forumpay_autoload();
+    if (! forumpay_autoload()) {
+        die(sprintf(
+            'ForumPay Payment Gateway Plugin could not be activated. Make sure you are using the latest %s of the plugin.',
+            '<a href="https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest" target="_blank" rel="noopener noreferrer">release<a/>'
+        ));
+    }
 }
-
 
 function forumpay_autoload()
 {
