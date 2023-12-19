@@ -18,7 +18,7 @@ require_once(ABSPATH . 'wp-includes/version.php');
 
 define('FORUMPAY_FILE', __FILE__);
 define('FORUMPAY_DIR', dirname(FORUMPAY_FILE));
-define('FORUMPAY_VERSION', '2.1.0');
+define('FORUMPAY_VERSION', '2.1.1');
 
 /**
  * When plugin is activated

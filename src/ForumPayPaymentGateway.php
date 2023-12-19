@@ -255,9 +255,9 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
 
         $extahtm = '';
 
-        $extahtm .= '<snap id="forumpay-apibase" data="' . $apibase . '"></snap>';
-        $extahtm .= '<snap id="forumpay-returnurl" data="' . $return_url . '"></snap>';
-        $extahtm .= '<snap id="forumpay-cancelurl" data="' . $cancel_url . '"></snap>';
+        $extahtm .= '<span id="forumpay-apibase" data="' . $apibase . '"></span>';
+        $extahtm .= '<span id="forumpay-returnurl" data="' . $return_url . '"></span>';
+        $extahtm .= '<span id="forumpay-cancelurl" data="' . $cancel_url . '"></span>';
 
         $extahtm .= '<link rel="stylesheet"  href="' . $base_path . '/css/forumpay.css" />';
         $extahtm .= '<link rel="stylesheet"  href="' . $base_path . '/css/forumpay_widget.css" />';

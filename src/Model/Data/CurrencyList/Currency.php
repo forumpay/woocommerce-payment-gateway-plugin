@@ -43,6 +43,13 @@ class Currency
     private string $currencyFiat;
 
     /**
+     * Cryptocurrency icon url
+     *
+     * @var string
+     */
+    private string $iconUrl;
+
+    /**
      * Exchange rate
      *
      * @var string|null
@@ -57,6 +64,7 @@ class Currency
      * @param string $status
      * @param bool $zeroConfirmationsEnabled
      * @param string $currencyFiat
+     * @param string $iconUrl
      * @param string|null $rate
      */
     public function __construct(
@@ -65,6 +73,7 @@ class Currency
         string $status,
         bool $zeroConfirmationsEnabled,
         string $currencyFiat,
+        string $iconUrl,
         ?string $rate
     ) {
         $this->currency = $currency;
@@ -72,6 +81,7 @@ class Currency
         $this->status = $status;
         $this->zeroConfirmationsEnabled = $zeroConfirmationsEnabled;
         $this->currencyFiat = $currencyFiat;
+        $this->iconUrl = $iconUrl;
         $this->rate = $rate;
     }
 
@@ -116,6 +126,14 @@ class Currency
     }
 
     /**
+     * @return string
+     */
+    public function getIconUrl(): string
+    {
+        return $this->iconUrl;
+    }
+
+    /**
      * @return string|null
      */
     public function getRate(): ?string
@@ -136,7 +154,8 @@ class Currency
             'status' => $this->status,
             'zero_confirmations_enabled' => $this->zeroConfirmationsEnabled,
             'currency_fiat' => $this->currencyFiat,
-            'rate' => $this->rate
+            'rate' => $this->rate,
+            'icon_url' => $this->iconUrl,
         ];
     }
 }
