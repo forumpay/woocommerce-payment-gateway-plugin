@@ -6,7 +6,7 @@
 > Make sure you have at least WordPress Version 6.2 or higher and WooCommerce plugin is up-to-date.
 
 > You should already have downloaded the latest release of ForumPay plugin from [this link](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest).
-Download the file named woocommerce-payment-gateway-plugin-vX.X.X.zip
+Download the file named woocommerce-payment-gateway-plugin-v2.1.2.zip
 
 ## Installation
 
@@ -44,21 +44,30 @@ Navigate to **WooCommerce > Settings > Payments**, find the Forumpay module and 
 ### Configuration details:
 
 1. **Title**
-   The label of the payment method that is displayed when your customer is prompted to choose one.
-   You can leave default or set it to something like *Pay with crypto*.
+   The label of the payment method that is displayed when user is prompted to choose one. You can leave default or set it to something like *Pay with crypto*.
 2. **Description**
-   Additional information along with *Title*.
-3. **POS ID**
-   Identifier for payments from this webshop to be identified in your ForumPay dashboard.
-   Must be a unique string. E.g.: woocommerce1
+   The additional description of the payment method that is displayed under the title.
+3. **Environment**
+   Dropdown lets you switch between 'Production' and 'Sandbox' modes.
+   Use 'Production' for processing real transactions in a live environment and
+   'Sandbox' for safe testing without financial implications.
 4. **API User**
-   Unique ForumPay API-key identifier that you have to generate in the Forumpay dashboard.
-   It can be found in your **Profile** section.
+   This is our identifier that we need to access the payment system.
+   It can be found in your **Profile**.
    [Go to profile >](https://dashboard.forumpay.com/pay/userPaymentGateway.api_settings)
 5. **API Secret**
-   *Important:* never share it to anyone!
+   _Important:_ never share it to anyone!
    Think of it as a password.
-   API Secret consists of two parts. When generated in [ForumPay dashboard](https://dashboard.forumpay.com/pay/userPaymentGateway.api_settings), the first one will be displayed in your profile, while the second part will be sent to your e-mail. You need to enter both parts here (one after the other).
+   API Secret consists of two parts. When generated in [ForumPay dashboard](https://dashboard.forumpay.com/pay/userPaymentGateway.api_settings),
+   the first one will be displayed in your profile, while the second part will be sent to your e-mail.
+   You need to enter both parts here (one after the other).
+6. **POS ID**
+   This is how payments coming to your wallets are going to be identified.
+   Special characters are not allowed. Allowed characters are: `[A-Za-z0-9._-]` (e.g. `my-shop`, `my_shop`).
+7. **Accept Instant (Zero) Confirmations**
+   Allows immediate transaction approval without waiting for network confirmations, enhancing speed but with increased risk.
+8. **Custom environment URL**
+    Optional: URL to the API server. This value will override the default setting. Only used for debugging.
 
 Don't forget to click *Save changes* button after the settings are filled in.
 

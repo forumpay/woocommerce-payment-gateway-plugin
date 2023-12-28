@@ -1,7 +1,7 @@
 {
   "name": "forumpay/woocommerce-payment-gateway-plugin",
   "description": "Payment Gateway Module for Woocommerce",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "type": "wordpress-plugin",
   "keywords": [
     "payment",

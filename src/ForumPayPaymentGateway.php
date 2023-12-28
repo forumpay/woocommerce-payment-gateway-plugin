@@ -136,7 +136,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             'api_url_override' => array(
                 'title' => __('Custom environment URL', 'forumpay'),
                 'type' => 'text',
-                'description' => __('URL to the api server. This value will override default environment')),
+                'description' => __('Optional: URL to the API server. This value will override the default setting. Only used for debugging.')),
         );
     }
 
