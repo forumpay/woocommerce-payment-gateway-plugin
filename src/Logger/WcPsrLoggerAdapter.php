@@ -74,7 +74,7 @@ class WcPsrLoggerAdapter extends AbstractLogger
      *
      * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $wcLevel = $level;
         if (isset($this->psrWcLoggingLevels[$level])) {

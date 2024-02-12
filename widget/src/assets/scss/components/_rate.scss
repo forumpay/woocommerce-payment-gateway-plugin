@@ -1,0 +1,21 @@
+.forumpay-pgw {
+  &-rate {
+    &-details {
+      &-list {
+        li {
+          font-weight: 800;
+          font-size: 0.8em;
+          border-bottom: 1px solid var(--wlx-gray-1);
+          margin-bottom: 10px;
+          padding-bottom: 10px;
+        }
+      }
+
+      &-help-text {
+        color: var(--wlx-gray-3);
+        font-size: 0.6em;
+        font-weight: 600;
+      }
+    }
+  }
+}

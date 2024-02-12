@@ -1,0 +1,67 @@
+.forumpay-pgw {
+  &-payment_status {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      padding: 25px;
+      font-weight: 600;
+
+    &-timer {
+      color: var(--wlx-yellow);
+
+      &-container {
+        display: flex;
+        align-items: center;
+
+        &-remaining_time {
+          font-size: 1.45em;
+        }
+
+        &-icon {
+          width: 36px;
+          height: 36px;
+          margin-right: 5px;
+        }
+      }
+    }
+
+    &-row {
+      border-bottom: 1px solid var(--wlx-gray-1);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+
+      &-processing-label {
+        color: var(--wlx-yellow);
+      }
+
+      &-row-tag {
+        font-size: 1.2em;
+        color: var(--wlx-black);
+        margin-top: 10px;
+      }
+
+      small {
+        color: var(--wlx-gray-2);
+      }
+
+      &-text {
+        color: var(--wlx-yellow);
+        font-size: 0.8em;
+        margin: 0;
+      }
+    }
+
+    &-list {
+      li {
+        font-size: .8em;
+        span {
+          font-weight: 900;
+        }
+      }
+    }
+  }
+}

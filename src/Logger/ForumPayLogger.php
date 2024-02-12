@@ -59,7 +59,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function emergency($message, array $context = [])
+    public function emergency($message, array $context = []): void
     {
         $this->logger->emergency($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -67,7 +67,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function alert($message, array $context = [])
+    public function alert($message, array $context = []): void
     {
         $this->logger->alert($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -75,7 +75,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function critical($message, array $context = [])
+    public function critical($message, array $context = []): void
     {
         $this->logger->critical($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -83,7 +83,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function error($message, array $context = [])
+    public function error($message, array $context = []): void
     {
         $this->logger->error($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -91,7 +91,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function warning($message, array $context = [])
+    public function warning($message, array $context = []): void
     {
         $this->logger->warning($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -99,7 +99,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function notice($message, array $context = [])
+    public function notice($message, array $context = []): void
     {
         $this->logger->notice($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -107,7 +107,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function info($message, array $context = [])
+    public function info($message, array $context = []): void
     {
         $this->logger->info($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -115,7 +115,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function debug($message, array $context = [])
+    public function debug($message, array $context = []): void
     {
         $this->logger->debug($this->formatLogMessage($message), $this->parseContext($context));
     }
@@ -123,7 +123,7 @@ class ForumPayLogger implements LoggerInterface
     /**
      * @inheritdoc
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->logger->log($level, $this->formatLogMessage($message), $this->parseContext($context));
     }

@@ -1,0 +1,24 @@
+<script setup>
+
+import CurrencyIcon from './CurrencyIcon.vue';
+import SvgLock from '../images/SvgLock.vue';
+
+</script>
+
+<template>
+  <div class="forumpay-pgw-logo">
+    <div>
+      <div class="forumpay-pgw-logo-powered-by">
+        <span class="forumpay-pgw-logo-powered-by-lock">
+          <SvgLock />
+        </span>
+        <span class="forumpay-pgw-logo-powered-by-copy">Crypto powered by</span>
+      </div>
+      <CurrencyIcon
+        class="forumpay-pgw-logo-img"
+        icon="logo"
+        alt="ForumPay Logo"
+      />
+    </div>
+  </div>
+</template>

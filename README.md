@@ -1,4 +1,4 @@
-# WordPress WooCommerce Forumpay payment module
+# ForumPay Payments for WooCommerce
 # Installation guide
 
 ## Requirements
@@ -6,7 +6,7 @@
 > Make sure you have at least WordPress Version 6.2 or higher and WooCommerce plugin is up-to-date.
 
 > You should already have downloaded the latest release of ForumPay plugin from [this link](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest).
-Download the file named woocommerce-payment-gateway-plugin-v2.1.2.zip
+Download the file named forumpay-payments-for-woocommerce-v2.1.3
 
 ## Installation
 
@@ -29,9 +29,9 @@ Select the downloaded ForumPay module .zip file.
 
 ### Manual method (through filesystem):
 
-As you already have **/wp-content/plugins/woocommerce-forumpay** folder from previous version, you need to remove it first.
-Transfer the downloaded .zip archive to your server and unzip it, so the **woocommerce-forumpay** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
-Directory structure should be as follows: **/wp-content/plugins/woocommerce-forumpay**.
+As you already have **/wp-content/plugins/forumpay-payments-for-woocommerce** or **/wp-content/plugins/woocommerce-forumpay** folder from previous versions, you need to remove them first.
+Transfer the downloaded .zip archive to your server and unzip it, so the **forumpay-payments-for-woocommerce** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
+Directory structure should be as follows: **/wp-content/plugins/forumpay-payments-for-woocommerce**.
 
 After the module is installed, go back to the **Plugins** page and activate it.
 
@@ -99,12 +99,26 @@ After the customer clicks the **START PAYMENT** button, they have 5 minutes to p
 
 ## Troubleshooting
 
-> **Can not select cryptocurrency, there is no dropdown:**
+**Can not select cryptocurrency, there is no dropdown:**
+
 This issue probably happens because webshop's backend cannot access ForumPay.
 Please check if your API keys in the configuration are correct.
 
-> **The plugin has been installed and activated successfully, but it does not appear in the WooCommerce payments settings**
+**The plugin has been installed and activated successfully, but it does not appear in the WooCommerce payments settings**
+
 Please ensure that you have installed the latest release of the ForumPay Payment Gateway plugin from [this](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest) url.
+
+**Server returns **413 Request Entity Too Large** error when uploading the plugin zip file**
+
+Please check your Nginx configuration. **client_max_body_size** and **post_max_size** properties should be larger than the uploaded .zip file
+```
+server {
+  client_max_body_size 20M;
+  post_max_size 20M;
+
+  ...
+}
+```
 
 ## Logs
 

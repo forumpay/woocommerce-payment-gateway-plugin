@@ -1,0 +1,114 @@
+.forumpay-pgw {
+  &-dropdown {
+    position: relative;
+
+    &-selected {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 15px;
+
+      span {
+        white-space: nowrap;
+      }
+
+      img {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &-field {
+      justify-content: space-between;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      font-size: 0.8em;
+      font-weight: 600;
+      letter-spacing: -0.05rem;
+      padding: 8px 16px;
+      border: 0;
+      border-bottom: 1px solid #f8f9fa;
+      white-space: normal;
+      cursor: pointer;
+      align-items: center;
+
+      img {
+        width: 25px;
+        height: 25px;
+      }
+    }
+
+    &-label {
+      font-weight: 800;
+      font-size: 0.8em;
+    }
+
+    &-search {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+      background-color: var(--wlx-gray-4);
+      width: 100%;
+      height: 38px;
+      font-weight: 600;
+      font-size: 0.8em;
+      padding: 10px;
+      outline: 0;
+      border: 0;
+      border-radius: 5px;
+      white-space: normal;
+
+      &::after {
+        box-sizing: border-box;
+        content: "\276F";
+        color: var(--wlx-gray-arrows);
+        padding: 5px;
+        transform: rotate(90deg);
+        text-align: center;
+        cursor: default;
+      }
+
+      input {
+        opacity: 0;
+        overflow: auto;
+        width: 100%;
+        border: none;
+        outline: none;
+        background-color: var(--wlx-gray-4);
+
+        &:focus {
+          border: 1px solid black !important;
+          border-radius: 10px;
+        }
+      }
+    }
+
+    &-list {
+      max-height: 200px;
+      background-color: var(--wlx-white);
+      box-shadow: 0 5px 15px hsla(0, 0%, 0.1%, 0.1);
+      overflow: auto;
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+      margin-top: 1px;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      mark {
+        background: rgba(125, 168, 208, 0.2);
+        color: var(--wlx-gray-3);
+      }
+    }
+  }
+}

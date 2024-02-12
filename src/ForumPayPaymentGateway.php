@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ForumPay\PaymentGateway\WoocommercePlugin;
 
+use ForumPay\PaymentGateway\WoocommercePlugin\Blocks\ForumPayPaymentBlocksSupport;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\ForumPayLogger;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\OrderManager;
@@ -55,6 +56,34 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_action('woocommerce_api_wc_forumpay', [ $this, 'on_api_callback' ]);
         add_filter('woocommerce_payment_gateways', array($this, 'add_forumpay_gateway'));
         add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'display_admin_payment_id'));
+
+        // Registers WooCommerce Blocks integration.
+        add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'woocommerce_forumpay_gateway_block_support' ) );
+    }
+
+    /**
+     * Check If The Gateway Is Available For Use.
+     *
+     * @return bool
+     */
+    public function is_available()
+    {
+        return true;
+    }
+
+    /**
+     * Registers WooCommerce Blocks integration.
+     *
+     */
+    public static function woocommerce_forumpay_gateway_block_support() {
+        if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
+            add_action(
+                'woocommerce_blocks_payment_method_type_registration',
+                function(\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
+                    $payment_method_registry->register(new ForumPayPaymentBlocksSupport());
+                }
+            );
+        }
     }
 
     /**
@@ -278,6 +307,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     function process_payment($order_id)
     {
         $order = new WC_Order($order_id);
+        WC()->session->set( 'order_awaiting_payment', $order_id);
         return [
             'result' => 'success',
             'redirect' => $order->get_checkout_payment_url(true)
@@ -301,6 +331,22 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $response = $router->execute(new Request());
 
         echo $response;die;
+    }
+
+    /**
+     * @return mixed|string Plugin title
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**
@@ -354,7 +400,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function getWordpressVersion()
     {
-        return defined('WC_VERSION') ? WC_VERSION : 'WC - no version';
+        global $wp_version;
+        return isset($wp_version) ? $wp_version : '--no version--';
     }
 
     /**
@@ -364,7 +411,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function getWooCommerceVersion()
     {
-        return isset($wp_version) ? $wp_version : 'WP - no version';
+        return defined('WC_VERSION') ? WC_VERSION : '--no version--';
     }
 
     /**

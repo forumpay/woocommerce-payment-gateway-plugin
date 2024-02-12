@@ -1,0 +1,33 @@
+.forumpay-pgw {
+  &-info_timer {
+    cursor: pointer;
+    position: relative;
+    height: 25px;
+    width: 25px;
+
+    svg {
+      overflow: visible;
+    }
+
+    circle {
+      fill: transparent;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.5s;
+    }
+
+    .circle-background {
+      stroke: var(--wlx-gray-1);
+    }
+
+    &-icon-i {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+    }
+  }
+}

@@ -1,0 +1,85 @@
+.forumpay-pgw {
+  &-container {
+    border-radius: 15px;
+    background-color: var(--wlx-white);
+    box-shadow: 0 5px 15px hsla(0, 0%, 0.1%, 0.1);
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: content-box !important;
+
+    p {
+        margin: 0;
+    }
+
+    &-success {
+      color: var(--wlx-green-1);
+      background-color: var(--wlx-green-2);
+    }
+
+    &-warning {
+      color: var(--wlx-orange-1 );
+      font-weight: 400;
+      background-color: var(--wlx-orange-2);
+      a {
+        cursor: pointer;
+        text-decoration: underline;
+        color: var(--wlx-orange-1);
+        font-weight: 600;
+      }
+
+      p {
+        color: var(--wlx-orange-1);
+      }
+    }
+
+    &-danger {
+      color: var(--wlx-red-1);
+      background-color: var(--wlx-red-2);
+      p {
+          color: var(--wlx-red-1);
+      }
+    }
+
+    &-state-confirmed {
+      font-weight: 600 !important;
+      color: var(--wlx-green-1);
+    }
+
+    &-state-cancelled {
+      font-weight: 600 !important;
+      color: var(--wlx-red-1);
+    }
+
+    &-state-blocked {
+      font-weight: 600 !important;
+      color: var(--wlx-red-1);
+    }
+
+    &-success svg,
+    &-warning svg,
+    &-danger svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    &-alert {
+      display: flex;
+      align-items: center;
+
+      &-icon {
+        height: 25px;
+        width: 25px;
+        padding: 5px;
+        box-sizing: content-box !important;
+      }
+
+      p {
+        font-size: 0.9em;
+        word-break: break-word;
+      }
+    }
+  }
+}

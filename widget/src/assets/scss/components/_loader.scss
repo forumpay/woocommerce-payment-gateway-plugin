@@ -1,0 +1,31 @@
+.forumpay-pgw {
+  &-loader {
+    width: 100%;
+    display: block;
+
+    &-spin {
+      width: 64px;
+      height: 64px;
+      opacity: 0.60;
+      margin-left: auto;
+      margin-right: auto;
+      animation: forumpay-pgw-loader-spin-animation 2s infinite linear;
+
+      &--small {
+        width: 15px;
+        height: 15px;
+        margin-left: auto;
+        margin-right: initial;
+      }
+    }
+  }
+}
+
+@keyframes forumpay-pgw-loader-spin-animation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

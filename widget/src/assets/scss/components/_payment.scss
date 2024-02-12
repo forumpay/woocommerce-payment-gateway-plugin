@@ -1,0 +1,238 @@
+.forumpay-pgw {
+  &-payment {
+    .forumpay-pgw-container--gap {
+      gap: 20px;
+    }
+
+    &-header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      &-circle {
+        height: 25px;
+        width: 25px;
+        background-color: var(--wlx-orange-1);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      &-icon-qr {
+        width: 12px;
+        height: 12px;
+      }
+
+      &-amount {
+        &-total {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          font-weight: 800;
+          font-size: 1.0em;
+
+          &-icon {
+            width: 25px;
+            height: 25px;
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+
+    hr {
+      margin: 0px -20px;
+    }
+
+    &-qr {
+      display: block;
+      margin: 0 auto;
+      width: 65%;
+    }
+
+    &-return-qr {
+      margin: 0 auto;
+    }
+
+    &-backup-qr {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      button {
+        background-color: var(--wlx-white);
+        color: var(--wlx-yellow);
+        border: 1px solid var(--wlx-yellow);
+        border-radius: 5px;
+        font-size: 0.8em;
+        font-weight: 600;
+        padding: 4px 10px;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+      }
+
+      button:hover {
+        color: var(--wlx-text-1);
+      }
+
+      &-help-text {
+        color: var(--wlx-gray-3);
+        font-size: 0.7em;
+        font-weight: 600;
+        padding-right: 10px;
+
+        &--pointer {
+          cursor: pointer;
+        }
+      }
+    }
+
+    &-notice {
+      color: var(--wlx-text-1);
+      text-align: center;
+      font-size: 0.8em;
+      font-weight: 800;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    &-link-wrapper {
+      display: flex;
+    }
+
+    &-details {
+      display: flex;
+      align-items: center;
+
+      &-text {
+        color: var(--wlx-gray-3);
+        font-size: 0.7em;
+        font-weight: 600;
+      }
+
+      &-info {
+        position: relative;
+
+        &:hover {
+          .forumpay-pgw-payment-details-info-tooltip {
+            display: block;
+          }
+        }
+
+        img {
+          width: 24px;
+          height: 24px;
+        }
+
+        &-tooltip {
+          display: none;
+          min-width: 200px;
+          padding: 15px;
+          margin-top: -10px;
+          position: absolute;
+          right: -10px;
+          z-index: 10;
+
+          p {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--wlx-gray-2);
+            text-align: left;
+            margin: 0;
+          }
+        }
+      }
+    }
+
+    &-amount {
+      &-label {
+        box-sizing: border-box;
+        font-weight: 800;
+        font-size: 0.9em;
+      }
+
+      &-field {
+        box-sizing: border-box;
+        padding: 10px;
+        display: flex;
+        width: 100%;
+        background-color: rgba(236, 236, 236, 0.788);
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 5px;
+
+        span {
+          box-sizing: border-box;
+          font-weight: 600;
+        }
+
+        &--address {
+          span {
+            font-size: 0.8em;
+          }
+        }
+      }
+    }
+
+    &-confirm {
+      color: var(--wlx-gray-3);
+      font-size: 0.7em;
+      font-weight: 600;
+    }
+
+    &-transaction {
+      cursor: pointer;
+      text-align: right;
+      padding-top: 10px;
+
+      span {
+        padding: 10px;
+        color: var(--wlx-gray-3);
+        font-size: 0.8em;
+        font-weight: 600;
+
+        &::after {
+          content: "";
+          border: solid var(--wlx-gray-3);
+          border-width: 0 2px 2px 0;
+          display: inline-block;
+          padding: 2px;
+          margin: 0 0 3px 5px;
+          transform: rotate(45deg);
+        }
+      }
+
+      &-content {
+        ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+
+          li {
+            list-style: none;
+            border-bottom: 1px solid var(--wlx-gray-1);
+            padding: 10px 0;
+            font-size: 0.9em;
+            color: var(--wlx-text-1);
+            font-weight: 600;
+
+            span {
+              font-weight: 800;
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

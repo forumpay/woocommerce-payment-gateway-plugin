@@ -51,9 +51,8 @@ class ForumPay
             $gateway->getMerchantApiUser(),
             $gateway->getMerchantApiSecret(),
             sprintf(
-                "fp-pgw[%s] WC %s WP %s on PHP %s",
+                "fp-pgw[%s] WP %s WC %s on PHP %s",
                 $gateway->getPluginVersion(),
-                'WC',
                 $gateway->getWordpressVersion(),
                 $gateway->getWooCommerceVersion(),
                 phpversion()

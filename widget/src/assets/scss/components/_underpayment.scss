@@ -1,0 +1,150 @@
+.forumpay-pgw {
+  &-underpayment {
+
+    &-section:not(:last-child) {
+      border-bottom: 1px solid var(--wlx-gray-1);
+    }
+
+    &-section {
+      align-items: center;
+      text-align: center;
+      padding: 15px 0;
+      width: 100%;
+    }
+
+    small {
+      color: var(--wlx-gray-2);
+      font-weight: 600;
+      display: block;
+    }
+
+    &-name {
+      letter-spacing: -1px;
+      font-size: 1.2em;
+      color: var(--wlx-black);
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    &-not-enough-crypto {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      color: var(--wlx-red-1);
+      letter-spacing: -0.05em;
+      font-weight: 700;
+      font-size: 1.2em;
+
+      svg {
+        width: 25px;
+        display: inline-block;
+      }
+
+      i::after {
+        content: "\00a0";
+      }
+    }
+
+
+    &-amounts-list {
+      li {
+        font-weight: 600;
+        font-size: .8em;
+      }
+
+      span {
+        font-weight: 900;
+      }
+
+      .emphasized {
+        color: var(--wlx-red-1);
+      }
+    }
+
+    &-toggle-qr-visibility-text {
+      margin-top: 5px;
+      cursor: pointer;
+    }
+
+    &-qr-image {
+      display: block;
+      margin: 0 auto;
+      width: 65%;
+    }
+
+    &-backup-qr {
+      margin-top: 20px;
+
+      div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+      }
+
+      span {
+        color: var(--wlx-gray-3);
+        font-size: 0.8em;
+        font-weight: 600;
+        text-align: left;
+      }
+
+      img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+      }
+
+      button {
+        background-color: var(--wlx-white);
+        color: var(--wlx-yellow);
+        border: 1px solid var(--wlx-yellow);
+        border-radius: 5px;
+        font-size: 0.8em;
+        font-weight: 600;
+        padding: 4px 10px;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--wlx-text-1);
+        }
+      }
+    }
+
+    &-show-original-qr {
+      cursor: pointer;
+    }
+
+    &-details {
+      width: 100%;
+
+      &-name {
+        font-weight: 800;
+        font-size: 0.9em;
+        margin-top: 10px;
+        text-align: left;
+        display: block;
+      }
+
+      &-field {
+        box-sizing: border-box;
+        padding: 10px;
+        display: flex;
+        width: 100%;
+        background-color: rgba(236, 236, 236, 0.788);
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 5px;
+
+        &--small {
+          font-size: 0.7em;
+        }
+        span {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
