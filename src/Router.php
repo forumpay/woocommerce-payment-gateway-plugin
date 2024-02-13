@@ -117,7 +117,7 @@ class Router
      */
     private function serializeResponse($response)
     {
-        return json_encode($response->toArray());
+        return wp_json_encode($response->toArray());
     }
 
     /**
@@ -127,7 +127,7 @@ class Router
     private function serializeError(ForumPayHttpException $e) {
         $repose = new Response();
         $repose->setHttpResponseCode($e->getHttpCode());
-        return json_encode([
+        return wp_json_encode([
             'code' => $e->getCode(),
             'message' => $e->getMessage()
         ]);

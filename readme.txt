@@ -1,11 +1,11 @@
-=== ForumPay Payments for WooCommerce ===
+=== ForumPay Crypto Payments for WooCommerce ===
 
 Contributors: forumpay
 Tags: cryptocurrency, gateway, payment, woocommerce
 Requires at least: 6.2
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: OSL-3.0
 
 ForumPay Payment Gateway Module for Woocommerce

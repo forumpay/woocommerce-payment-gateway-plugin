@@ -97,7 +97,7 @@ class WcPsrLoggerAdapter extends AbstractLogger
             ? $this->interpolate($message, $this->getReplacements($context))
             : $message;
 
-        $message = sprintf("%s Context = [%s]", $interpolatedMessage, json_encode($context));
+        $message = sprintf("%s Context = [%s]", $interpolatedMessage, wp_json_encode($context));
         $this->wcLogger->log($level, $message, $context);
     }
 
