@@ -3,43 +3,50 @@ const forumPayData = function (field) {
 }
 
 const initPlugin = function () {
+  const nonce = forumPayData('forumpay-nonce');
   const config = {
     baseUrl: forumPayData('forumpay-apibase'),
 
     restGetCryptoCurrenciesUri: {
       'path': '',
       'params': {
-        'act': 'currencies'
+        'act': 'currencies',
+        'forumpay_nonce': nonce
       },
     },
     restGetRateUri: {
       'path': '',
       'params': {
-        'act': 'getRate'
+        'act': 'getRate',
+        'forumpay_nonce': nonce
       },
     },
     restStartPaymentUri: {
       'path': '',
       'params': {
-        'act': 'startPayment'
+        'act': 'startPayment',
+        'forumpay_nonce': nonce
       },
     },
     restCheckPaymentUri: {
       'path': '',
       'params': {
-        'act': 'checkPayment'
+        'act': 'checkPayment',
+        'forumpay_nonce': nonce
       },
     },
     restCancelPaymentUri: {
       'path': '',
       'params': {
-        'act': 'cancelPayment'
+        'act': 'cancelPayment',
+        'forumpay_nonce': nonce
       },
     },
     restRestoreCart: {
       'path': '',
       'params': {
-        'act': 'restoreCart'
+        'act': 'restoreCart',
+        'forumpay_nonce': nonce
       },
     },
     successResultUrl: forumPayData('forumpay-returnurl'),

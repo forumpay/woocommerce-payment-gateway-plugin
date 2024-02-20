@@ -284,6 +284,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
 
         $extahtm = '';
 
+        $extahtm .= '<span id="forumpay-nonce" data="' . wp_create_nonce('forumpay-payment-gateway') . '"></span>';
         $extahtm .= '<span id="forumpay-apibase" data="' . $apibase . '"></span>';
         $extahtm .= '<span id="forumpay-returnurl" data="' . $return_url . '"></span>';
         $extahtm .= '<span id="forumpay-cancelurl" data="' . $cancel_url . '"></span>';

@@ -42,12 +42,20 @@ class Request
     }
 
     private function getAllParams() {
+        $bodyParams = $this->getBodyParameters();
+        $nonceVerified = wp_verify_nonce($bodyParams['forumpay_nonce'], 'forumpay-payment-gateway');
+
+        if (!$nonceVerified) {
+            wp_nonce_ays(''); //returns 403 response
+        }
+
         $order = [
             'orderId' => WC()->session->get( 'order_awaiting_payment')
         ];
+
         return array_merge(
             $_REQUEST,
-            $this->getBodyParameters(),
+            $bodyParams,
             $order
         );
     }

@@ -5,7 +5,7 @@ Tags: cryptocurrency, gateway, payment, woocommerce
 Requires at least: 6.2
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 License: OSL-3.0
 
 ForumPay Payment Gateway Module for Woocommerce
@@ -26,8 +26,8 @@ Select the downloaded ForumPay module .zip file.
 
 ###Manual method (through filesystem):
 
-Transfer the downloaded .zip archive to your server and unzip it, so the **forumpay-payments-for-woocommerce** directory goes into the **/wp-content/plugins/** directory **relative** to your **WordPress** root.
-The directory structure should be as follows: **/wp-content/plugins/forumpay-payments-for-woocommerce**.
+Transfer the downloaded .zip archive to your server and unzip it, so the **forumpay-crypto-payments** directory goes into the **/wp-content/plugins/** directory **relative** to your **WordPress** root.
+The directory structure should be as follows: **/wp-content/plugins/forumpay-crypto-payments**.
 
 After the module is installed, go back to the **Plugins** page and activate it.
 
@@ -85,9 +85,9 @@ server {
 == Upgrade Notice ==
 
 **Manual method (through filesystem):**
-As you already have **/wp-content/plugins/forumpay-payments-for-woocommerce** or **/wp-content/plugins/woocommerce-forumpay** folder from previous versions, you need to remove them first.
-Transfer the downloaded .zip archive to your server and unzip it, so the **forumpay-payments-for-woocommerce** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
-Directory structure should be as follows: **/wp-content/plugins/forumpay-payments-for-woocommerce**.
+As you already have **/wp-content/plugins/forumpay-crypto-payments** or **/wp-content/plugins/woocommerce-forumpay** folder from previous versions, you need to remove them first.
+Transfer the downloaded .zip archive to your server and unzip it, so the **forumpay-crypto-payments** directory goes into the **/wp-content/plugins/** directory **relative** to your **Wordpress** root.
+Directory structure should be as follows: **/wp-content/plugins/forumpay-crypto-payments**.
 
 After the module is installed, go back to the **Plugins** page and activate it.
 
