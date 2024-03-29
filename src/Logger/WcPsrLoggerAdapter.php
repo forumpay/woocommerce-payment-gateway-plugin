@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace ForumPay\PaymentGateway\WoocommercePlugin\Logger;
 
 use InvalidArgumentException;
-use Psr\Log\AbstractLogger;
-use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
 
-class WcPsrLoggerAdapter extends AbstractLogger
+class WcPsrLoggerAdapter
 {
-    use LoggerTrait;
 
     /**
      * @var array
@@ -51,29 +48,60 @@ class WcPsrLoggerAdapter extends AbstractLogger
      * WcPsrLoggerAdapter constructor.
      *
      * @param \WC_Logger_Interface $wcLogger
+     * @param string               $loggerSource
      * @param string               $loggingLevel
      */
     public function __construct(
         \WC_Logger_Interface $wcLogger,
-        $loggerSource,
+        string $loggerSource,
         string $loggingLevel = \WC_Log_Levels::DEBUG
     ) {
-
         $this->wcLogger = $wcLogger;
         \assert(in_array($loggingLevel, $this->psrWcLoggingLevels, true));
         $this->loggingLevel = $loggingLevel;
         $this->loggerSource = $loggerSource;
     }
 
-    /**
-     * Logs with an arbitrary level.
-     *
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
-     *
-     * @return void
-     */
+    public function emergency(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::EMERGENCY, $message, $context);
+    }
+
+    public function alert(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::ALERT, $message, $context);
+    }
+
+    public function critical(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::CRITICAL, $message, $context);
+    }
+
+    public function error(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::ERROR, $message, $context);
+    }
+
+    public function warning(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::WARNING, $message, $context);
+    }
+
+    public function notice(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::NOTICE, $message, $context);
+    }
+
+    public function info(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::INFO, $message, $context);
+    }
+
+    public function debug(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::DEBUG, $message, $context);
+    }
+
     public function log($level, $message, array $context = []): void
     {
         $wcLevel = $level;

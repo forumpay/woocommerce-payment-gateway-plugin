@@ -77,8 +77,10 @@ class Router
     public function execute(Request $request): ?string
     {
         try {
-            $route = $request->getRequired('act');
 
+            $routePrecheck = filter_input(INPUT_GET, 'act', FILTER_SANITIZE_STRING);
+            $nonceCheckRequired = !($routePrecheck === 'webhook');
+            $route = $request->getRequired('act', $nonceCheckRequired);
 
             if (array_key_exists($route, $this->routes)) {
                 $service = $this->routes[$route];

@@ -21,9 +21,9 @@ class ForumPayLogger implements LoggerInterface
     private string $prefix;
 
     /**
-     * @var LoggerInterface
+     * @var WcPsrLoggerAdapter
      */
-    private LoggerInterface $logger;
+    private WcPsrLoggerAdapter $logger;
 
 
     /**
@@ -34,11 +34,11 @@ class ForumPayLogger implements LoggerInterface
     /**
      * Constructor
      *
-     * @param LoggerInterface $logger
+     * @param WcPsrLoggerAdapter $logger
      * @param string $prefix
      */
     public function __construct(
-        LoggerInterface $logger,
+        WcPsrLoggerAdapter $logger,
         string $prefix = 'ForumPayWebApi'
     ) {
         $this->logger = $logger;

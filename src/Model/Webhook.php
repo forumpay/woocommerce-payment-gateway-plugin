@@ -49,8 +49,8 @@ class Webhook
     {
         try {
             try {
-                $paymentId = $request->getRequired('payment_id');
-                $orderId = $request->getRequired('reference_no');
+                $paymentId = $request->getRequired('payment_id', false);
+                $orderId = $request->getRequired('reference_no', false);
             } catch (\InvalidArgumentException $e) {
                 $this->logger->error($e->getMessage(), $e->getTrace());
                 throw new ForumPayException($e->getMessage(),6005, $e);

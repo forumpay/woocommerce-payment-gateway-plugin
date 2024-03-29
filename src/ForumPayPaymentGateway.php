@@ -97,7 +97,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $paymentId = $successPaymentId ?? $lastPaymentId;
 
         if ($paymentId) {
-            echo '<p><strong>'.__('ForumPay reference').':</strong> <br/>' . $paymentId . '</p>';
+            echo '<p><strong>'.esc_html(__('ForumPay reference')).':</strong> <br/>' . esc_html($paymentId) . '</p>';
         }
     }
 
@@ -258,8 +258,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function admin_options()
     {
-        echo '<h3>' . __('ForumPay Payment Gateway', 'forumpay') . '</h3>';
-        echo '<p>' . __('Pay with Crypto (by ForumPay)') . '</p>';
+        echo '<h3>' . esc_html(__('ForumPay Payment Gateway', 'forumpay')) . '</h3>';
+        echo '<p>' . esc_html(__('Pay with Crypto (by ForumPay)')) . '</p>';
         echo '<table class="form-table">';
         $this->generate_settings_html();
         echo '</table>';
@@ -282,19 +282,17 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $return_url = $this->get_return_url($order);
         $cancel_url = wc_get_cart_url();
 
-        $extahtm = '';
+        $templatehtml = '<div id="ForumPayPaymentGatewayWidgetContainer">{{message}}</div>';
 
-        $extahtm .= '<span id="forumpay-nonce" data="' . wp_create_nonce('forumpay-payment-gateway') . '"></span>';
-        $extahtm .= '<span id="forumpay-apibase" data="' . $apibase . '"></span>';
-        $extahtm .= '<span id="forumpay-returnurl" data="' . $return_url . '"></span>';
-        $extahtm .= '<span id="forumpay-cancelurl" data="' . $cancel_url . '"></span>';
+        $templatehtml .= '<span id="forumpay-nonce" data="' . esc_attr(wp_create_nonce('forumpay-payment-gateway')) . '"></span>';
+        $templatehtml .= '<span id="forumpay-apibase" data="' . esc_url($apibase) . '"></span>';
+        $templatehtml .= '<span id="forumpay-returnurl" data="' . esc_url($return_url) . '"></span>';
+        $templatehtml .= '<span id="forumpay-cancelurl" data="' . esc_url($cancel_url) . '"></span>';
 
-        $extahtm .= '<link rel="stylesheet"  href="' . $base_path . '/css/forumpay.css" />';
-        $extahtm .= '<link rel="stylesheet"  href="' . $base_path . '/css/forumpay_widget.css" />';
-        $extahtm .= '<script type="text/javascript" src="' . $base_path . '/js/forumpay_widget.js"></script>';
-        $extahtm .= '<script type="text/javascript" src="' . $base_path . '/js/forumpay.js"></script>';
-
-        $templatehtml = '<div id="ForumPayPaymentGatewayWidgetContainer">{{message}}</div>' . $extahtm;
+        $templatehtml .= '<link rel="stylesheet"  href="' . esc_url($base_path) . '/css/forumpay.css" />';
+        $templatehtml .= '<link rel="stylesheet"  href="' . esc_url($base_path) . '/css/forumpay_widget.css" />';
+        $templatehtml .= '<script type="text/javascript" src="' . esc_url($base_path) . '/js/forumpay_widget.js"></script>';
+        $templatehtml .= '<script type="text/javascript" src="' . esc_url($base_path) . '/js/forumpay.js"></script>';
 
         return $templatehtml;
     }
