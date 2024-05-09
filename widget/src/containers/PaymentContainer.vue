@@ -1,13 +1,4 @@
-<script setup>
-
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  watch,
-} from 'vue';
-import { useStore } from 'vuex';
-
+<script>
 import PaymentStateProcessing from '../components/PaymentStateProcessing.vue';
 import PaymentStateUnderpayment from '../components/PaymentStateUnderpayment.vue';
 import PaymentStateBlocked from '../components/PaymentStateBlocked.vue';
@@ -17,62 +8,85 @@ import Loader from '../components/Loader.vue';
 import InstructionBox from '../components/InstructionBox.vue';
 import CancelBox from '../components/CancelBox.vue';
 
-const store = useStore();
-
-const props = defineProps({
-  payment: {
-    type: Object,
-    default() {
-      return {};
+const PaymentContainer = {
+  components: {
+    PaymentStateProcessing,
+    PaymentStateUnderpayment,
+    PaymentStateBlocked,
+    PaymentStateOther,
+    PaymentStateWaiting,
+    Loader,
+    InstructionBox,
+    CancelBox,
+  },
+  data() {
+    return {
+      store: this.$store,
+      checkPaymentInterval: null,
+    };
+  },
+  props: {
+    payment: {
+      type: Object,
+      default: {},
     },
   },
-});
-
-const rate = computed(() => store.state.rate);
-const paymentStatus = computed(() => store.state.paymentCheck);
-const paymentStatusLoading = computed(() => store.state.paymentCheckLoading);
-const cryptoCurrency = computed(() => store.state.cryptoCurrency);
-
-let checkPaymentInterval = null;
-
-watch(() => store.state.paymentCheckError, async (newPaymentCheckError) => {
-  if (newPaymentCheckError) {
-    if (newPaymentCheckError.code === 4001) {
-      clearInterval(checkPaymentInterval);
-    }
-  }
-});
-
-onMounted(() => {
-  if (!store.state.paymentCheckIgnoreResult) {
-    store.dispatch('checkPayment', props.payment.payment_id);
-    checkPaymentInterval = setInterval(
-      () => store.dispatch('checkPayment', props.payment.payment_id),
-      5000,
-    );
-  }
-});
-
-onUnmounted(() => {
-  clearInterval(checkPaymentInterval);
-});
-
-const onCancelPayment = () => {
-  store.dispatch('showCancel');
-};
-
-const onCancelPaymentConfirm = (reason, description) => {
-  clearInterval(checkPaymentInterval);
-  store.dispatch(
-    'cancelPayment',
-    {
-      forceRedirect: false,
-      reason,
-      description,
+  computed: {
+    rate() {
+      return this.store.state.rate;
     },
-  );
+    paymentStatus() {
+      return this.store.state.paymentCheck;
+    },
+    paymentStatusLoading() {
+      return this.store.state.paymentCheckLoading;
+    },
+    cryptoCurrency() {
+      return this.store.state.cryptoCurrency;
+    },
+  },
+  watch: {
+    'store.state.paymentCheckError': {
+      handler(newPaymentCheckError) {
+        if (newPaymentCheckError) {
+          if (newPaymentCheckError.code === 4001) {
+            clearInterval(this.checkPaymentInterval);
+          }
+        }
+      },
+    },
+  },
+  mounted() {
+    if (!this.store.state.paymentCheckIgnoreResult) {
+      this.store.dispatch('checkPayment', this.payment.payment_id);
+      this.checkPaymentInterval = setInterval(
+        () => this.store.dispatch('checkPayment', this.payment.payment_id),
+        5000,
+      );
+    }
+  },
+  unmounted() {
+    clearInterval(this.checkPaymentInterval);
+  },
+  methods: {
+    onCancelPayment() {
+      this.store.dispatch('showCancel');
+    },
+    onCancelPaymentConfirm(reason, description) {
+      clearInterval(this.checkPaymentInterval);
+      this.store.dispatch(
+        'cancelPayment',
+        {
+          forceRedirect: false,
+          reason,
+          description,
+        },
+      );
+    },
+  },
 };
 
+export default PaymentContainer;
 </script>
 
 <template>

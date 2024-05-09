@@ -1,36 +1,39 @@
-<script setup>
-import {
-  computed,
-  ref,
-  defineEmits,
-  watch,
-} from 'vue';
-
-import { useStore } from 'vuex';
-
-const emit = defineEmits(['onCancelPaymentConfirm']);
-
-const reason = ref(null);
-const description = ref('');
-const store = useStore();
-const isCancelVisible = computed(() => store.state.showCancel);
-
-const onHide = () => {
-  reason.value = null;
-  description.value = '';
-  store.dispatch('hideCancel');
+<script>
+const CancelBox = {
+  data() {
+    return {
+      reason: null,
+      description: '',
+    };
+  },
+  computed: {
+    isCancelVisible() {
+      return this.$store.state.showCancel;
+    },
+    isReasonSelected() {
+      return !!this.reason;
+    },
+  },
+  methods: {
+    onHide() {
+      this.reason = null;
+      this.description = '';
+      this.$store.dispatch('hideCancel');
+    },
+    onConfirmCancel() {
+      this.$emit('onCancelPaymentConfirm', this.reason, this.description);
+    },
+  },
+  watch: {
+    reason(newVal) {
+      if (newVal) {
+        this.description = '';
+      }
+    },
+  },
 };
 
-const onConfirmCancel = () => {
-  emit('onCancelPaymentConfirm', reason.value, description.value);
-};
-
-watch(reason, () => {
-  description.value = '';
-});
-
-const isReasonSelected = computed(() => !!reason.value);
-
+export default CancelBox;
 </script>
 
 <template>
@@ -55,7 +58,7 @@ const isReasonSelected = computed(() => !!reason.value);
             Cancel payment
           </div>
           <div>
-            Please select reason for payment cancellation
+            Please select reason for cancellation
           </div>
 
           <ul class="forumpay-pgw-cancel-list">

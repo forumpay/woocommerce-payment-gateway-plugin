@@ -1,22 +1,30 @@
-<script setup>
-
-import { computed } from 'vue';
+<script>
 
 import { parseTransactionStatus } from '../utils/time';
 import CountdownRing from './CountdownRing.vue';
 
-const props = defineProps({
-  status: {
-    type: String,
-    default: '',
+const PaymentStatusIcon = {
+  components: {
+    CountdownRing,
   },
-  inserted: {
-    type: String,
-    default: '',
+  props: {
+    status: {
+      type: String,
+      default: '',
+    },
+    inserted: {
+      type: String,
+      default: '',
+    },
   },
-});
+  computed: {
+    paymentTimer() {
+      return parseTransactionStatus(this.status, this.inserted);
+    },
+  },
+};
 
-const paymentTimer = computed(() => parseTransactionStatus(props.status, props.inserted));
+export default PaymentStatusIcon;
 
 </script>
 

@@ -1,32 +1,43 @@
-<script setup>
+<script>
 
 import Container from './Container.vue';
 import formatCurrencyName from '../utils/formatCurrency';
 
-defineProps({
-  status: {
-    type: String,
-    default: '',
+const PaymentStateOther = {
+  components: {
+    Container,
   },
-  state: {
-    type: String,
-    default: '',
+  props: {
+    status: {
+      type: String,
+      default: '',
+    },
+    state: {
+      type: String,
+      default: '',
+    },
+    confirmed: {
+      type: Boolean,
+    },
+    amount: {
+      type: String,
+      default: '',
+    },
+    amountCurrency: {
+      type: String,
+      default: '',
+    },
+    payment: {
+      type: String,
+      default: '',
+    },
   },
-  confirmed: Boolean,
-  amount: {
-    type: String,
-    default: '',
+  methods: {
+    formatCurrencyName,
   },
-  amountCurrency: {
-    type: String,
-    default: '',
-  },
-  payment: {
-    type: String,
-    default: '',
-  },
-});
+};
 
+export default PaymentStateOther;
 </script>
 
 <template>

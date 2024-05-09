@@ -1,75 +1,90 @@
-<script setup>
-
-import { computed, ref } from 'vue';
-
+<script>
 import Container from './Container.vue';
 import Copy from './Copy.vue';
 import CurrencyIcon from './CurrencyIcon.vue';
 import SvgIconExclamationTriangle from '../images/SvgIconExclamationTriangle.vue';
 import formatCurrencyName from '../utils/formatCurrency';
 
-const props = defineProps({
-  currency: {
-    type: Object,
-    default() {
-      return { currency: '' };
+const PaymentStateUnderpayment = {
+  components: {
+    Container,
+    Copy,
+    CurrencyIcon,
+    SvgIconExclamationTriangle,
+  },
+  props: {
+    currency: {
+      type: Object,
+      default() {
+        return { currency: '' };
+      },
+    },
+    status: {
+      type: String,
+      default: '',
+    },
+    waitTime: {
+      type: String,
+      default: '',
+    },
+    amount: {
+      type: String,
+      default: '',
+    },
+    amountCurrency: {
+      type: String,
+      default: '',
+    },
+    missingAmount: {
+      type: String,
+      default: '',
+    },
+    missingCurrency: {
+      type: String,
+      default: '',
+    },
+    payment: {
+      type: String,
+      default: '',
+    },
+    address: {
+      type: String,
+      default: '',
+    },
+    qr: {
+      type: String,
+      default: '',
+    },
+    qrImg: {
+      type: String,
+      default: '',
+    },
+    qrAlt: {
+      type: String,
+      default: '',
+    },
+    qrAltImg: {
+      type: String,
+      default: '',
     },
   },
-  status: {
-    type: String,
-    default: '',
+  data() {
+    return {
+      isBackupQR: false,
+      qrShown: true,
+    };
   },
-  waitTime: {
-    type: String,
-    default: '',
+  methods: {
+    formatCurrencyName,
   },
-  amount: {
-    type: String,
-    default: '',
+  computed: {
+    qrImage() {
+      return (this.isBackupQR ? this.qrAltImg : this.qrImg);
+    },
   },
-  amountCurrency: {
-    type: String,
-    default: '',
-  },
-  missingAmount: {
-    type: String,
-    default: '',
-  },
-  missingCurrency: {
-    type: String,
-    default: '',
-  },
-  payment: {
-    type: String,
-    default: '',
-  },
-  address: {
-    type: String,
-    default: '',
-  },
-  qr: {
-    type: String,
-    default: '',
-  },
-  qrImg: {
-    type: String,
-    default: '',
-  },
-  qrAlt: {
-    type: String,
-    default: '',
-  },
-  qrAltImg: {
-    type: String,
-    default: '',
-  },
-});
+};
 
-const isBackupQR = ref(false);
-const qrShown = ref(true);
-
-const qrImage = computed(() => (isBackupQR.value ? props.qrAltImg : props.qrImg));
-
+export default PaymentStateUnderpayment;
 </script>
 
 <template>
@@ -132,7 +147,8 @@ const qrImage = computed(() => (isBackupQR.value ? props.qrAltImg : props.qrImg)
                 tabIndex="0"
                 @keyup="isBackupQR = false"
                 @click="isBackupQR = false"
-              >&lt; Go back to original QR</span>
+              >
+                <CurrencyIcon :currency="currency" />&lt; Go back to original QR</span>
             </div>
           </div>
         </div>

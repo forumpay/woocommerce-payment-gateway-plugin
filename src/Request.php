@@ -34,42 +34,24 @@ class Request
      */
     public function get($param, $default = null, $nonceCheckRequired = true)
     {
-        $params = $this->getAllParams($nonceCheckRequired);
+        if ($param === 'orderId') {
+            return WC()->session->get( 'order_awaiting_payment');
+        }
 
-        if (isset($params[$param])) {
-            return sanitize_text_field(wp_unslash($params[$param]));
+        $bodyParams = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        if ($nonceCheckRequired) {
+            $nonceVerified = isset($bodyParams['forumpay_nonce']) && wp_verify_nonce($bodyParams['forumpay_nonce'], 'forumpay-payment-gateway');
+
+            if (!$nonceVerified) {
+                wp_nonce_ays(''); //returns 403 response
+            }
+        }
+
+        if (isset($bodyParams[$param])) {
+            return sanitize_text_field(wp_unslash($bodyParams[$param]));
         }
 
         return $default;
-    }
-
-    /**
-     * @param $nonceCheckRequired
-     * @return array
-     */
-    private function getAllParams($nonceCheckRequired = true) {
-        $bodyParams = $this->getBodyParameters();
-        if ($nonceCheckRequired) {
-          $nonceVerified = wp_verify_nonce($bodyParams['forumpay_nonce'], 'forumpay-payment-gateway');
-
-          if (!$nonceVerified) {
-             wp_nonce_ays(''); //returns 403 response
-          }
-        }
-
-        $order = [
-            'orderId' => WC()->session->get( 'order_awaiting_payment')
-        ];
-
-        return array_merge(
-            $_REQUEST,
-            $bodyParams,
-            $order
-        );
-    }
-
-    private function getBodyParameters() {
-        $bodyContent = file_get_contents('php://input');
-        return json_decode($bodyContent, true) ?? [];
     }
 }

@@ -1,13 +1,13 @@
 {
   "name": "forumpay/forumpay-wordpress",
   "description": "ForumPay Crypto Payments for WooCommerce",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "type": "wordpress-plugin",
   "keywords": [
     "payment",
     "gateway"
   ],
-  "license": "OSL-3.0",
+  "license": "GPL-2.0-or-later",
   "require": {
     "php": ">=7.4",
     "forumpay/payment-gateway-php-client": "^1.1.3",

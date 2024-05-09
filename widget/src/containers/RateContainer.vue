@@ -1,13 +1,4 @@
-<script setup>
-
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  ref,
-  watch,
-} from 'vue';
-import { useStore } from 'vuex';
+<script>
 import formatCurrencyName from '../utils/formatCurrency';
 
 import PageLogo from '../components/PageLogo.vue';
@@ -16,59 +7,89 @@ import Loader from '../components/Loader.vue';
 import Dropdown from '../components/Dropdown.vue';
 import CurrencyIcon from '../components/CurrencyIcon.vue';
 
-const store = useStore();
+const RateContainer = {
+  components: {
+    PageLogo,
+    Container,
+    Loader,
+    Dropdown,
+    CurrencyIcon,
+  },
 
-const cryptoCurrencies = computed(() => store.state.cryptoCurrencies);
-const rate = computed(() => store.state.rate);
-const cryptoCurrency = computed(() => store.state.cryptoCurrency);
-const showStartPaymentButton = computed(() => store.state.showStartPaymentButton);
-const rateLoading = computed(() => store.state.rateLoading);
+  data() {
+    return {
+      store: this.$store,
+      selectedCurrency: false,
+      getRateInterval: null,
+    };
+  },
 
-const selectedCurrency = ref(false);
+  computed: {
+    cryptoCurrencies() {
+      return this.store.state.cryptoCurrencies;
+    },
+    rate() {
+      return this.store.state.rate;
+    },
+    cryptoCurrency() {
+      return this.store.state.cryptoCurrency;
+    },
+    showStartPaymentButton() {
+      return this.store.state.showStartPaymentButton;
+    },
+    rateLoading() {
+      return this.store.state.rateLoading;
+    },
+  },
 
-let getRateInterval = null;
+  mounted() {
+    this.store.dispatch('setCryptoCurrencies');
+  },
 
-onMounted(() => {
-  store.dispatch('setCryptoCurrencies');
-});
-
-onUnmounted(() => {
-  clearInterval(getRateInterval);
-});
-
-watch(() => store.state.cryptoCurrencies, async (newCurrencies) => {
-  selectedCurrency.value = newCurrencies.length ? newCurrencies[0] : false;
-});
-
-watch(() => store.state.rateError, async (newRateError) => {
-  if (newRateError) {
-    if (newRateError.code === 2001) {
-      clearInterval(getRateInterval);
-    }
-  }
-});
-
-watch(selectedCurrency, async (newCurrency, oldCurrency) => {
-  if (newCurrency && oldCurrency !== newCurrency) {
-    store.dispatch('setCryptoCurrency', newCurrency);
-
-    if (getRateInterval) {
-      clearInterval(getRateInterval);
-    }
-
-    store.dispatch('clearRate');
-    store.dispatch('setRate', newCurrency);
-    getRateInterval = setInterval(
-      () => store.dispatch('setRate', newCurrency),
-      5000,
-    );
-  }
-});
-
-const onStartPayment = () => {
-  clearInterval(getRateInterval);
-  store.dispatch('startPayment', cryptoCurrency.value);
+  unmounted() {
+    clearInterval(this.getRateInterval);
+  },
+  watch: {
+    'store.state.cryptoCurrencies': {
+      async handler(newCurrencies) {
+        this.selectedCurrency = newCurrencies.length ? newCurrencies[0] : false;
+      },
+      deep: false,
+    },
+    'store.state.rateError': {
+      async handler(newRateError) {
+        if (newRateError && newRateError.code === 2001) {
+          clearInterval(this.getRateInterval);
+        }
+      },
+      deep: false,
+    },
+    selectedCurrency: {
+      async handler(newCurrency, oldCurrency) {
+        if (newCurrency && oldCurrency !== newCurrency) {
+          this.store.dispatch('setCryptoCurrency', newCurrency);
+          if (this.getRateInterval) {
+            clearInterval(this.getRateInterval);
+          }
+          this.store.dispatch('clearRate');
+          this.store.dispatch('setRate', newCurrency);
+          this.getRateInterval = setInterval(() => {
+            this.store.dispatch('setRate', newCurrency);
+          }, 5000);
+        }
+      },
+    },
+  },
+  methods: {
+    formatCurrencyName,
+    onStartPayment() {
+      clearInterval(this.getRateInterval);
+      this.store.dispatch('startPayment', this.cryptoCurrency);
+    },
+  },
 };
+
+export default RateContainer;
 
 </script>
 

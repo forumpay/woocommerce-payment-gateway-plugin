@@ -30,7 +30,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $this->id = 'forumpay';
         $this->method_title = __('Forumpay', 'forumpay');
         $this->method_description = "Pay with Crypto (by ForumPay)";
-        $this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(FORUMPAY_FILE)) . '/images/logo-forumpay-1.svg';
+        $this->icon = FORUMPAY_ICON;
 
         $this->has_fields = false;
 
@@ -97,7 +97,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $paymentId = $successPaymentId ?? $lastPaymentId;
 
         if ($paymentId) {
-            echo '<p><strong>'.esc_html(__('ForumPay reference')).':</strong> <br/>' . esc_html($paymentId) . '</p>';
+            echo '<p><strong>'.esc_html(__('ForumPay reference', 'forumpay')).':</strong> <br/>' . esc_html($paymentId) . '</p>';
         }
     }
 
@@ -133,7 +133,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'default' => __('Pay with Crypto (by ForumPay)', 'forumpay')),
             'api_url' => array(
                 'title' => __('Environment', 'forumpay'),
-                'description' => __('ForumPay environment'),
+                'description' => __('ForumPay environment', 'forumpay'),
                 'type' => 'select',
                 'default' => 'Production',
                 'options' => array(
@@ -144,17 +144,17 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             'api_user' => array(
                 'title' => __('API User', 'forumpay'),
                 'type' => 'text',
-                'description' => __('You can generate API key in your ForumPay Account.')),
+                'description' => __('You can generate API key in your ForumPay Account.', 'forumpay')),
 
             'api_key' => array(
                 'title' => __('API Secret', 'forumpay'),
                 'type' => 'password',
-                'description' => __('You can generate API secret in your ForumPay Account.')),
+                'description' => __('You can generate API secret in your ForumPay Account.', 'forumpay')),
 
             'pos_id' => array(
                 'title' => __('POS ID', 'forumpay'),
                 'type' => 'text',
-                'description' => __('Enter your webshop identifier (POS ID). Special characters not allowed. Allowed are: [A-Za-z0-9._-] Eg woocommerce-3, Woocommerce-3')),
+                'description' => __('Enter your webshop identifier (POS ID). Special characters not allowed. Allowed are: [A-Za-z0-9._-] Eg woocommerce-3, Woocommerce-3', 'forumpay')),
 
             'accept_zero_confirmations' => array(
                 'title' => __('Accept Zero Confirmations', 'forumpay'),
@@ -165,7 +165,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             'api_url_override' => array(
                 'title' => __('Custom environment URL', 'forumpay'),
                 'type' => 'text',
-                'description' => __('Optional: URL to the API server. This value will override the default setting. Only used for debugging.')),
+                'description' => __('Optional: URL to the API server. This value will override the default setting. Only used for debugging.', 'forumpay')),
         );
     }
 
@@ -259,7 +259,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function admin_options()
     {
         echo '<h3>' . esc_html(__('ForumPay Payment Gateway', 'forumpay')) . '</h3>';
-        echo '<p>' . esc_html(__('Pay with Crypto (by ForumPay)')) . '</p>';
+        echo '<p>' . esc_html(__('Pay with Crypto (by ForumPay)', 'forumpay')) . '</p>';
         echo '<table class="form-table">';
         $this->generate_settings_html();
         echo '</table>';

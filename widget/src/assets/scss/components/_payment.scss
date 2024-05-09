@@ -53,6 +53,15 @@
 
     &-return-qr {
       margin: 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+      }
     }
 
     &-backup-qr {
@@ -130,6 +139,7 @@
         }
 
         img {
+          margin-left: 5px;
           width: 24px;
           height: 24px;
         }

@@ -1,42 +1,66 @@
-<script setup>
-import { computed, ref, watch } from 'vue';
-import { useStore } from 'vuex';
+<script>
 import Container from '../components/Container.vue';
 import Loader from '../components/Loader.vue';
 import PageLogo from '../components/PageLogo.vue';
 
-const store = useStore();
-
-const kycError = computed(() => store.state.kycError);
-const isKycError = computed(() => !!store.state.kycError);
-const kycPin = ref(store.state.kycPin);
-const isPinEmpty = computed(() => store.state.kycPin.length === 0);
-const cryptoCurrency = computed(() => store.state.cryptoCurrency);
-const isLoading = computed(() => !!store.state.loading);
-
-watch(kycPin, (value) => {
-  store.commit('setKycPin', value);
-});
-
-const onPinSubmit = () => {
-  store.commit('setLoading', true);
-  store.commit('setKycError', null);
-  store.dispatch('startPayment', cryptoCurrency.value);
-};
-
-const onCancel = () => {
-  store.commit('setLoading', true);
-  store.dispatch(
-    'cancelPayment',
-    {
-      forceRedirect: true,
-      restoreCart: true,
-      reason: 'other',
-      description: 'Auto error: Customer decided to cancel during KYC confirmation.',
+const KycContainer = {
+  components: {
+    Container,
+    Loader,
+    PageLogo,
+  },
+  data() {
+    return {
+      store: this.$store,
+    };
+  },
+  computed: {
+    kycError() {
+      return this.store.state.kycError;
     },
-  );
+    isKycError() {
+      return !!this.store.state.kycError;
+    },
+    kycPin() {
+      return this.store.state.kycPin;
+    },
+    isPinEmpty() {
+      return this.store.state.kycPin.length === 0;
+    },
+    cryptoCurrency() {
+      return this.store.state.cryptoCurrency;
+    },
+    isLoading() {
+      return !!this.store.state.loading;
+    },
+  },
+  watch: {
+    kycPin(value) {
+      this.store.commit('setKycPin', value);
+    },
+  },
+  methods: {
+    onPinSubmit() {
+      this.store.commit('setLoading', true);
+      this.store.commit('setKycError', null);
+      this.store.dispatch('startPayment', this.cryptoCurrency);
+    },
+    onCancel() {
+      this.store.commit('setLoading', true);
+      this.store.dispatch(
+        'cancelPayment',
+        {
+          forceRedirect: true,
+          restoreCart: true,
+          reason: 'other',
+          description: 'Auto error: Customer decided to cancel during KYC confirmation.',
+        },
+      );
+    },
+  },
 };
 
+export default KycContainer;
 </script>
 
 <template>

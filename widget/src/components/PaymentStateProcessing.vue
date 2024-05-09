@@ -1,31 +1,40 @@
-<script setup>
+<script>
 
 import Container from './Container.vue';
 import formatCurrencyName from '../utils/formatCurrency';
 
-defineProps({
-  status: {
-    type: String,
-    default: '',
+const PaymentStateProcessing = {
+  components: {
+    Container,
   },
-  waitTime: {
-    type: String,
-    default: '',
+  props: {
+    status: {
+      type: String,
+      default: '',
+    },
+    waitTime: {
+      type: String,
+      default: '',
+    },
+    amount: {
+      type: String,
+      default: '',
+    },
+    payment: {
+      type: String,
+      default: '',
+    },
+    amountCurrency: {
+      type: String,
+      default: '',
+    },
   },
-  amount: {
-    type: String,
-    default: '',
+  methods: {
+    formatCurrencyName,
   },
-  payment: {
-    type: String,
-    default: '',
-  },
-  amountCurrency: {
-    type: String,
-    default: '',
-  },
-});
+};
 
+export default PaymentStateProcessing;
 </script>
 
 <template>
@@ -33,7 +42,7 @@ defineProps({
     <Container class="forumpay-pgw-payment_status">
       <div class="forumpay-pgw-payment_status-row">
         <span class="forumpay-pgw-payment_status-row-status">Transaction status</span>
-        <small>
+        <small v-if="waitTime">
           Expected time to confirm: {{ waitTime }}
         </small>
       </div>

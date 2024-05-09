@@ -1,56 +1,59 @@
-<script setup>
+<script>
 
-defineProps({
-  invoiceAmount: {
-    type: String,
-    default: '',
+const InvoiceDetails = {
+  props: {
+    invoiceAmount: {
+      type: String,
+      default: '',
+    },
+    invoiceCurrency: {
+      type: String,
+      default: '',
+    },
+    currency: {
+      type: String,
+      default: '',
+    },
+    exchangeAmount: {
+      type: String,
+      default: '',
+    },
+    rate: {
+      type: String,
+      default: '',
+    },
+    networkProcessingFee: {
+      type: String,
+      default: '',
+    },
+    amount: {
+      type: String,
+      default: '',
+    },
+    fastTransactionFeeCurrency: {
+      type: String,
+      default: '',
+    },
+    fastTransactionFee: {
+      type: String,
+      default: '',
+    },
+    waitTime: {
+      type: String,
+      default: '',
+    },
+    error: {
+      type: String,
+      default: '',
+    },
+    errorMessage: {
+      type: String,
+      default: '',
+    },
   },
-  invoiceCurrency: {
-    type: String,
-    default: '',
-  },
-  currency: {
-    type: String,
-    default: '',
-  },
-  exchangeAmount: {
-    type: String,
-    default: '',
-  },
-  rate: {
-    type: String,
-    default: '',
-  },
-  networkProcessingFee: {
-    type: String,
-    default: '',
-  },
-  amount: {
-    type: String,
-    default: '',
-  },
-  fastTransactionFeeCurrency: {
-    type: String,
-    default: '',
-  },
-  fastTransactionFee: {
-    type: String,
-    default: '',
-  },
-  waitTime: {
-    type: String,
-    default: '',
-  },
-  error: {
-    type: String,
-    default: '',
-  },
-  errorMessage: {
-    type: String,
-    default: '',
-  },
-});
+};
 
+export default InvoiceDetails;
 </script>
 
 <template>

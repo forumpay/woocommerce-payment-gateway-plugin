@@ -1,36 +1,46 @@
-<script setup>
-
-import { computed } from 'vue';
+<script>
 
 import { parseTransactionStatus } from '../utils/time';
 import SvgIconClock from '../images/SvgIconClock.vue';
 import formatCurrencyName from '../utils/formatCurrency';
 
-const props = defineProps({
-  waitTime: {
-    type: String,
-    default: '',
+const PaymentStatus = {
+  components: {
+    SvgIconClock,
   },
-  status: {
-    type: String,
-    default: '',
+  props: {
+    waitTime: {
+      type: String,
+      default: '',
+    },
+    status: {
+      type: String,
+      default: '',
+    },
+    inserted: {
+      type: String,
+      default: '',
+    },
+    amount: {
+      type: String,
+      default: '',
+    },
+    amountCurrency: {
+      type: String,
+      default: '',
+    },
   },
-  inserted: {
-    type: String,
-    default: '',
+  methods: {
+    formatCurrencyName,
   },
-  amount: {
-    type: String,
-    default: '',
+  computed: {
+    paymentTimer() {
+      return parseTransactionStatus(this.status, this.inserted);
+    },
   },
-  amountCurrency: {
-    type: String,
-    default: '',
-  },
-});
+};
 
-const paymentTimer = computed(() => parseTransactionStatus(props.status, props.inserted));
-
+export default PaymentStatus;
 </script>
 
 <template>

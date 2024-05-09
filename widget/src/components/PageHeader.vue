@@ -1,7 +1,14 @@
-<script setup>
+<script>
 
 import CurrencyIcon from './CurrencyIcon.vue';
 
+const PageHeader = {
+  components: {
+    CurrencyIcon,
+  },
+};
+
+export default PageHeader;
 </script>
 
 <template>

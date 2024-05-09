@@ -3,8 +3,9 @@
  * Plugin Name: ForumPay Crypto Payments for WooCommerce
  * Plugin URI: https://forumpay.com
  * Description: Accept payments in WooCommerce with the official ForumPay plugin
- * Version: 2.1.7
+ * Version: 2.1.8
  * Tested up to: 6.4
+ * License: GPLv2 or later
  * Author: ForumPay
  **/
 namespace ForumPay\PaymentGateway\WoocommercePlugin;
@@ -17,9 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 require_once(ABSPATH . 'wp-includes/version.php');
 
+define('FORUMPAY_ICON', apply_filters('woocommerce_custom_gateway_icon', plugins_url('/images/logo-forumpay-1.svg', __FILE__)));
 define('FORUMPAY_FILE', __FILE__);
 define('FORUMPAY_DIR', dirname(FORUMPAY_FILE));
-define('FORUMPAY_VERSION', '2.1.7');
+define('FORUMPAY_VERSION', '2.1.8');
 
 /**
  * When plugin is activated

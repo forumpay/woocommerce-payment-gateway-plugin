@@ -159,6 +159,13 @@ export default createStore({
           'setCryptoCurrency',
           response.data.currencies[0],
         );
+
+        if (response.data.currencies.length === 0) {
+          commit('setError', {
+            code: 1001,
+            message: 'No currencies are available.',
+          });
+        }
       } catch (error) {
         commit('setError', error);
       }
@@ -172,7 +179,11 @@ export default createStore({
     clearRate({ commit }) {
       commit('setRate', null);
     },
-    async setRate({ commit }, cryptoCurrency) {
+    async setRate({ commit, state }, cryptoCurrency) {
+      if (state.rateLoading) {
+        return;
+      }
+
       commit('setRateLoading', true);
 
       try {
@@ -232,7 +243,11 @@ export default createStore({
         }
       }
     },
-    async checkPayment({ commit }, paymentId) {
+    async checkPayment({ commit, state }, paymentId) {
+      if (state.paymentCheckLoading) {
+        return;
+      }
+
       commit('setCheckPaymentLoading', true);
 
       try {

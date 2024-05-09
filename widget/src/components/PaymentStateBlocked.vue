@@ -1,11 +1,19 @@
-<script setup>
+<script>
 
 import Container from './Container.vue';
 
-defineProps({
-  confirmed: Boolean,
-});
+const PaymentStateBlocked = {
+  components: {
+    Container,
+  },
+  props: {
+    confirmed: {
+      type: Boolean,
+    },
+  },
+};
 
+export default PaymentStateBlocked;
 </script>
 
 <template>

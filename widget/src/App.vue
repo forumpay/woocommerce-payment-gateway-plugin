@@ -1,72 +1,90 @@
-<script setup>
-
-import { computed } from 'vue';
-import { useStore } from 'vuex';
-
+<script>
 import KycContainer from './containers/KycContainer.vue';
 import RateContainer from './containers/RateContainer.vue';
 import PaymentContainer from './containers/PaymentContainer.vue';
 import Container from './components/Container.vue';
 import Loader from './components/Loader.vue';
 
-const store = useStore();
-const kycRequired = computed(() => store.state.kycRequired);
-const payment = computed(() => store.state.payment);
-const error = computed(() => store.state.error);
-const loading = computed(() => store.state.loading);
-
-const getErrorCode = ((errorMessage) => {
-  let code = 'No code';
-
-  if (errorMessage.code) {
-    code = errorMessage.code;
-  }
-
-  if (errorMessage.response.status) {
-    code = errorMessage.response.status;
-  }
-
-  if (errorMessage.response.data.code) {
-    code = errorMessage.response.data.code;
-  }
-
-  return code;
-});
-
-const getErrorMessage = ((errorMessage) => {
-  let message = 'Unexpected error occurred!';
-
-  if (errorMessage.message) {
-    message = errorMessage.message;
-  }
-
-  if (errorMessage.response.statusText) {
-    message = errorMessage.response.statusText;
-  }
-
-  if (errorMessage.response.data.message) {
-    message = errorMessage.response.data.message;
-  }
-
-  return message;
-});
-
-const resetWidget = (() => {
-  store.dispatch('resetPlugin');
-});
-
-const cancelPaymentAndResetWidget = (() => {
-  store.dispatch(
-    'cancelPayment',
-    {
-      forceRedirect: true,
-      restoreCart: true,
-      reason: 'other',
-      description: `Auto error: ${getErrorMessage(error.value)}`,
+const App = {
+  components: {
+    KycContainer,
+    RateContainer,
+    PaymentContainer,
+    Container,
+    Loader,
+  },
+  data() {
+    return {
+      store: this.$store,
+    };
+  },
+  computed: {
+    kycRequired() {
+      return this.store.state.kycRequired;
     },
-  );
-});
+    payment() {
+      return this.store.state.payment;
+    },
+    error() {
+      return this.store.state.error;
+    },
+    loading() {
+      return this.store.state.loading;
+    },
+  },
+  methods: {
+    getErrorCode(errorMessage) {
+      let code = 'No code';
 
+      if (errorMessage.code) {
+        code = errorMessage.code;
+      }
+
+      if (errorMessage.response?.status) {
+        code = errorMessage.response.status;
+      }
+
+      if (errorMessage.response?.data?.code) {
+        code = errorMessage.response.data.code;
+      }
+
+      return code;
+    },
+    getErrorMessage(errorMessage) {
+      let message = 'Unexpected error occurred!';
+
+      if (errorMessage.message) {
+        message = errorMessage.message;
+      }
+
+      if (errorMessage.response?.statusText) {
+        message = errorMessage.response.statusText;
+      }
+
+      if (errorMessage.response?.data?.message) {
+        message = errorMessage.response.data.message;
+      }
+
+      return message;
+    },
+    resetWidget() {
+      this.store.dispatch('resetPlugin');
+    },
+    cancelPaymentAndResetWidget() {
+      this.store.dispatch(
+        'cancelPayment',
+        {
+          forceRedirect: true,
+          restoreCart: true,
+          reason: 'other',
+          description: `Auto error: ${this.getErrorMessage(this.error.value)}`,
+        },
+      );
+    },
+  },
+};
+
+export default App;
 </script>
 
 <template>

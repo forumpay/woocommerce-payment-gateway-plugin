@@ -1,27 +1,31 @@
-<script setup>
-import {
-  computed,
-} from 'vue';
-
-import { useStore } from 'vuex';
+<script>
 import CurrencyIcon from './CurrencyIcon.vue';
 
-defineProps({
-  notices: {
-    type: Array,
-    default() {
-      return [];
+const InstructionBox = {
+  components: {
+    CurrencyIcon,
+  },
+  props: {
+    notices: {
+      type: Array,
+      default() {
+        return [];
+      },
     },
   },
-});
-
-const store = useStore();
-const isPaymentStatusVisible = computed(() => store.state.showInstructions);
-
-const onHide = () => {
-  store.dispatch('hideInstructions');
+  methods: {
+    onHide() {
+      return this.$store.dispatch('hideInstructions');
+    },
+  },
+  computed: {
+    isPaymentStatusVisible() {
+      return this.$store.state.showInstructions;
+    },
+  },
 };
 
+export default InstructionBox;
 </script>
 
 <template>

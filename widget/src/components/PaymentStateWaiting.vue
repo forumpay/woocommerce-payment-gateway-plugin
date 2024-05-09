@@ -1,7 +1,4 @@
-<script setup>
-
-import { computed, ref } from 'vue';
-
+<script>
 import Container from './Container.vue';
 import Copy from './Copy.vue';
 import PaymentStatusIcon from './PaymentStatusIcon.vue';
@@ -12,138 +9,154 @@ import SvgIconQr from '../images/SvgIconQr.vue';
 import SvgIconNotice from '../images/SvgIconNotice.vue';
 import formatCurrencyName from '../utils/formatCurrency';
 
-const props = defineProps({
-  loading: Boolean,
-  refreshing: Boolean,
-  currency: {
-    type: Object,
-    default() {
-      return { currency: '' };
+const PaymentStateWaiting = {
+  components: {
+    Container,
+    Copy,
+    PaymentStatusIcon,
+    CurrencyIcon,
+    PaymentStatus,
+    Loader,
+    SvgIconQr,
+    SvgIconNotice,
+  },
+  props: {
+    loading: Boolean,
+    refreshing: Boolean,
+    currency: {
+      type: Object,
+      default() {
+        return { currency: '' };
+      },
+    },
+    status: {
+      type: String,
+      default: '',
+    },
+    inserted: {
+      type: String,
+      default: '',
+    },
+    state: {
+      type: String,
+      default: '',
+    },
+    type: {
+      type: String,
+      default: '',
+    },
+    waitTime: {
+      type: String,
+      default: '',
+    },
+    amount: {
+      type: String,
+      default: '',
+    },
+    amountCurrency: {
+      type: String,
+      default: '',
+    },
+    payment: {
+      type: String,
+      default: '',
+    },
+    address: {
+      type: String,
+      default: '',
+    },
+    qr: {
+      type: String,
+      default: '',
+    },
+    qrImg: {
+      type: String,
+      default: '',
+    },
+    qrAlt: {
+      type: String,
+      default: '',
+    },
+    qrAltImg: {
+      type: String,
+      default: '',
+    },
+    notices: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+    minConfirmations: {
+      type: Number,
+      default: 0,
+    },
+    fastTransactionFee: {
+      type: String,
+      default: '',
+    },
+    fastTransactionFeeCurrency: {
+      type: String,
+      default: '',
+    },
+    invoiceNo: {
+      type: String,
+      default: '',
+    },
+    invoiceAmount: {
+      type: String,
+      default: '',
+    },
+    invoiceCurrency: {
+      type: String,
+      default: '',
+    },
+    rate: {
+      type: String,
+      default: '',
+    },
+    amountExchange: {
+      type: String,
+      default: '',
+    },
+    networkProcessingFee: {
+      type: String,
+      default: '',
     },
   },
-  status: {
-    type: String,
-    default: '',
+  data() {
+    return {
+      isBackupQR: false,
+      isPaymentStatusVisible: false,
+      isTransactionInfoVisible: false,
+    };
   },
-  inserted: {
-    type: String,
-    default: '',
-  },
-  state: {
-    type: String,
-    default: '',
-  },
-  type: {
-    type: String,
-    default: '',
-  },
-  waitTime: {
-    type: String,
-    default: '',
-  },
-  amount: {
-    type: String,
-    default: '',
-  },
-  amountCurrency: {
-    type: String,
-    default: '',
-  },
-  payment: {
-    type: String,
-    default: '',
-  },
-  address: {
-    type: String,
-    default: '',
-  },
-  qr: {
-    type: String,
-    default: '',
-  },
-  qrImg: {
-    type: String,
-    default: '',
-  },
-  qrAlt: {
-    type: String,
-    default: '',
-  },
-  qrAltImg: {
-    type: String,
-    default: '',
-  },
-  notices: {
-    type: Array,
-    default() {
-      return [];
+  methods: {
+    formatCurrencyName,
+    toggleQRCode() {
+      this.isBackupQR = !this.isBackupQR;
+    },
+    togglePaymentStatus() {
+      this.isPaymentStatusVisible = !this.isPaymentStatusVisible;
+    },
+    toggleTransactionInfo() {
+      this.isTransactionInfoVisible = !this.isTransactionInfoVisible;
+    },
+    handleCancelPayment(event) {
+      if (event) {
+        event.preventDefault();
+      }
+      this.$emit('cancel-payment');
     },
   },
-  minConfirmations: {
-    type: Number,
-    default: 0,
+  computed: {
+    qrImage() {
+      return (this.isBackupQR ? this.qrAltImg : this.qrImg);
+    },
   },
-  fastTransactionFee: {
-    type: String,
-    default: '',
-  },
-  fastTransactionFeeCurrency: {
-    type: String,
-    default: '',
-  },
-  invoiceNo: {
-    type: String,
-    default: '',
-  },
-  invoiceAmount: {
-    type: String,
-    default: '',
-  },
-  invoiceCurrency: {
-    type: String,
-    default: '',
-  },
-  rate: {
-    type: String,
-    default: '',
-  },
-  amountExchange: {
-    type: String,
-    default: '',
-  },
-  networkProcessingFee: {
-    type: String,
-    default: '',
-  },
-});
-
-const emit = defineEmits(['cancel-payment']);
-
-const isBackupQR = ref(false);
-const isPaymentStatusVisible = ref(false);
-const isTransactionInfoVisible = ref(false);
-
-const qrImage = computed(() => (isBackupQR.value ? props.qrAltImg : props.qrImg));
-
-const toggleQRCode = () => {
-  isBackupQR.value = !isBackupQR.value;
 };
 
-const togglePaymentStatus = () => {
-  isPaymentStatusVisible.value = !isPaymentStatusVisible.value;
-};
-
-const toggleTransactionInfo = () => {
-  isTransactionInfoVisible.value = !isTransactionInfoVisible.value;
-};
-
-const handleCancelPayment = (event) => {
-  if (event) {
-    event.preventDefault();
-  }
-  emit('cancel-payment');
-};
-
+export default PaymentStateWaiting;
 </script>
 
 <template>
@@ -207,6 +220,7 @@ const handleCancelPayment = (event) => {
         v-else
         class="forumpay-pgw-payment-return-qr"
       >
+        <CurrencyIcon :currency="currency" />
         <span
           class="forumpay-pgw-payment-backup-qr-help-text forumpay-pgw-payment-backup-qr-help-text--pointer"
           role="button"
@@ -248,7 +262,7 @@ const handleCancelPayment = (event) => {
     </Container>
 
     <Container class="forumpay-pgw-payment-wrapper">
-      <div class="forumpay-pgw-payment-details">
+      <div v-if="fastTransactionFee" class="forumpay-pgw-payment-details">
         <span class="forumpay-pgw-payment-details-text">
           {{ minConfirmations > 0 ? "Set your wallet TX fee to at least:" : "For instant approval set tx fees to" }}
           {{ fastTransactionFee }}
