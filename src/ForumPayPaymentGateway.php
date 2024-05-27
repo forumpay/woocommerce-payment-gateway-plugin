@@ -53,12 +53,28 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         }
 
         add_action('woocommerce_receipt_' . $this->id, array($this, 'receipt_page_forumpay'));
-        add_action('woocommerce_api_wc_forumpay', [ $this, 'on_api_callback' ]);
+        add_action('woocommerce_api_wc_forumpay', array($this, 'on_api_callback'));
         add_filter('woocommerce_payment_gateways', array($this, 'add_forumpay_gateway'));
         add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'display_admin_payment_id'));
 
         // Registers WooCommerce Blocks integration.
         add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'woocommerce_forumpay_gateway_block_support' ) );
+
+        add_action('wp_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_scripts'));
+    }
+
+    function forumpay_payment_gateway_enqueue_scripts() {
+        // Register and enqueue a JavaScript file
+        wp_register_script('forumpay_payment_gateway_widget_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay_widget.js');
+        wp_enqueue_script('forumpay_payment_gateway_widget_script');
+        wp_register_script('forumpay_payment_gateway_init_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay.js', array('jquery'), '1.0', true);
+        wp_enqueue_script('forumpay_payment_gateway_init_script');
+
+        // Register and enqueue a CSS file
+        wp_register_style('forumpay_payment_gateway_init_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay.css');
+        wp_enqueue_style('forumpay_payment_gateway_init_style');
+        wp_register_style('forumpay_payment_gateway_widget_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay_widget.css');
+        wp_enqueue_style('forumpay_payment_gateway_widget_style');
     }
 
     /**
@@ -288,11 +304,6 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $templatehtml .= '<span id="forumpay-apibase" data="' . esc_url($apibase) . '"></span>';
         $templatehtml .= '<span id="forumpay-returnurl" data="' . esc_url($return_url) . '"></span>';
         $templatehtml .= '<span id="forumpay-cancelurl" data="' . esc_url($cancel_url) . '"></span>';
-
-        $templatehtml .= '<link rel="stylesheet"  href="' . esc_url($base_path) . '/css/forumpay.css" />';
-        $templatehtml .= '<link rel="stylesheet"  href="' . esc_url($base_path) . '/css/forumpay_widget.css" />';
-        $templatehtml .= '<script type="text/javascript" src="' . esc_url($base_path) . '/js/forumpay_widget.js"></script>';
-        $templatehtml .= '<script type="text/javascript" src="' . esc_url($base_path) . '/js/forumpay.js"></script>';
 
         return $templatehtml;
     }

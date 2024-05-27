@@ -79,8 +79,11 @@ class Router
         try {
 
             $routePrecheck = filter_input(INPUT_GET, 'act', FILTER_SANITIZE_STRING);
-            $nonceCheckRequired = !($routePrecheck === 'webhook');
-            $route = $request->getRequired('act', $nonceCheckRequired);
+            if ($routePrecheck === 'webhook') {
+                $route = 'webhook';
+            } else {
+                $route = $request->getRequired('act', true);
+            }
 
             if (array_key_exists($route, $this->routes)) {
                 $service = $this->routes[$route];

@@ -59,4 +59,6 @@ const initPlugin = function () {
   window.forumPayPaymentGatewayWidget.init();
 }
 
-initPlugin();
+jQuery(document).ready(function($) {
+  initPlugin();
+});
