@@ -36,6 +36,13 @@ class ForumPayHttpException extends \Exception
     protected $name;
 
     /**
+     * CF Ray id
+     *
+     * @var string
+     */
+    protected $cfRayId;
+
+    /**
      * Stacktrace
      *
      * @var string
@@ -64,6 +71,7 @@ class ForumPayHttpException extends \Exception
      */
     public function __construct(
         string $message,
+        string $cfRayId,
                $code = 0,
                $httpCode = self::HTTP_BAD_REQUEST,
         array $details = [],
@@ -80,6 +88,7 @@ class ForumPayHttpException extends \Exception
         $this->httpCode = $httpCode;
         $this->details = $details;
         $this->name = $name;
+        $this->cfRayId = $cfRayId;
         $this->errors = $errors;
         $this->stackTrace = $stackTrace;
     }
@@ -112,6 +121,16 @@ class ForumPayHttpException extends \Exception
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Retrieve request id.
+     *
+     * @return string
+     */
+    public function getCfRayId()
+    {
+        return $this->cfRayId;
     }
 
     /**

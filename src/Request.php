@@ -16,12 +16,12 @@ class Request
      */
     public function getRequired($param, $nonceCheckRequired = true)
     {
-        $param = $this->get($param, null, $nonceCheckRequired);
-        if ($param === null) {
+        $value = $this->get($param, null, $nonceCheckRequired);
+        if ($value === null) {
             throw new \InvalidArgumentException(sprintf('Missing required parameter %s', $param));
         }
 
-        return $param;
+        return $value;
     }
 
     /**

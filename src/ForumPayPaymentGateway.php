@@ -39,10 +39,29 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $this->title = $this->settings['title'] ?? '';
         $this->description = $this->settings['description'] ?? '';
         $this->pos_id = $this->settings['pos_id'] ?? '';
+        $this->sid = $this->settings['sid'] ?? '';
         $this->api_url = $this->settings['api_url'] ?? '';
         $this->api_user = $this->settings['api_user'] ?? '';
         $this->api_key = $this->settings['api_key'] ?? '';
-        $this->accept_zero_confirmations = $this->settings['accept_zero_confirmations'] == 'yes' ? true : false;
+        $this->webhook_url = empty($this->settings['webhook_url'] ?? '') ? null : $this->settings['webhook_url'];
+
+        $this->accept_zero_confirmations = ($this->settings['accept_zero_confirmations'] ?? 'no') === 'yes';
+        $this->accept_underpayment = [
+            'enabled' => ($this->settings['accept_underpayment'] ?? 'no') === 'yes',
+            'threshold' => $this->settings['accept_underpayment_threshold'] ?? null,
+            'modify_order' => ($this->settings['accept_underpayment_modify_order_total'] ?? 'no') === 'yes',
+            'fee_description' => $this->settings['accept_underpayment_modify_order_total_description'] ?? null,
+        ];
+        $this->accept_overpayment = [
+            'enabled' => ($this->settings['accept_overpayment'] ?? 'no' ) === 'yes',
+            'threshold' => null,
+            'modify_order' => ($this->settings['accept_overpayment_modify_order_total'] ?? 'no') === 'yes',
+            'fee_description' => $this->settings['accept_overpayment_modify_order_total_description'] ?? null,
+        ];
+        $this->accept_latepayment = [
+            'enabled' => ($this->settings['accept_latepayment'] ?? 'no') === 'yes'
+        ];
+
         $this->api_url_override = $this->settings['api_url_override'] ?? '';
         $this->currency = get_woocommerce_currency();
 
@@ -61,6 +80,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'woocommerce_forumpay_gateway_block_support' ) );
 
         add_action('wp_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_scripts'));
+        // Register admin js files
+        add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_admin_scripts'));
     }
 
     function forumpay_payment_gateway_enqueue_scripts() {
@@ -75,6 +96,21 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         wp_enqueue_style('forumpay_payment_gateway_init_style');
         wp_register_style('forumpay_payment_gateway_widget_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay_widget.css');
         wp_enqueue_style('forumpay_payment_gateway_widget_style');
+    }
+
+    function forumpay_payment_gateway_enqueue_admin_scripts($hook) {
+        if ('woocommerce_page_wc-settings' !== $hook) {
+            return;
+        }
+
+        wp_enqueue_script('forumpay_payment_gateway_admin_script', FORUMPAY_PLUGIN_DIR . '/js/admin-gateway-settings.js', array('jquery'), '1.0', true);
+
+        // Pass variables to JavaScript
+        wp_localize_script('forumpay_payment_gateway_admin_script', 'gatewaySettings', array(
+            'gatewayId' => $this->id,
+            'apiUrl' => get_site_url() . '/wc-api/wc_forumpay',
+            'nonce' => wp_create_nonce('forumpay-payment-gateway'),
+        ));
     }
 
     /**
@@ -141,12 +177,19 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'title' => __('Title:', 'forumpay'),
                 'type' => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'forumpay'),
-                'default' => __('Pay with Crypto', 'forumpay')),
+                'default' => __('Pay with Crypto', 'forumpay')
+            ),
             'description' => array(
                 'title' => __('Description:', 'forumpay'),
                 'type' => 'textarea',
                 'description' => __('This controls the description which the user sees during checkout.', 'forumpay'),
-                'default' => __('Pay with Crypto (by ForumPay)', 'forumpay')),
+                'default' => __('Pay with Crypto (by ForumPay)', 'forumpay')
+            ),
+            'section_start' => array(
+                'title' => __('API settings', 'forumpay'),
+                'type' => 'title',
+                'description' => '<hr style="border-top: 1px solid #ccc;">'
+            ),
             'api_url' => array(
                 'title' => __('Environment', 'forumpay'),
                 'description' => __('ForumPay environment', 'forumpay'),
@@ -160,28 +203,100 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             'api_user' => array(
                 'title' => __('API User', 'forumpay'),
                 'type' => 'text',
-                'description' => __('You can generate API key in your ForumPay Account.', 'forumpay')),
-
+                'description' => __('You can generate API key in your ForumPay Account.', 'forumpay')
+            ),
             'api_key' => array(
                 'title' => __('API Secret', 'forumpay'),
                 'type' => 'password',
-                'description' => __('You can generate API secret in your ForumPay Account.', 'forumpay')),
-
+                'description' => __('You can generate API secret in your ForumPay Account.', 'forumpay')
+            ),
             'pos_id' => array(
                 'title' => __('POS ID', 'forumpay'),
                 'type' => 'text',
-                'description' => __('Enter your webshop identifier (POS ID). Special characters not allowed. Allowed are: [A-Za-z0-9._-] Eg woocommerce-3, Woocommerce-3', 'forumpay')),
+                'description' => __('Enter your webshop identifier (POS ID). Special characters not allowed. Allowed are: [A-Za-z0-9._-] Eg woocommerce-3, Woocommerce-3', 'forumpay')
+            ),
+            'sid' => array(
+                'title' => __('SID', 'forumpay'),
+                'type' => 'text',
+                'description' => __('Optional: Enter unique identifier for a sub-account within your main account.', 'forumpay')
+            ),
+            'webhook_url' => array(
+                'title' => __('Webhook URL', 'forumpay'),
+                'type' => 'text',
+                'description' => sprintf(
+                    __('Optional: This URL should point to the endpoint that will handle the webhook events.<br> Typically, it should be: <b><i>%s</i></b><br> This URL will override the default setting for your API keys on your Forumpay account.<br> Ensure that the URL is publicly accessible and can handle the incoming webhook events securely.', 'forumpay'),
+                    str_replace('localhost', 'my-site', get_site_url()) . "/index.php?wc-api=wc_forumpay&act=webhook"
+                )
+            ),
+            'api_url_override' => array(
+                'title' => __('Custom environment URL', 'forumpay'),
+                'type' => 'text',
+                'description' => __('Optional: URL to the API server. This value will override the default setting. Only used for debugging.', 'forumpay')
+            ),
+            'ping_button' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'title',
+                'description' => '<button id="woocommerce_forumpay_api_test" class="button-secondary">Test API credentials</button> <p class="description">Click the button to check credentials and connection to ForumPay server. No order will be created.</p>'
+            ),
 
+            'section2_start' => array(
+                'title' => __('Payment options', 'forumpay'),
+                'type' => 'title',
+                'description' => '<hr style="border-top: 1px solid #ccc;">'
+            ),
             'accept_zero_confirmations' => array(
                 'title' => __('Accept Zero Confirmations', 'forumpay'),
                 'type' => 'checkbox',
                 'label' => __('Enable Accept Zero Confirmations.', 'forumpay'),
                 'default' => 'yes'),
 
-            'api_url_override' => array(
-                'title' => __('Custom environment URL', 'forumpay'),
+            'accept_underpayment' => array(
+                'title' => __('Auto-Accept Underpayments', 'forumpay'),
+                'type' => 'checkbox',
+                'label' => __('Enable this option to automatically accept payments that are slightly less than the total order amount.', 'forumpay'),
+                'default' => 'no'),
+
+            'accept_underpayment_threshold' => array(
+                'title' => __('', 'forumpay'),
                 'type' => 'text',
-                'description' => __('Optional: URL to the API server. This value will override the default setting. Only used for debugging.', 'forumpay')),
+                'description' => __('Enter the maximum percentage (0-100) of the order total that can be underpaid for the order to be accepted automatically.', 'forumpay')
+            ),
+
+            'accept_underpayment_modify_order_total' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'checkbox',
+                'label' => __('Enable to modify the order total to reflect underpayments as a separate fee. This will be negative to indicate less payment received.', 'forumpay'),
+                'default' => 'no'),
+
+            'accept_underpayment_modify_order_total_description' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'text',
+                'description' => __('Enter a description for the underpayment fee that will appear on the customer\'s invoice.', 'forumpay'),
+                'default' => __('ForumPay underpayment', 'forumpay')),
+
+            'accept_overpayment' => array(
+                'title' => __('Auto-Accept Overpayments', 'forumpay'),
+                'type' => 'checkbox',
+                'label' => __('Enable this option to automatically accept payments that exceed the total order amount.', 'forumpay'),
+                'default' => 'no'),
+
+            'accept_overpayment_modify_order_total' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'checkbox',
+                'label' => __('Enable to modify the order total to reflect overpayments as a separate fee. This will be positive to indicate extra payment received.', 'forumpay'),
+                'default' => 'no'),
+
+            'accept_overpayment_modify_order_total_description' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'text',
+                'description' => __('Enter a description for the overpayment fee that will appear on the customer\'s invoice.', 'forumpay'),
+                'default' => __('ForumPay overpayment', 'forumpay')),
+
+            'accept_latepayment' => array(
+                'title' => __('Auto-Accept Late Payments', 'forumpay'),
+                'type' => 'checkbox',
+                'label' => __('Automatically accept the payment if transaction was received late and either the paid amount is similar to requested or accepting it is allowed by the other Auto-Accept conditions.', 'forumpay'),
+                'default' => 'no'),
         );
     }
 
@@ -193,8 +308,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      * @return mixed
      */
     public function validate_title_field($key, $value) {
+        $value = trim($value);
+        $requiredErrorMessage = __('Title field is required.', 'forumpay');
         if (empty($value)) {
-            WC_Admin_Settings::add_error('Title field is required');
+            WC_Admin_Settings::add_error($requiredErrorMessage);
+            throw new \Exception($requiredErrorMessage);
         }
 
         return $value;
@@ -208,8 +326,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      * @return mixed
      */
     public function validate_api_user_field($key, $value) {
+        $value = trim($value);
+        $requiredErrorMessage = __('API User field is required.', 'forumpay');
         if (empty($value)) {
-            WC_Admin_Settings::add_error('API User field is required');
+            WC_Admin_Settings::add_error($requiredErrorMessage);
+            throw new \Exception($requiredErrorMessage);
         }
 
         return $value;
@@ -223,8 +344,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      * @return mixed
      */
     public function validate_api_key_field($key, $value) {
+        $value = trim($value);
+        $requiredErrorMessage = __('API Secret field is required.', 'forumpay');
         if (empty($value)) {
-            WC_Admin_Settings::add_error('API Secret field is required');
+            WC_Admin_Settings::add_error($requiredErrorMessage);
+            throw new \Exception($requiredErrorMessage);
         }
 
         return $value;
@@ -238,15 +362,104 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      * @return mixed
      */
     public function validate_pos_id_field($key, $value) {
+        $value = trim($value);
+        $errorMessage = __('POS ID field includes invalid characters. Allowed are: A-Za-z0-9._-', 'forumpay');
+        $requiredErrorMessage = __('POS ID field is required.', 'forumpay');
+
         if (empty($value)) {
-            WC_Admin_Settings::add_error('POS ID field is required');
+            WC_Admin_Settings::add_error($requiredErrorMessage);
+            throw new \Exception($requiredErrorMessage);
         }
 
         if (preg_match('/[^A-Za-z0-9._\\-\:]/', $value)) {
-            WC_Admin_Settings::add_error('POS ID field includes invalid characters. Allowed are: A-Za-z0-9._-');
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
         }
 
         return $value;
+    }
+
+    /**
+     * Add validation rule to Underpayment threshold field
+     *
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function validate_accept_underpayment_field($key, $value) {
+        $errorMessage = __('Invalid underpayment threshold. Please enter a valid percentage between 0 and 100.', 'forumpay');
+        $isEnabled = (bool)$value;
+        if (!$isEnabled) {
+            return 'no';
+        }
+
+        $threshold = $this->get_post_data()['woocommerce_forumpay_accept_underpayment_threshold'];
+
+        if (filter_var($threshold, FILTER_VALIDATE_FLOAT) === false) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        if (($threshold < 0) || ($threshold > 100)) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        return 'yes';
+    }
+
+    /**
+     * Add validation rule to Underpayment fee description field
+     *
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function validate_accept_underpayment_modify_order_total_field($key, $value) {
+        $errorMessage = __('Fee description for underpayment is required.', 'forumpay');
+        $isEnabled =
+            (bool)$this->get_post_data()['woocommerce_forumpay_accept_underpayment']
+            && (bool)$value;
+
+        if (!$isEnabled) {
+            return 'no';
+        }
+
+        $description = trim($this->get_post_data()['woocommerce_forumpay_accept_underpayment_modify_order_total_description']);
+
+        if (empty($description)) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        return 'yes';
+    }
+
+    /**
+     * Add validation rule to Overpayment fee description field
+     *
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function validate_accept_overpayment_modify_order_total_field($key, $value) {
+        $errorMessage = __('Fee description for overpayment is required.', 'forumpay');
+        $isEnabled =
+            (bool)$this->get_post_data()['woocommerce_forumpay_accept_overpayment']
+            && (bool)$value;
+
+        if (!$isEnabled) {
+            return 'no';
+        }
+
+        $description = trim($this->get_post_data()['woocommerce_forumpay_accept_overpayment_modify_order_total_description']);
+
+        if (empty($description)) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        return 'yes';
     }
 
     /**
@@ -258,12 +471,38 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function validate_api_url_override_field($key, $value)
     {
+        $errorMessage = __('Custom environment URL must be valid URL.', 'forumpay');
+
         if (empty($value)) {
             return $value;
         }
 
         if (filter_var($value, FILTER_VALIDATE_URL) === false) {
-            WC_Admin_Settings::add_error('Custom environment URL must be valid URL');
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Add validation rule to Custom webhook URL field
+     *
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function validate_webhook_url_field($key, $value)
+    {
+        $errorMessage = __('Custom webhook URL must be valid URL.', 'forumpay');
+
+        if (empty($value)) {
+            return $value;
+        }
+
+        if (filter_var($value, FILTER_VALIDATE_URL) === false) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
         }
 
         return $value;

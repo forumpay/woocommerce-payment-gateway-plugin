@@ -9,6 +9,7 @@ use ForumPay\PaymentGateway\WoocommercePlugin\ForumPayPaymentGateway;
 use ForumPay\PaymentGateway\PHPClient\Response\GetTransactions\TransactionInvoice;
 use ForumPay\PaymentGateway\PHPClient\PaymentGatewayApi;
 use ForumPay\PaymentGateway\PHPClient\PaymentGatewayApiInterface;
+use ForumPay\PaymentGateway\PHPClient\Response\PingResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\CheckPaymentResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\GetCurrencyListResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\GetRateResponse;
@@ -46,25 +47,33 @@ class ForumPay
         OrderManager $orderManager,
         LoggerInterface $psrLogger
     ) {
-        $this->apiClient = new PaymentGatewayApi(
-            $gateway->getApiUrl(),
-            $gateway->getMerchantApiUser(),
-            $gateway->getMerchantApiSecret(),
-            sprintf(
-                "fp-pgw[%s] WP %s WC %s on PHP %s",
-                $gateway->getPluginVersion(),
-                $gateway->getWordpressVersion(),
-                $gateway->getWooCommerceVersion(),
-                phpversion()
-            ),
-            $gateway->getStoreLocale(),
-            null,
-            $psrLogger
-        );
-
         $this->gateway = $gateway;
         $this->orderManager = $orderManager;
         $this->psrLogger = $psrLogger;
+
+        $this->apiClient = $this->initApiClient(
+            $gateway->getApiUrl(),
+            $gateway->getMerchantApiUser(),
+            $gateway->getMerchantApiSecret(),
+        );
+    }
+
+    /**
+     * Ping api to check configuration
+     *
+     * @param string $apiEnv
+     * @param string $apiKey
+     * @param string $apiSecret
+     * @param string $apiUrlOverride
+     * @return PingResponse
+     */
+    public function ping(string $apiEnv, string $apiKey, string $apiSecret, string $apiUrlOverride): PingResponse
+    {
+         return $this->initApiClient(
+            empty($apiUrlOverride) ? $apiEnv : $apiUrlOverride,
+            $apiKey,
+            $apiSecret
+        )->ping();
     }
 
     /**
@@ -150,15 +159,17 @@ class ForumPay
             $this->orderManager->getOrderCustomerIpAddress($orderId),
             $this->orderManager->getOrderCustomerEmail($orderId),
             $this->orderManager->getOrderCustomerId($orderId),
-            'false',
-            '',
-            'false',
+            $this->gateway->accept_underpayment['enabled'] ? 'true':'false',
+            $this->calculateMinimumOrderValue($this->gateway->accept_underpayment, $orderId),
+            $this->gateway->accept_overpayment['enabled'] ? 'true':'false',
             null,
             null,
+            $this->gateway->sid,
             null,
             null,
-            null,
-            $kycPin
+            $kycPin,
+            $this->gateway->accept_latepayment['enabled'] ? 'true':'false',
+            $this->gateway->webhook_url,
         );
 
         $this->orderManager->saveOrderMetaData($orderId, 'startPayment', $response->toArray());
@@ -196,7 +207,19 @@ class ForumPay
             }
         }
 
-        $this->orderManager->updateOrderStatus($orderId, $response->getStatus(), $paymentId);
+        $this->orderManager->updateOrderStatus(
+            $orderId,
+            $response->getStatus(),
+            $paymentId,
+            $response->getInvoiceAmount(),
+            $response->getInvoiceCurrency(),
+            ($this->gateway->accept_underpayment['enabled'] && $this->gateway->accept_underpayment['modify_order'])
+                ? $this->gateway->accept_underpayment['fee_description']
+                : '',
+            ($this->gateway->accept_overpayment['enabled'] && $this->gateway->accept_overpayment['modify_order'])
+                ? $this->gateway->accept_overpayment['fee_description']
+                : '',
+        );
         $this->orderManager->saveOrderMetaData($orderId, 'payment_formumpay_paymentId_last', $paymentId, true);
 
         return $response;
@@ -258,6 +281,11 @@ class ForumPay
                 continue;
             }
 
+            if ($existingPayment->getPosId() !== $this->gateway->getPosId()) {
+                //from other shop
+                continue;
+            }
+
             $this->cancelPayment(
                 $existingPayment->getPaymentId(),
                 $existingPayment->getCurrency(),
@@ -308,5 +336,38 @@ class ForumPay
         }
 
         return null;
+    }
+
+    private function calculateMinimumOrderValue(array $underPaymentOptions, string $orderId): string
+    {
+        if (!$underPaymentOptions['enabled']) {
+            return '';
+        }
+
+        $maximumMissingValuePercentage = $underPaymentOptions['threshold'];
+        $total = $this->orderManager->getOrderTotal($orderId);
+        $percentage = floatval($maximumMissingValuePercentage);
+        $minimumOrderValue = (1 - $percentage / 100) * $total;
+
+        return (string)round($minimumOrderValue, 2);
+    }
+
+    private function initApiClient($apiUrl, $piUser, $apiSecret): PaymentGatewayApiInterface
+    {
+        return new PaymentGatewayApi(
+            $apiUrl,
+            $piUser,
+            $apiSecret,
+            sprintf(
+                "fp-pgw[%s] WP %s WC %s on PHP %s",
+                $this->gateway->getPluginVersion(),
+                $this->gateway->getWordpressVersion(),
+                $this->gateway->getWooCommerceVersion(),
+                phpversion()
+            ),
+            $this->gateway->getStoreLocale(),
+            null,
+            $this->psrLogger
+        );
     }
 }

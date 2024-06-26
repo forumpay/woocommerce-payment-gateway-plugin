@@ -28,6 +28,6 @@ class ApiHttpException extends ForumPayHttpException
             $cause->getMessage()
         );
 
-        parent::__construct($message, $code, $httpCode);
+        parent::__construct($message, $cause->getCfRayId() ,$code, $httpCode);
     }
 }

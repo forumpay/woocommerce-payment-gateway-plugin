@@ -3,6 +3,7 @@
 namespace ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment;
 
 use WC_Order;
+use WC_Order_Item_Fee;
 
 /**
  * Manages internal states of the order and provides
@@ -99,12 +100,55 @@ class OrderManager
      * @param $newStatus
      * @param $paymentId
      */
-    public function updateOrderStatus($orderId, $newStatus, $paymentId) {
+    public function updateOrderStatus($orderId, $newStatus, $paymentId, $amountPayed, $currency, $underPayFeeDescription, $overPayFeeDescription) {
         $order = new WC_Order($orderId);
+        $orderTotal = floatval($this->getOrderTotal($orderId));
+        $amountPayed = floatval($amountPayed);
+        $paymentType = 'payment';
 
         if (strtolower($newStatus) === 'confirmed') {
+            if ($amountPayed < $orderTotal) {
+                $paymentType = 'underpayment';
+                if (!empty($underPayFeeDescription)) {
+                    $itemFee = new WC_Order_Item_Fee();
+
+                    $itemFee->set_name($underPayFeeDescription);
+                    $itemFee->set_amount($amountPayed-$orderTotal);
+                    $itemFee->set_tax_class('');
+                    $itemFee->set_tax_status( 'none');
+                    $itemFee->set_total($amountPayed-$orderTotal);
+                    $itemFee->calculate_taxes($amountPayed-$orderTotal);
+
+                    $order->add_item($itemFee);
+                    $order->calculate_totals();
+                    $order->save();
+                }
+
+                $order = new WC_Order($orderId);
+            }
+
+            if ($amountPayed > $orderTotal) {
+                $paymentType = 'overpayment';
+                if (!empty($overPayFeeDescription)) {
+                    $itemFee = new WC_Order_Item_Fee();
+
+                    $itemFee->set_name($overPayFeeDescription);
+                    $itemFee->set_amount($amountPayed-$orderTotal);
+                    $itemFee->set_tax_class('');
+                    $itemFee->set_tax_status( 'none');
+                    $itemFee->set_total($amountPayed-$orderTotal);
+                    $itemFee->calculate_taxes($amountPayed-$orderTotal);
+
+                    $order->add_item($itemFee);
+                    $order->calculate_totals();
+                    $order->save();
+                }
+
+                $order = new WC_Order($orderId);
+            }
+
             $order->payment_complete();
-            $order->add_order_note('ForumPay Payment Successful');
+            $order->add_order_note("ForumPay Payment Successful, received {$paymentType} for {$amountPayed} {$currency}");
             $this->saveOrderMetaData($orderId, 'payment_formumpay_paymentId', $paymentId, true);
             $this->woocommerce->cart->empty_cart();
         } else if (strtolower($newStatus) === 'cancelled') {

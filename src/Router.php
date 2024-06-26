@@ -11,6 +11,7 @@ use ForumPay\PaymentGateway\WoocommercePlugin\Model\CheckPayment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyList;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyRate;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Ping;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\RestoreCart;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\StartPayment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Webhook;
@@ -58,6 +59,7 @@ class Router
     protected function initRoutes()
     {
         $this->routes = [
+            'ping' => new Ping($this->forumPay, $this->logger),
             'currencies' => new GetCurrencyList($this->forumPay, $this->logger),
             'getRate' => new GetCurrencyRate($this->forumPay, $this->logger),
             'startPayment' => new StartPayment($this->forumPay, $this->logger),
@@ -77,10 +79,9 @@ class Router
     public function execute(Request $request): ?string
     {
         try {
-
             $routePrecheck = filter_input(INPUT_GET, 'act', FILTER_SANITIZE_STRING);
-            if ($routePrecheck === 'webhook') {
-                $route = 'webhook';
+            if (in_array($routePrecheck, ['webhook', 'ping'])) {
+                $route = $routePrecheck;
             } else {
                 $route = $request->getRequired('act', true);
             }
@@ -99,14 +100,18 @@ class Router
             return $this->serializeError(
                 new ForumPayHttpException(
                     $e->getMessage(),
+                    '',
                     $e->getCode(),
                     ForumPayHttpException::HTTP_BAD_REQUEST
                 )
             );
+        } catch (ForumPayHttpException $e) {
+            return $this->serializeError($e);
         } catch (\Exception $e) {
             return $this->serializeError(
                 new ForumPayHttpException(
                     $e->getMessage(),
+                    '',
                     $e->getCode(),
                     ForumPayHttpException::HTTP_INTERNAL_ERROR,
                 )
@@ -134,7 +139,8 @@ class Router
         $repose->setHttpResponseCode($e->getHttpCode());
         return wp_json_encode([
             'code' => $e->getCode(),
-            'message' => $e->getMessage()
+            'message' => $e->getMessage(),
+            'cfray_id' => $e->getCfRayId(),
         ]);
     }
 }
