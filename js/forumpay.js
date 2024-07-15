@@ -1,11 +1,18 @@
 const forumPayData = function (field) {
-  return document.getElementById(field).getAttribute('data');
+  const forumPayElement = document.getElementById(field);
+  return forumPayElement ? forumPayElement.getAttribute('data') : null;
 }
 
 const initPlugin = function () {
+  const apiBase = forumPayData('forumpay-apibase');
+
+  if (apiBase === null) {
+    return;
+  }
+
   const nonce = forumPayData('forumpay-nonce');
   const config = {
-    baseUrl: forumPayData('forumpay-apibase'),
+    baseUrl: apiBase,
 
     restGetCryptoCurrenciesUri: {
       'path': '',

@@ -159,17 +159,17 @@ class ForumPay
             $this->orderManager->getOrderCustomerIpAddress($orderId),
             $this->orderManager->getOrderCustomerEmail($orderId),
             $this->orderManager->getOrderCustomerId($orderId),
-            $this->gateway->accept_underpayment['enabled'] ? 'true':'false',
-            $this->calculateMinimumOrderValue($this->gateway->accept_underpayment, $orderId),
-            $this->gateway->accept_overpayment['enabled'] ? 'true':'false',
+            $this->gateway->getAcceptUnderpayment()['enabled'] ? 'true':'false',
+            $this->calculateMinimumOrderValue($this->gateway->getAcceptUnderpayment(), $orderId),
+            $this->gateway->getAcceptOverpayment()['enabled'] ? 'true':'false',
             null,
             null,
-            $this->gateway->sid,
+            $this->gateway->getSid(),
             null,
             null,
             $kycPin,
-            $this->gateway->accept_latepayment['enabled'] ? 'true':'false',
-            $this->gateway->webhook_url,
+            $this->gateway->getAcceptLatePayment()['enabled'] ? 'true':'false',
+            $this->gateway->getWebhookUrl(),
         );
 
         $this->orderManager->saveOrderMetaData($orderId, 'startPayment', $response->toArray());
@@ -213,11 +213,11 @@ class ForumPay
             $paymentId,
             $response->getInvoiceAmount(),
             $response->getInvoiceCurrency(),
-            ($this->gateway->accept_underpayment['enabled'] && $this->gateway->accept_underpayment['modify_order'])
-                ? $this->gateway->accept_underpayment['fee_description']
+            ($this->gateway->getAcceptUnderpayment()['enabled'] && $this->gateway->getAcceptUnderpayment()['modify_order'])
+                ? $this->gateway->getAcceptUnderpayment()['fee_description']
                 : '',
-            ($this->gateway->accept_overpayment['enabled'] && $this->gateway->accept_overpayment['modify_order'])
-                ? $this->gateway->accept_overpayment['fee_description']
+            ($this->gateway->getAcceptOverpayment()['enabled'] && $this->gateway->getAcceptOverpayment()['modify_order'])
+                ? $this->gateway->getAcceptOverpayment()['fee_description']
                 : '',
         );
         $this->orderManager->saveOrderMetaData($orderId, 'payment_formumpay_paymentId_last', $paymentId, true);

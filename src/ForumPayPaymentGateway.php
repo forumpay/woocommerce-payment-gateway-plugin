@@ -23,6 +23,66 @@ use WC_Payment_Gateway;
 class ForumPayPaymentGateway extends WC_Payment_Gateway
 {
     /**
+     * @var string
+     */
+    private $fp_pos_id;
+
+    /**
+     * @var string
+     */
+    private $fp_sid;
+
+    /**
+     * @var string
+     */
+    private $fp_api_url;
+
+    /**
+     * @var string
+     */
+    private $fp_api_user;
+
+    /**
+     * @var string
+     */
+    private $fp_api_key;
+
+    /**
+     * @var string|null
+     */
+    private $fp_webhook_url;
+
+    /**
+     * @var bool
+     */
+    private bool $fp_accept_zero_confirmations;
+
+    /**
+     * @var array
+     */
+    private array $fp_accept_underpayment;
+
+    /**
+     * @var array
+     */
+    private array $fp_accept_overpayment;
+
+    /**
+     * @var array
+     */
+    private array $fp_accept_late_payment;
+
+    /**
+     * @var string
+     */
+    private $fp_api_url_override;
+
+    /**
+     * @var string
+     */
+    private string $fp_currency;
+
+    /**
      * Constructor for the gateway.
      */
     public function __construct(
@@ -38,32 +98,32 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $this->init_settings();
         $this->title = $this->settings['title'] ?? '';
         $this->description = $this->settings['description'] ?? '';
-        $this->pos_id = $this->settings['pos_id'] ?? '';
-        $this->sid = $this->settings['sid'] ?? '';
-        $this->api_url = $this->settings['api_url'] ?? '';
-        $this->api_user = $this->settings['api_user'] ?? '';
-        $this->api_key = $this->settings['api_key'] ?? '';
-        $this->webhook_url = empty($this->settings['webhook_url'] ?? '') ? null : $this->settings['webhook_url'];
+        $this->fp_pos_id = $this->settings['pos_id'] ?? '';
+        $this->fp_sid = $this->settings['sid'] ?? '';
+        $this->fp_api_url = $this->settings['api_url'] ?? '';
+        $this->fp_api_user = $this->settings['api_user'] ?? '';
+        $this->fp_api_key = $this->settings['api_key'] ?? '';
+        $this->fp_webhook_url = empty($this->settings['webhook_url'] ?? '') ? null : $this->settings['webhook_url'];
 
-        $this->accept_zero_confirmations = ($this->settings['accept_zero_confirmations'] ?? 'no') === 'yes';
-        $this->accept_underpayment = [
+        $this->fp_accept_zero_confirmations = ($this->settings['accept_zero_confirmations'] ?? 'no') === 'yes';
+        $this->fp_accept_underpayment = [
             'enabled' => ($this->settings['accept_underpayment'] ?? 'no') === 'yes',
             'threshold' => $this->settings['accept_underpayment_threshold'] ?? null,
             'modify_order' => ($this->settings['accept_underpayment_modify_order_total'] ?? 'no') === 'yes',
             'fee_description' => $this->settings['accept_underpayment_modify_order_total_description'] ?? null,
         ];
-        $this->accept_overpayment = [
+        $this->fp_accept_overpayment = [
             'enabled' => ($this->settings['accept_overpayment'] ?? 'no' ) === 'yes',
             'threshold' => null,
             'modify_order' => ($this->settings['accept_overpayment_modify_order_total'] ?? 'no') === 'yes',
             'fee_description' => $this->settings['accept_overpayment_modify_order_total_description'] ?? null,
         ];
-        $this->accept_latepayment = [
+        $this->fp_accept_late_payment = [
             'enabled' => ($this->settings['accept_latepayment'] ?? 'no') === 'yes'
         ];
 
-        $this->api_url_override = $this->settings['api_url_override'] ?? '';
-        $this->currency = get_woocommerce_currency();
+        $this->fp_api_url_override = $this->settings['api_url_override'] ?? '';
+        $this->fp_currency = get_woocommerce_currency();
 
         if (version_compare(WOOCOMMERCE_VERSION, '3.0.0', '>=')) {
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -85,6 +145,10 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     }
 
     function forumpay_payment_gateway_enqueue_scripts() {
+        if (!is_checkout()) {
+            return;
+        }
+
         // Register and enqueue a JavaScript file
         wp_register_script('forumpay_payment_gateway_widget_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay_widget.js');
         wp_enqueue_script('forumpay_payment_gateway_widget_script');
@@ -194,7 +258,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'title' => __('Environment', 'forumpay'),
                 'description' => __('ForumPay environment', 'forumpay'),
                 'type' => 'select',
-                'default' => 'Production',
+                'default' => 'https://api.forumpay.com/pay/v2/',
                 'options' => array(
                     'https://api.forumpay.com/pay/v2/' => 'Production',
                     'https://sandbox.api.forumpay.com/pay/v2/' => 'Sandbox',
@@ -418,7 +482,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function validate_accept_underpayment_modify_order_total_field($key, $value) {
         $errorMessage = __('Fee description for underpayment is required.', 'forumpay');
         $isEnabled =
-            (bool)$this->get_post_data()['woocommerce_forumpay_accept_underpayment']
+            array_key_exists('woocommerce_forumpay_accept_underpayment', $this->get_post_data())
+            && (bool)$this->get_post_data()['woocommerce_forumpay_accept_underpayment']
             && (bool)$value;
 
         if (!$isEnabled) {
@@ -445,7 +510,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function validate_accept_overpayment_modify_order_total_field($key, $value) {
         $errorMessage = __('Fee description for overpayment is required.', 'forumpay');
         $isEnabled =
-            (bool)$this->get_post_data()['woocommerce_forumpay_accept_overpayment']
+            array_key_exists('woocommerce_forumpay_accept_overpayment', $this->get_post_data())
+            && (bool)$this->get_post_data()['woocommerce_forumpay_accept_overpayment']
             && (bool)$value;
 
         if (!$isEnabled) {
@@ -605,11 +671,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function getApiUrl()
     {
-        if (!empty($this->api_url_override)) {
-            return $this->api_url_override;
+        if (!empty($this->fp_api_url_override)) {
+            return $this->fp_api_url_override;
         }
 
-        return $this->api_url;
+        return $this->fp_api_url;
     }
 
     /**
@@ -619,7 +685,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function getMerchantApiUser()
     {
-        return $this->api_user;
+        return $this->fp_api_user;
     }
 
     /**
@@ -629,7 +695,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function getMerchantApiSecret()
     {
-        return $this->api_key;
+        return $this->fp_api_key;
     }
 
     /**
@@ -680,7 +746,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function getPosId()
     {
-        return $this->pos_id;
+        return $this->fp_pos_id;
     }
 
     /**
@@ -690,6 +756,62 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function isAcceptZeroConfirmations()
     {
-        return $this->accept_zero_confirmations;
+        return $this->fp_accept_zero_confirmations;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSid()
+    {
+        return $this->fp_sid;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getWebhookUrl()
+    {
+        return $this->fp_webhook_url;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAcceptUnderpayment(): array
+    {
+        return $this->fp_accept_underpayment;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAcceptOverpayment(): array
+    {
+        return $this->fp_accept_overpayment;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAcceptLatePayment(): array
+    {
+        return $this->fp_accept_late_payment;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiUrlOverride()
+    {
+        return $this->fp_api_url_override;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency(): string
+    {
+        return $this->fp_currency;
     }
 }
