@@ -150,7 +150,9 @@ class OrderManager
             $order->payment_complete();
             $order->add_order_note("ForumPay Payment Successful, received {$paymentType} for {$amountPayed} {$currency}");
             $this->saveOrderMetaData($orderId, 'payment_formumpay_paymentId', $paymentId, true);
-            $this->woocommerce->cart->empty_cart();
+            if ($this->woocommerce && $this->woocommerce->cart) {
+                $this->woocommerce->cart->empty_cart();
+            }
         } else if (strtolower($newStatus) === 'cancelled') {
             $order->update_status(
                 'failed',

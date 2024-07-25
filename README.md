@@ -6,7 +6,7 @@
 > Make sure you have at least WordPress Version 6.2 or higher and WooCommerce plugin is up-to-date.
 
 > You should already have downloaded the latest release of ForumPay plugin from [this link](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest).
-Download the file named forumpay-crypto-payments-v2.2.1
+Download the file named forumpay-crypto-payments-v2.2.2
 
 ## Installation
 
@@ -79,15 +79,24 @@ For example, if the customer **closes tab** after the payment is started, the we
 
 If you do not set the webhook notifications, orders may stay in the *Pending* status **forever**.
 
-### Webhook setup:
+### Important notice
 
-Webhook configuration is in your [Profile](https://dashboard.forumpay.com/pay/userPaymentGateway.api_settings#webhook_notifications). You can find the webhook URL by scrolling down.
+**Update to REST API for WooCommerce 9.0+:**
+We have transitioned from supporting the Legacy REST API to the new REST API due to the deprecation of the Legacy REST API in WooCommerce version 9.0.
+
+If you are using WooCommerce versions before 9.0 the previous webhook setup will still work, but we strongly advise updating the webhook to the new URL for improved compatibility and support.
+
+Webhook configuration is in your [Profile](https://dashboard.forumpay.com/pay/userPaymentGateway.api_settings#webhook_notifications). You can find the webhook URL by scrolling down, or you can enter it plugin configuration page in WooCommerce.
 
 Insert **URL** in the webhook URL field:
-`YOUR_WEBSHOP/index.php?wc-api=wc_forumpay&act=webhook`
+   ```
+   `YOUR_WEBSHOP/wp-json/wc-api/wc_forumpay?act=webhook`
+   ```
 
 **YOUR_WEBSHOP** is the URL of your webshop. An example:
-`https://my.webshop.com/index.php?wc-api=wc_forumpay&act=webhook`
+`https://my.webshop.com/wp-json/wc-api/wc_forumpay?act=webhook`
+
+While the webhook set for the older version will continue to function, we strongly advise updating to the newer URL for improved compatibility and support.
 
 ## Functionality
 

@@ -186,6 +186,10 @@
           font-weight: 600;
         }
 
+          &-copy_button:focus {
+             outline: 0;
+          }
+
         &--address {
           span {
             font-size: 0.8em;

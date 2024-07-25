@@ -13,6 +13,9 @@ const initPlugin = function () {
   const nonce = forumPayData('forumpay-nonce');
   const config = {
     baseUrl: apiBase,
+    customHeaders: {
+      'X-WP-Nonce': nonce
+    },
 
     restGetCryptoCurrenciesUri: {
       'path': '',

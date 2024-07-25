@@ -2,6 +2,8 @@
 
 namespace ForumPay\PaymentGateway\WoocommercePlugin;
 
+use WC_Session_Handler;
+
 /**
  * Encapsulates request parameter
  */
@@ -35,13 +37,16 @@ class Request
     public function get($param, $default = null, $nonceCheckRequired = true)
     {
         if ($param === 'orderId') {
+            WC()->session = new WC_Session_Handler();
+            WC()->session->init();
+
             return WC()->session->get( 'order_awaiting_payment');
         }
 
         $bodyParams = json_decode(file_get_contents('php://input'), true) ?? [];
 
         if ($nonceCheckRequired) {
-            $nonceVerified = isset($bodyParams['forumpay_nonce']) && wp_verify_nonce($bodyParams['forumpay_nonce'], 'forumpay-payment-gateway');
+            $nonceVerified = isset($bodyParams['forumpay_nonce']) && wp_verify_nonce($bodyParams['forumpay_nonce'], 'wp_rest');
 
             if (!$nonceVerified) {
                 wp_nonce_ays(''); //returns 403 response

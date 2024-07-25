@@ -133,6 +133,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
 
         add_action('woocommerce_receipt_' . $this->id, array($this, 'receipt_page_forumpay'));
         add_action('woocommerce_api_wc_forumpay', array($this, 'on_api_callback'));
+        add_action('rest_api_init', array($this, 'wc_success_register_custom_api_endpoints'));
         add_filter('woocommerce_payment_gateways', array($this, 'add_forumpay_gateway'));
         add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'display_admin_payment_id'));
 
@@ -144,21 +145,31 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_admin_scripts'));
     }
 
+    function wc_success_register_custom_api_endpoints() {
+        register_rest_route('wc-api/', 'wc_forumpay', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'on_api_callback'),
+            'permission_callback' => function () {
+                return true;
+            }
+        ));
+    }
+
     function forumpay_payment_gateway_enqueue_scripts() {
         if (!is_checkout()) {
             return;
         }
 
         // Register and enqueue a JavaScript file
-        wp_register_script('forumpay_payment_gateway_widget_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay_widget.js');
+        wp_register_script('forumpay_payment_gateway_widget_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay_widget.js', [], $this->getAssetVersion());
         wp_enqueue_script('forumpay_payment_gateway_widget_script');
-        wp_register_script('forumpay_payment_gateway_init_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay.js', array('jquery'), '1.0', true);
+        wp_register_script('forumpay_payment_gateway_init_script', FORUMPAY_PLUGIN_DIR . 'js/forumpay.js', array('jquery'), $this->getAssetVersion(), true);
         wp_enqueue_script('forumpay_payment_gateway_init_script');
 
         // Register and enqueue a CSS file
-        wp_register_style('forumpay_payment_gateway_init_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay.css');
+        wp_register_style('forumpay_payment_gateway_init_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay.css', [], $this->getAssetVersion());
         wp_enqueue_style('forumpay_payment_gateway_init_style');
-        wp_register_style('forumpay_payment_gateway_widget_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay_widget.css');
+        wp_register_style('forumpay_payment_gateway_widget_style', FORUMPAY_PLUGIN_DIR . 'css/forumpay_widget.css', [], $this->getAssetVersion());
         wp_enqueue_style('forumpay_payment_gateway_widget_style');
     }
 
@@ -172,8 +183,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         // Pass variables to JavaScript
         wp_localize_script('forumpay_payment_gateway_admin_script', 'gatewaySettings', array(
             'gatewayId' => $this->id,
-            'apiUrl' => get_site_url() . '/wc-api/wc_forumpay',
-            'nonce' => wp_create_nonce('forumpay-payment-gateway'),
+            'apiUrl' => get_site_url() . '/wp-json/wc-api/wc_forumpay',
+            'nonce' => wp_create_nonce('wp_rest'),
         ));
     }
 
@@ -289,7 +300,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'type' => 'text',
                 'description' => sprintf(
                     __('Optional: This URL should point to the endpoint that will handle the webhook events.<br> Typically, it should be: <b><i>%s</i></b><br> This URL will override the default setting for your API keys on your Forumpay account.<br> Ensure that the URL is publicly accessible and can handle the incoming webhook events securely.', 'forumpay'),
-                    str_replace('localhost', 'my-site', get_site_url()) . "/index.php?wc-api=wc_forumpay&act=webhook"
+                    str_replace('localhost', 'my-site', get_site_url()) . "/wp-json/wc-api/wc_forumpay?act=webhook"
                 )
             ),
             'api_url_override' => array(
@@ -598,14 +609,14 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function generate_forumpay_form($order_id)
     {
         $order = new WC_Order($order_id);
-        $apibase = get_site_url() . '/wc-api/wc_forumpay';
+        $apibase = get_site_url() . '/wp-json/wc-api/wc_forumpay';
         $base_path = WP_PLUGIN_URL . "/" . plugin_basename(dirname(FORUMPAY_FILE));
         $return_url = $this->get_return_url($order);
         $cancel_url = wc_get_cart_url();
 
         $templatehtml = '<div id="ForumPayPaymentGatewayWidgetContainer">{{message}}</div>';
 
-        $templatehtml .= '<span id="forumpay-nonce" data="' . esc_attr(wp_create_nonce('forumpay-payment-gateway')) . '"></span>';
+        $templatehtml .= '<span id="forumpay-nonce" data="' . esc_attr(wp_create_nonce('wp_rest')) . '"></span>';
         $templatehtml .= '<span id="forumpay-apibase" data="' . esc_url($apibase) . '"></span>';
         $templatehtml .= '<span id="forumpay-returnurl" data="' . esc_url($return_url) . '"></span>';
         $templatehtml .= '<span id="forumpay-cancelurl" data="' . esc_url($cancel_url) . '"></span>';
@@ -737,6 +748,16 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function getPluginVersion()
     {
         return FORUMPAY_VERSION;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAssetVersion()
+    {
+        return $this->getApiUrlOverride()
+            ? strval(mt_rand(1, 1000))
+            : $this->getPluginVersion();
     }
 
     /**

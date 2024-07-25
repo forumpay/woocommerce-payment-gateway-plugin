@@ -58,6 +58,9 @@ jQuery(document).ready(function($) {
       url: apiUrl + '?act=ping', // This is a global variable in WP admin that points to admin-ajax.php
       type: 'POST',
       dataType: 'json',
+      headers: {
+          'X-WP-Nonce': nonce,
+      },
       data: JSON.stringify({
         apiEnv: $('#woocommerce_forumpay_api_url').val(),
         apiKey: $('#woocommerce_forumpay_api_user').val(),

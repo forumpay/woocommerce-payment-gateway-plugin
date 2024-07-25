@@ -28,6 +28,7 @@ export default Copy;
 
 <template>
   <div
+    class="forumpay-pgw-payment-amount-field-copy_button"
     style="width:24px; height:24px; cursor: pointer;"
     role="button"
     tabIndex="0"

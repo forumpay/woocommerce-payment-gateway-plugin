@@ -12,6 +12,7 @@
       animation: forumpay-pgw-loader-spin-animation 2s infinite linear;
 
       &--small {
+        display: flex;
         width: 15px;
         height: 15px;
         margin-left: auto;

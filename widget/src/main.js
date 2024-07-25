@@ -19,6 +19,7 @@ class ForumPayPaymentGatewayWidget {
         errorResultUrl: '',
         messageReceiver: function messageReceiver() {},
         showStartPaymentButton: false,
+        customHeaders: {},
       },
       ...config,
     };
@@ -27,11 +28,13 @@ class ForumPayPaymentGatewayWidget {
 
   init() {
     store.pluginConfig = this.config;
+
     store.axios = axios.create({
       baseURL: this.config.baseUrl,
       headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
+        ...this.config.customHeaders,
       },
     });
 
