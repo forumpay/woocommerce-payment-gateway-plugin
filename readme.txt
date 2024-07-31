@@ -5,7 +5,7 @@ Tags: cryptocurrency, gateway, payment, woocommerce
 Requires at least: 6.2
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 License: GPLv2 or later
 
 ForumPay Payment Gateway Module for Woocommerce

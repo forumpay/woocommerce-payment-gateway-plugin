@@ -143,6 +143,14 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_action('wp_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_scripts'));
         // Register admin js files
         add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_admin_scripts'));
+
+        add_action('before_woocommerce_init', array($this, 'before_woocommerce_hpos'));
+    }
+
+    function before_woocommerce_hpos() {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', 'forumpay-crypto-payments/forumpay-crypto-payments.php', true );
+        }
     }
 
     function wc_success_register_custom_api_endpoints() {
