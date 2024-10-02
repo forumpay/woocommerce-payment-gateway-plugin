@@ -143,6 +143,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_action('wp_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_scripts'));
         // Register admin js files
         add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_admin_scripts'));
+        add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_order_edit_scripts'));
 
         add_action('before_woocommerce_init', array($this, 'before_woocommerce_hpos'));
     }
@@ -196,6 +197,16 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         ));
     }
 
+    function forumpay_payment_gateway_enqueue_order_edit_scripts($hook) {
+        wp_enqueue_script('forumpay_order_edit_script', FORUMPAY_PLUGIN_DIR . '/js/order-edit.js', array('jquery'), '1.0', true);
+
+        // Pass variables to JavaScript
+        wp_localize_script('forumpay_order_edit_script', 'orderEditSettings', array(
+            'apiUrl' => get_site_url() . '/wp-json/wc-api/wc_forumpay',
+            'nonce' => wp_create_nonce('wp_rest'),
+        ));
+    }
+
     /**
      * Check If The Gateway Is Available For Use.
      *
@@ -232,7 +243,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $paymentId = $successPaymentId ?? $lastPaymentId;
 
         if ($paymentId) {
-            echo '<p><strong>'.esc_html(__('ForumPay reference', 'forumpay')).':</strong> <br/>' . esc_html($paymentId) . '</p>';
+            echo '<p><span><strong>'.esc_html(__('ForumPay reference', 'forumpay')).':</strong></span> <br/> <span class="order_payment_id">' . esc_html($paymentId) . '</span></p>';
+            echo '<button id="forumpay_api_sync_payment" class="button-primary">' . esc_html(__('Sync status with ForumPay', 'forumpay')) . '</button>';
         }
     }
 
@@ -622,12 +634,21 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $return_url = $this->get_return_url($order);
         $cancel_url = wc_get_cart_url();
 
+        $parsed_url = parse_url($this->getApiUrl());
+        $protocol = isset($parsed_url['scheme']) ? $parsed_url['scheme'] : null;
+        $host = isset($parsed_url['host']) ? $parsed_url['host'] : null;
+        $forumPayApiUrl = '';
+        if ($protocol && $host) {
+            $forumPayApiUrl = $protocol . "://" . $host;
+        }
+
         $templatehtml = '<div id="ForumPayPaymentGatewayWidgetContainer">{{message}}</div>';
 
         $templatehtml .= '<span id="forumpay-nonce" data="' . esc_attr(wp_create_nonce('wp_rest')) . '"></span>';
         $templatehtml .= '<span id="forumpay-apibase" data="' . esc_url($apibase) . '"></span>';
         $templatehtml .= '<span id="forumpay-returnurl" data="' . esc_url($return_url) . '"></span>';
         $templatehtml .= '<span id="forumpay-cancelurl" data="' . esc_url($cancel_url) . '"></span>';
+        $templatehtml .= '<span id="forumpay-forumpayapiurl" data="' . esc_url($forumPayApiUrl) . '"></span>';
 
         return $templatehtml;
     }

@@ -87,6 +87,11 @@ class Payment
     private array $notices;
 
     /**
+     * @var string
+     */
+    private string $statsToken;
+
+    /**
      * Payment DTO constructor
      *
      * @param string $paymentId
@@ -100,6 +105,7 @@ class Payment
      * @param string $qrImg
      * @param string $qrAltImg
      * @param array $notices
+     * @param string $statsToken
      */
     public function __construct(
         string $paymentId,
@@ -112,7 +118,8 @@ class Payment
         string $qrAlt,
         string $qrImg,
         string $qrAltImg,
-        array $notices = []
+        array $notices = [],
+        string $statsToken = ''
     ) {
         $this->paymentId = $paymentId;
         $this->address = $address;
@@ -125,6 +132,7 @@ class Payment
         $this->qrImg = $qrImg;
         $this->qrAltImg = $qrAltImg;
         $this->notices = $notices;
+        $this->statsToken = $statsToken;
     }
 
     /**
@@ -216,6 +224,14 @@ class Payment
     }
 
     /**
+     * @return string
+     */
+    public function getStatsToken(): string
+    {
+        return $this->statsToken;
+    }
+
+    /**
      * Return associative array of all the properties
      *
      * @return array
@@ -237,6 +253,7 @@ class Payment
                 $this->notices
             ),
             'payment_id' => $this->paymentId,
+            'stats_token' => $this->statsToken,
         ];
     }
 }

@@ -3,6 +3,7 @@ import Container from './Container.vue';
 import Copy from './Copy.vue';
 import CurrencyIcon from './CurrencyIcon.vue';
 import SvgIconExclamationTriangle from '../images/SvgIconExclamationTriangle.vue';
+import cryptoPaymentStatsHandler from '../utils/cryptoPaymentStatsHandler';
 import formatCurrencyName from '../utils/formatCurrency';
 
 const PaymentStateUnderpayment = {
@@ -74,12 +75,30 @@ const PaymentStateUnderpayment = {
       qrShown: true,
     };
   },
+  mounted() {
+    if (!this.isBackupQR) {
+      cryptoPaymentStatsHandler.event('QRCodeInit');
+    }
+  },
   methods: {
     formatCurrencyName,
-  },
-  computed: {
-    qrImage() {
-      return (this.isBackupQR ? this.qrAltImg : this.qrImg);
+    toggleQRCode() {
+      this.isBackupQR = !this.isBackupQR;
+      if (this.isBackupQR) {
+        cryptoPaymentStatsHandler.event('QRAltCodeInit');
+      }
+    },
+    handleAddressCopy() {
+      cryptoPaymentStatsHandler.event('addressCopy');
+    },
+    handleAmountCopy() {
+      cryptoPaymentStatsHandler.event('amountCopy');
+    },
+    onQRCodeLoad(success) {
+      cryptoPaymentStatsHandler.event('QRCodeLoad', success);
+    },
+    onQRAltCodeLoad(success) {
+      cryptoPaymentStatsHandler.event('QRAltCodeLoad', success);
     },
   },
 };
@@ -125,9 +144,22 @@ export default PaymentStateUnderpayment;
           </small>
           <div v-show="qrShown">
             <img
+              v-if="!isBackupQR"
+              id="qr"
               class="forumpay-pgw-underpayment-qr-image"
-              :src="qrImage"
+              :src="qrImg"
               alt="qr"
+              @load="onQRCodeLoad(true)"
+              @error="onQRCodeLoad(false)"
+            >
+            <img
+              v-else
+              id="qralt"
+              class="forumpay-pgw-underpayment-qralt-image"
+              :src="qrAltImg"
+              alt="alt-qr"
+              @load="onQRAltCodeLoad(true)"
+              @error="onQRAltCodeLoad(false)"
             >
             <div class="forumpay-pgw-underpayment-backup-qr">
               <div v-if="!isBackupQR">
@@ -135,7 +167,7 @@ export default PaymentStateUnderpayment;
                 <span>If this QR is not populating your wallet, please use this one.</span>
                 <button
                   type="button"
-                  @click="isBackupQR = true"
+                  @click="toggleQRCode"
                 >
                   Backup QR
                 </button>
@@ -145,8 +177,8 @@ export default PaymentStateUnderpayment;
                 class="forumpay-pgw-underpayment-show-original-qr"
                 role="button"
                 tabIndex="0"
-                @keyup="isBackupQR = false"
-                @click="isBackupQR = false"
+                @keyup="toggleQRCode"
+                @click="toggleQRCode"
               >
                 <CurrencyIcon :currency="currency" />&lt; Go back to original QR</span>
             </div>
@@ -157,14 +189,14 @@ export default PaymentStateUnderpayment;
             <span class="forumpay-pgw-underpayment-details-name">Amount</span>
             <div class="forumpay-pgw-underpayment-details-field">
               <span>{{ missingAmount }} {{ formatCurrencyName(missingCurrency) }}</span>
-              <Copy :value="missingAmount" />
+              <Copy :value="missingAmount" :on-copy="handleAmountCopy" />
             </div>
           </div>
           <div>
             <span class="forumpay-pgw-underpayment-details-name">Address</span>
             <div class="forumpay-pgw-underpayment-details-field forumpay-pgw-underpayment-details-field--small">
               <span>{{ address }}</span>
-              <Copy :value="address" />
+              <Copy :value="address" :on-copy="handleAddressCopy" />
             </div>
           </div>
         </div>

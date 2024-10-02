@@ -67,6 +67,7 @@ class Router
             'cancelPayment' => new CancelPayment($this->forumPay, $this->logger),
             'webhook' => new Webhook($this->forumPay, $this->logger),
             'restoreCart' => new RestoreCart($this->forumPay, $this->logger),
+            'syncPayment' => new CheckPayment($this->forumPay, $this->logger),
         ];
     }
 
@@ -80,7 +81,7 @@ class Router
     {
         try {
             $routePrecheck = filter_input(INPUT_GET, 'act', FILTER_SANITIZE_STRING);
-            if (in_array($routePrecheck, ['webhook', 'ping'])) {
+            if (in_array($routePrecheck, ['webhook', 'ping', 'syncPayment'])) {
                 $route = $routePrecheck;
             } else {
                 $route = $request->getRequired('act', true);

@@ -20,6 +20,7 @@ class ForumPayPaymentGatewayWidget {
         messageReceiver: function messageReceiver() {},
         showStartPaymentButton: false,
         customHeaders: {},
+        forumPayApiUrl: '',
       },
       ...config,
     };
@@ -28,6 +29,13 @@ class ForumPayPaymentGatewayWidget {
 
   init() {
     store.pluginConfig = this.config;
+
+    if (this.config.forumPayApiUrl !== '') {
+      const scriptLimitlex = document.createElement('script');
+      scriptLimitlex.type = 'text/javascript';
+      scriptLimitlex.src = `${this.config.forumPayApiUrl}/pay/events/payment.js`;
+      document.head.appendChild(scriptLimitlex);
+    }
 
     store.axios = axios.create({
       baseURL: this.config.baseUrl,

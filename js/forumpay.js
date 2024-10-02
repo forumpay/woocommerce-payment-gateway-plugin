@@ -61,6 +61,7 @@ const initPlugin = function () {
     },
     successResultUrl: forumPayData('forumpay-returnurl'),
     errorResultUrl: forumPayData('forumpay-cancelurl'),
+    forumPayApiUrl: forumPayData('forumpay-forumpayapiurl'),
     messageReceiver: function (name, data) {
     },
     showStartPaymentButton: true,

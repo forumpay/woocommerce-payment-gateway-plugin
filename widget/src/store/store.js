@@ -1,3 +1,4 @@
+/* global CryptoPaymentStats */
 import { createStore } from 'vuex';
 
 const formatRoute = (config) => {
@@ -226,6 +227,10 @@ export default createStore({
         const result = await this.axios.post(route.path, data);
         commit('setLoading', false);
         commit('setPayment', result.data);
+
+        if (result.data && result.data.stats_token) {
+          CryptoPaymentStats.setToken(result.data.stats_token);
+        }
       } catch (error) {
         commit('setLoading', false);
         if (error.response.data.code === 3051) {

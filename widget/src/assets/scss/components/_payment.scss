@@ -227,23 +227,30 @@
       }
 
       &-content {
-        ul {
+        &-ul {
           list-style: none;
           margin: 0;
           padding: 0;
+        }
 
-          li {
-            list-style: none;
-            border-bottom: 1px solid var(--wlx-gray-1);
-            padding: 10px 0;
-            font-size: 0.9em;
-            color: var(--wlx-text-1);
+        &-li {
+          display: flex;
+          justify-content: space-between;
+          list-style: none;
+          margin: 0;
+          border-bottom: 1px solid var(--wlx-gray-1);
+          padding: 10px 0;
+
+          &__title-font {
+            font-size: 0.83em;
             font-weight: 600;
+            color: var(--wlx-text-1);
+          }
 
-            span {
-              font-weight: 800;
-              margin-left: 5px;
-            }
+          &__data-font {
+            font-size: 0.83em;
+            font-weight: 800;
+            color: var(--wlx-text-1);
           }
         }
       }

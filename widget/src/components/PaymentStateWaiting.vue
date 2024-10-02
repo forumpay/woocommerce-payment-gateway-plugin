@@ -8,6 +8,7 @@ import Loader from './Loader.vue';
 import SvgIconQr from '../images/SvgIconQr.vue';
 import SvgIconNotice from '../images/SvgIconNotice.vue';
 import formatCurrencyName from '../utils/formatCurrency';
+import cryptoPaymentStatsHandler from '../utils/cryptoPaymentStatsHandler';
 
 const PaymentStateWaiting = {
   components: {
@@ -131,10 +132,18 @@ const PaymentStateWaiting = {
       isTransactionInfoVisible: false,
     };
   },
+  mounted() {
+    if (!this.isBackupQR) {
+      cryptoPaymentStatsHandler.event('QRCodeInit');
+    }
+  },
   methods: {
     formatCurrencyName,
     toggleQRCode() {
       this.isBackupQR = !this.isBackupQR;
+      if (this.isBackupQR) {
+        cryptoPaymentStatsHandler.event('QRAltCodeInit');
+      }
     },
     togglePaymentStatus() {
       this.isPaymentStatusVisible = !this.isPaymentStatusVisible;
@@ -148,10 +157,17 @@ const PaymentStateWaiting = {
       }
       this.$emit('cancel-payment');
     },
-  },
-  computed: {
-    qrImage() {
-      return (this.isBackupQR ? this.qrAltImg : this.qrImg);
+    handleAddressCopy() {
+      cryptoPaymentStatsHandler.event('addressCopy');
+    },
+    handleAmountCopy() {
+      cryptoPaymentStatsHandler.event('amountCopy');
+    },
+    onQRCodeLoad(success) {
+      cryptoPaymentStatsHandler.event('QRCodeLoad', success);
+    },
+    onQRAltCodeLoad(success) {
+      cryptoPaymentStatsHandler.event('QRAltCodeLoad', success);
     },
   },
 };
@@ -198,10 +214,23 @@ export default PaymentStateWaiting;
       />
 
       <img
+        v-if="!isBackupQR"
+        id="qr"
         class="forumpay-pgw-payment-qr"
-        :src="qrImage"
+        :src="qrImg"
         alt="qr"
+        @load="onQRCodeLoad(true)"
+        @error="onQRCodeLoad(false)"
       >
+      <img
+        v-else
+        id="qralt"
+        class="forumpay-pgw-payment-qr"
+        :src="qrAltImg"
+        alt="alt-qr"
+        @load="onQRAltCodeLoad(true)"
+        @error="onQRAltCodeLoad(false)"
+      />
 
       <div
         v-if="!isBackupQR"
@@ -283,14 +312,14 @@ export default PaymentStateWaiting;
         <span class="forumpay-pgw-payment-amount-label">Amount</span>
         <div class="forumpay-pgw-payment-amount-field">
           <span>{{ amount }} {{ formatCurrencyName(currency.currency) }}</span>
-          <Copy :value="amount" />
+          <Copy :value="amount" :on-copy="handleAmountCopy" />
         </div>
       </div>
       <div>
         <span class="forumpay-pgw-payment-amount-label">Address</span>
         <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--address">
           <span>{{ address }}</span>
-          <Copy :value="address" />
+          <Copy :value="address" :on-copy="handleAddressCopy" />
         </div>
       </div>
 
@@ -307,24 +336,31 @@ export default PaymentStateWaiting;
       </div>
 
       <div class="forumpay-pgw-payment-transaction-content">
-        <ul v-if="isTransactionInfoVisible">
-          <li>Payment ID: <span>{{ invoiceNo }}</span></li>
-          <li>
-            Order Amount:
-            <span>{{ invoiceAmount }} {{ formatCurrencyName(invoiceCurrency) }}</span>
+        <ul v-if="isTransactionInfoVisible" class="forumpay-pgw-payment-transaction-content-ul">
+          <li class="forumpay-pgw-payment-transaction-content-li">
+            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Payment ID:</span>
+            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ invoiceNo }}</span>
           </li>
-          <li>
-            Exchange Rate: <span>{{ rate }}/{{ formatCurrencyName(amountCurrency) }}</span>
+          <li class="forumpay-pgw-payment-transaction-content-li">
+            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Order Amount:</span>
+            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ invoiceAmount }} {{ formatCurrencyName(invoiceCurrency) }}</span>
           </li>
-          <li>
-            Exchange Amount:
-            <span>{{ amountExchange }} {{ formatCurrencyName(amountCurrency) }}</span>
+          <li class="forumpay-pgw-payment-transaction-content-li">
+            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Exchange Rate:</span>
+            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ rate }}/{{ formatCurrencyName(amountCurrency) }}</span>
           </li>
-          <li>
-            Network Cost:
-            <span>{{ networkProcessingFee }} {{ formatCurrencyName(amountCurrency) }}</span>
+          <li class="forumpay-pgw-payment-transaction-content-li">
+            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Exchange Amount:</span>
+            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ amountExchange }} {{ formatCurrencyName(amountCurrency) }}</span>
           </li>
-          <li>Total to Send: <span>{{ amount }}</span></li>
+          <li class="forumpay-pgw-payment-transaction-content-li">
+            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Network Cost:</span>
+            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ networkProcessingFee }} {{ formatCurrencyName(amountCurrency) }}</span>
+          </li>
+          <li class="forumpay-pgw-payment-transaction-content-li">
+            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Total to Send:</span>
+            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ amount }}</span>
+          </li>
         </ul>
       </div>
     </Container>

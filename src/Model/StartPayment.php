@@ -80,7 +80,8 @@ class StartPayment
                 $response->getQrAlt(),
                 $response->getQrImg(),
                 $response->getQrAltImg(),
-                $notices
+                $notices,
+                $response->getStatsToken(),
             );
 
             $this->logger->info('StartPayment entrypoint finished.');

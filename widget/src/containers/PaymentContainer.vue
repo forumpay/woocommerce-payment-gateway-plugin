@@ -7,6 +7,7 @@ import PaymentStateWaiting from '../components/PaymentStateWaiting.vue';
 import Loader from '../components/Loader.vue';
 import InstructionBox from '../components/InstructionBox.vue';
 import CancelBox from '../components/CancelBox.vue';
+import cryptoPaymentStatsHandler from '../utils/cryptoPaymentStatsHandler';
 
 const PaymentContainer = {
   components: {
@@ -23,6 +24,7 @@ const PaymentContainer = {
     return {
       store: this.$store,
       checkPaymentInterval: null,
+      checkBeforeCloseInterval: null,
     };
   },
   props: {
@@ -64,9 +66,14 @@ const PaymentContainer = {
         5000,
       );
     }
+
+    this.checkBeforeCloseInterval = setInterval(() => {
+      cryptoPaymentStatsHandler.event('beforeClose');
+    }, 3000);
   },
   unmounted() {
     clearInterval(this.checkPaymentInterval);
+    clearInterval(this.checkBeforeCloseInterval);
   },
   methods: {
     onCancelPayment() {

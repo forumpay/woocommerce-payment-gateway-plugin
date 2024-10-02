@@ -6,6 +6,7 @@ const Copy = {
   components: { SvgCopy },
   props: {
     value: String,
+    onCopy: Function,
   },
   data() {
     return {
@@ -17,6 +18,11 @@ const Copy = {
     copyToClipboard() {
       navigator.clipboard.writeText(this.value);
       this.isCopied = true;
+
+      if (typeof this.onCopy === 'function') {
+        this.onCopy();
+      }
+
       setTimeout(() => { this.isCopied = false; }, 1000);
     },
   },
