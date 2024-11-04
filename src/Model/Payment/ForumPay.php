@@ -170,6 +170,9 @@ class ForumPay
             $kycPin,
             $this->gateway->getAcceptLatePayment()['enabled'] ? 'true':'false',
             $this->gateway->getWebhookUrl(),
+            null,
+            null,
+            $this->calculateMaximumOrderValue($this->gateway->getAcceptOverpayment(), $orderId)
         );
 
         $this->orderManager->saveOrderMetaData($orderId, 'startPayment', $response->toArray());
@@ -350,6 +353,24 @@ class ForumPay
         $minimumOrderValue = (1 - $percentage / 100) * $total;
 
         return (string)round($minimumOrderValue, 2);
+    }
+
+    private function calculateMaximumOrderValue(array $overPaymentOptions, string $orderId): string
+    {
+        if (!$overPaymentOptions['enabled']) {
+            return '';
+        }
+
+        if ($overPaymentOptions['threshold'] === '') {
+            return '';
+        }
+
+        $maximumAddedValuePercentage = $overPaymentOptions['threshold'];
+        $total = $this->orderManager->getOrderTotal($orderId);
+        $percentage = floatval($maximumAddedValuePercentage);
+        $maximumOrderValue = (1 + $percentage / 100) * $total;
+
+        return (string)round($maximumOrderValue, 2);
     }
 
     private function initApiClient($apiUrl, $piUser, $apiSecret): PaymentGatewayApiInterface

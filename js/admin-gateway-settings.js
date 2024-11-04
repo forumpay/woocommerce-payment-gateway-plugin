@@ -18,7 +18,11 @@ jQuery(document).ready(function($) {
     const isChecked = $(`#woocommerce_${gatewayId}_${field}`).is(':checked');
 
     $(`#woocommerce_${gatewayId}_${field}_threshold`).closest('tr').toggle(isChecked);
-    $(`#woocommerce_${gatewayId}_${field}_threshold`).prop('required',isChecked);
+
+    if (field === 'accept_underpayment') {
+      $(`#woocommerce_${gatewayId}_${field}_threshold`).prop('required',isChecked);
+    }
+
     $(`#woocommerce_${gatewayId}_${field}_modify_order_total`).closest('tr').toggle(isChecked);
 
     // Ensure dependent fields are updated based on current state

@@ -114,7 +114,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         ];
         $this->fp_accept_overpayment = [
             'enabled' => ($this->settings['accept_overpayment'] ?? 'no' ) === 'yes',
-            'threshold' => null,
+            'threshold' => $this->settings['accept_overpayment_threshold'] ?? null,
             'modify_order' => ($this->settings['accept_overpayment_modify_order_total'] ?? 'no') === 'yes',
             'fee_description' => $this->settings['accept_overpayment_modify_order_total_description'] ?? null,
         ];
@@ -137,15 +137,14 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_filter('woocommerce_payment_gateways', array($this, 'add_forumpay_gateway'));
         add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'display_admin_payment_id'));
 
-        // Registers WooCommerce Blocks integration.
-        add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'woocommerce_forumpay_gateway_block_support' ) );
-
         add_action('wp_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_scripts'));
         // Register admin js files
         add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_admin_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'forumpay_payment_gateway_enqueue_order_edit_scripts'));
 
         add_action('before_woocommerce_init', array($this, 'before_woocommerce_hpos'));
+        // Registers WooCommerce Blocks integration.
+        add_action('woocommerce_init',  array( __CLASS__, 'woocommerce_forumpay_gateway_block_support' ));
     }
 
     function before_woocommerce_hpos() {
@@ -214,7 +213,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function is_available()
     {
-        return true;
+        return $this->enabled === 'yes';
     }
 
     /**
@@ -253,7 +252,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      **/
     function add_forumpay_gateway($methods)
     {
-        $methods[] = $this;
+        $methods[] = 'ForumPay\PaymentGateway\WoocommercePlugin\ForumPayPaymentGateway';
         return $methods;
     }
 
@@ -375,6 +374,12 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'label' => __('Enable this option to automatically accept payments that exceed the total order amount.', 'forumpay'),
                 'default' => 'no'),
 
+            'accept_overpayment_threshold' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'text',
+                'description' => __('Enter the maximum percentage of the order total that can be overpaid for the order to be accepted automatically or leave blank to accept any overpayment amount.', 'forumpay')
+            ),
+
             'accept_overpayment_modify_order_total' => array(
                 'title' => __('', 'forumpay'),
                 'type' => 'checkbox',
@@ -481,26 +486,24 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      * @param $value
      * @return mixed
      */
-    public function validate_accept_underpayment_field($key, $value) {
+    public function validate_accept_underpayment_threshold_field($key, $value) {
+        $isEnabled = (bool)$this->get_post_data()['woocommerce_forumpay_accept_underpayment'];
         $errorMessage = __('Invalid underpayment threshold. Please enter a valid percentage between 0 and 100.', 'forumpay');
-        $isEnabled = (bool)$value;
         if (!$isEnabled) {
-            return 'no';
+            return '';
         }
 
-        $threshold = $this->get_post_data()['woocommerce_forumpay_accept_underpayment_threshold'];
-
-        if (filter_var($threshold, FILTER_VALIDATE_FLOAT) === false) {
+        if (filter_var($value, FILTER_VALIDATE_FLOAT) === false) {
             WC_Admin_Settings::add_error($errorMessage);
             throw new \Exception($errorMessage);
         }
 
-        if (($threshold < 0) || ($threshold > 100)) {
+        if (($value < 0) || ($value > 100)) {
             WC_Admin_Settings::add_error($errorMessage);
             throw new \Exception($errorMessage);
         }
 
-        return 'yes';
+        return $value;
     }
 
     /**
@@ -529,6 +532,37 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         }
 
         return 'yes';
+    }
+
+    /**
+     * Add validation rule to Overpayment threshold field
+     *
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function validate_accept_overpayment_threshold_field($key, $value) {
+        $isEnabled = (bool)$this->get_post_data()['woocommerce_forumpay_accept_overpayment'];
+        $errorMessage = __('Invalid overpayment threshold. Please enter a valid percentage or leave blank to accept any overpayment amount.', 'forumpay');
+        if (!$isEnabled) {
+            return '';
+        }
+
+        if ($value === '') {
+            return '';
+        }
+
+        if (filter_var($value, FILTER_VALIDATE_FLOAT) === false) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        if ($value < 0) {
+            WC_Admin_Settings::add_error($errorMessage);
+            throw new \Exception($errorMessage);
+        }
+
+        return $value;
     }
 
     /**
@@ -642,7 +676,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             $forumPayApiUrl = $protocol . "://" . $host;
         }
 
-        $templatehtml = '<div id="ForumPayPaymentGatewayWidgetContainer">{{message}}</div>';
+        $templatehtml = '<div id="ForumPayPaymentGatewayWidgetContainer"></div>';
 
         $templatehtml .= '<span id="forumpay-nonce" data="' . esc_attr(wp_create_nonce('wp_rest')) . '"></span>';
         $templatehtml .= '<span id="forumpay-apibase" data="' . esc_url($apibase) . '"></span>';

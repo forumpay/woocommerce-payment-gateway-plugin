@@ -30,9 +30,14 @@ final class ForumPayPaymentBlocksSupport extends AbstractPaymentMethodType {
      * Initializes the payment method type.
      */
     public function initialize() {
-        $this->settings = get_option( 'woocommerce_forumpay_settings', [] );
-        $gateways       = WC()->payment_gateways->payment_gateways();
-        $this->gateway  = $gateways[ $this->name ];
+        $this->settings = get_option('woocommerce_forumpay_settings', []);
+        $gateways = WC()->payment_gateways->payment_gateways();
+
+        if (isset($gateways[$this->name])) {
+            $this->gateway = $gateways[$this->name];
+        } else {
+            error_log("ForumPay gateway is not available yet.");
+        }
     }
 
     /**
