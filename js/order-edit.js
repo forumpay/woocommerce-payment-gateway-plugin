@@ -5,7 +5,7 @@ jQuery(document).ready(function($) {
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('id') ?? urlParams.get('post');
 
-    const paymentIdElement = $('.order_payment_id');
+    const paymentIdElement = $('.order_payment_id').first();
     const paymentId = paymentIdElement.text();
 
     $('#forumpay_api_sync_payment').on('click', function(e) {

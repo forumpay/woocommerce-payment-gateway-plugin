@@ -252,7 +252,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      **/
     function add_forumpay_gateway($methods)
     {
-        $methods[] = 'ForumPay\PaymentGateway\WoocommercePlugin\ForumPayPaymentGateway';
+        $methods[] = $this;
         return $methods;
     }
 
