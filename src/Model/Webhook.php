@@ -5,14 +5,12 @@ namespace ForumPay\PaymentGateway\WoocommercePlugin\Model;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ApiHttpException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ForumPayException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\ForumPayLogger;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\WebhookTest;
 use ForumPay\PaymentGateway\WoocommercePlugin\Request;
 use ForumPay\PaymentGateway\PHPClient\Http\Exception\ApiExceptionInterface;
 use ForumPay\PaymentGateway\PHPClient\Response\CheckPaymentResponse;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
 
-/**
- * @inheritdoc
- */
 class Webhook
 {
     /**
@@ -42,11 +40,15 @@ class Webhook
     }
 
     /**
-     * @inheritdoc
-     *
+     * return WebhookTest|null
      */
-    public function execute(Request $request): void
+    public function execute(Request $request): ?WebhookTest
     {
+        try {
+            $request->getRequired('webhook_test', false);
+            return new WebhookTest(wp_hash($this->forumPay->getInstanceIdentifier()));
+        } catch (\InvalidArgumentException $e) {}
+
         try {
             try {
                 $paymentId = $request->getRequired('payment_id', false);
@@ -62,6 +64,8 @@ class Webhook
             $this->forumPay->checkPayment($orderId, $paymentId);
 
             $this->logger->info('Webhook entrypoint finished.');
+
+            return null;
         } catch (ApiExceptionInterface $e) {
             $this->logger->logApiException($e);
             throw new ApiHttpException($e, 6050);

@@ -59,21 +59,44 @@ class ForumPay
     }
 
     /**
+     * Get instance identifier
+     *
+     * @return string
+     */
+    public function getInstanceIdentifier(): string
+    {
+        return sprintf(
+            '%s-%s-%s-%s',
+            'forumpay-woocommerce',
+            $this->gateway->getPluginVersion(),
+            $this->gateway->getWordpressVersion(),
+            $this->gateway->getWooCommerceVersion(),
+        );
+    }
+
+    /**
      * Ping api to check configuration
      *
      * @param string $apiEnv
      * @param string $apiKey
      * @param string $apiSecret
      * @param string $apiUrlOverride
+     * @param string $webhookUrl
      * @return PingResponse
      */
-    public function ping(string $apiEnv, string $apiKey, string $apiSecret, string $apiUrlOverride): PingResponse
+    public function ping(
+        string $apiEnv,
+        string $apiKey,
+        string $apiSecret,
+        string $apiUrlOverride,
+        string $webhookUrl
+    ): PingResponse
     {
          return $this->initApiClient(
             empty($apiUrlOverride) ? $apiEnv : $apiUrlOverride,
             $apiKey,
-            $apiSecret
-        )->ping();
+            $apiSecret,
+        )->ping($webhookUrl);
     }
 
     /**

@@ -48,7 +48,7 @@ class CheckPayment
     {
         try {
             try {
-                $orderId = $request->getRequired('orderId');
+                $orderId = $request->getRequired('forumpay_order_id');
             } catch (\InvalidArgumentException $e) {
                 $this->logger->error($e->getMessage(), $e->getTrace());
                 throw new OrderNotFoundException(4005);

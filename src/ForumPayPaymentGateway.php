@@ -197,6 +197,10 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     }
 
     function forumpay_payment_gateway_enqueue_order_edit_scripts($hook) {
+        if ('woocommerce_page_wc-orders' !== $hook) {
+            return;
+        }
+
         wp_enqueue_script('forumpay_order_edit_script', FORUMPAY_PLUGIN_DIR . '/js/order-edit.js', array('jquery'), '1.0', true);
 
         // Pass variables to JavaScript
@@ -318,7 +322,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'title' => __('Webhook URL', 'forumpay'),
                 'type' => 'text',
                 'description' => sprintf(
-                    __('Optional: This URL should point to the endpoint that will handle the webhook events.<br> Typically, it should be: <b><i>%s</i></b><br> This URL will override the default setting for your API keys on your Forumpay account.<br> Ensure that the URL is publicly accessible and can handle the incoming webhook events securely.', 'forumpay'),
+                    __('Optional: This URL should point to the endpoint that will handle the webhook events.<br> Typically, it should be: <b><i>%s</i></b><br> This URL will override the default setting for your API keys on your ForumPay Account.<br> Ensure that the URL is publicly accessible and can handle the incoming webhook events securely.', 'forumpay'),
                     str_replace('localhost', 'my-site', get_site_url()) . "/wp-json/wc-api/wc_forumpay?act=webhook"
                 )
             ),
@@ -683,6 +687,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $templatehtml .= '<span id="forumpay-returnurl" data="' . esc_url($return_url) . '"></span>';
         $templatehtml .= '<span id="forumpay-cancelurl" data="' . esc_url($cancel_url) . '"></span>';
         $templatehtml .= '<span id="forumpay-forumpayapiurl" data="' . esc_url($forumPayApiUrl) . '"></span>';
+        $templatehtml .= '<span id="forumpay-orderid" data="' . esc_attr($order_id) . '"></span>';
 
         return $templatehtml;
     }

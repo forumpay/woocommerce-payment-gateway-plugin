@@ -15,12 +15,31 @@ class Ping
     private string $message;
 
     /**
+     * Webhook Success
+     *
+     * @var string|null
+     */
+    private ?string $webhookSuccess;
+
+    /**
+     * Webhook Ping Response
+     *
+     * @var WebhookPingResponse|null
+     */
+    private ?WebhookPingResponse $webhookPingResponse;
+
+    /**
      * Ping DTO constructor
      *
      */
-    public function __construct(string $message)
-    {
+    public function __construct(
+        string $message,
+        ?string $webhookSuccess = null,
+        ?WebhookPingResponse $webhookPingResponse = null
+    ) {
         $this->message = $message;
+        $this->webhookSuccess = $webhookSuccess;
+        $this->webhookPingResponse = $webhookPingResponse;
     }
 
     /**
@@ -32,6 +51,8 @@ class Ping
     {
         return [
             'message' => $this->message,
+            'webhookSuccess' => $this->webhookSuccess,
+            'webhookPingResponse' => $this->webhookPingResponse->toArray() ?? $this->webhookPingResponse,
         ];
     }
 }

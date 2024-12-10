@@ -46,7 +46,10 @@ final class ForumPayPaymentBlocksSupport extends AbstractPaymentMethodType {
      * @return boolean
      */
     public function is_active() {
-        return $this->gateway->is_available();
+        if (isset($this->gateway)) {
+            return $this->gateway->is_available();
+        }
+        return false;
     }
 
     /**

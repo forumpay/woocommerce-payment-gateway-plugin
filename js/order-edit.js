@@ -24,7 +24,7 @@ jQuery(document).ready(function($) {
                 'X-WP-Nonce': nonce,
             },
             data: JSON.stringify({
-                orderId: orderId,
+                forumpay_order_id: orderId,
                 payment_id: paymentId,
                 forumpay_nonce: nonce,
             }),

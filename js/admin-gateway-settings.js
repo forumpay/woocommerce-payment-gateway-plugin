@@ -70,12 +70,33 @@ jQuery(document).ready(function($) {
         apiKey: $('#woocommerce_forumpay_api_user').val(),
         apiSecret: $('#woocommerce_forumpay_api_key').val(),
         apiUrlOverride: $('#woocommerce_forumpay_api_url_override').val(),
+        webhookUrl: $('#woocommerce_forumpay_webhook_url').val(),
         forumpay_nonce: nonce,
       }),
       success: function(response) {
         $button.prop('disabled', false);
         $button.text(originalText);
-        alert('Server responded: ' + response?.message);
+
+        const {webhookSuccess, webhookPingResponse, message} = response || {};
+        const {status, duration, webhookUrl, responseCode, responseBody} = webhookPingResponse || {};
+
+        if (!webhookSuccess || !webhookPingResponse) {
+          alert(`Server responded: ${message}`);
+          return;
+        }
+
+        if (webhookSuccess === 'OK') {
+          alert(`Server responded: ${message}\n\nWebhook responded: ${webhookSuccess}`);
+          return;
+        }
+
+        alert(`Server responded: ${response?.message}\n\nWebhook responded: ${webhookSuccess}
+          Status: ${status}
+          Duration: ${duration} seconds
+          Webhook URL: ${webhookUrl}
+          ${responseCode ? `Response Code: ${responseCode}` : ''}
+          ${responseBody ? `Response Body: ${responseBody}` : ''}
+        `);
       },
       error: function(error) {
         $button.prop('disabled', false);

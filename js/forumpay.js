@@ -11,6 +11,7 @@ const initPlugin = function () {
   }
 
   const nonce = forumPayData('forumpay-nonce');
+  const orderId = forumPayData('forumpay-orderid');
   const config = {
     baseUrl: apiBase,
     customHeaders: {
@@ -42,7 +43,8 @@ const initPlugin = function () {
       'path': '',
       'params': {
         'act': 'checkPayment',
-        'forumpay_nonce': nonce
+        'forumpay_nonce': nonce,
+        'forumpay_order_id': orderId
       },
     },
     restCancelPaymentUri: {
