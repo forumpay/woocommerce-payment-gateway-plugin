@@ -138,6 +138,8 @@ export default PaymentContainer;
 
     :notices="payment.notices"
 
+    :beneficiary-vasp-details="payment.beneficiary_vasp_details ?? null"
+
     @cancel-payment="onCancelPayment"
   />
 

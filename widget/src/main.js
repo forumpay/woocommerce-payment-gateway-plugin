@@ -21,6 +21,7 @@ class ForumPayPaymentGatewayWidget {
         showStartPaymentButton: false,
         customHeaders: {},
         forumPayApiUrl: '',
+        payer: {},
       },
       ...config,
     };
@@ -29,6 +30,10 @@ class ForumPayPaymentGatewayWidget {
 
   init() {
     store.pluginConfig = this.config;
+
+    if (this.config.payer) {
+      store.commit('setPayer', this.config.payer);
+    }
 
     if (this.config.forumPayApiUrl !== '') {
       const scriptLimitlex = document.createElement('script');

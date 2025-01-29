@@ -1,0 +1,59 @@
+.forumpay-pgw-dropdown-select {
+  position: relative;
+  width: 100%;
+
+  &-label {
+    font-weight: 800;
+    font-size: 0.8em;
+    display: contents;
+
+    span {
+      color: var(--wlx-gray-2);
+    }
+  }
+
+  &-field {
+    background-color: var(--wlx-gray-4);
+    width: 100%;
+    height: 38px;
+    font-weight: 600 !important;
+    font-size: 0.8em !important;
+    font-family: "Be Vietnam", sans-serif;
+    padding: 10px 30px 10px 10px;
+    outline: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 5px;
+    white-space: normal;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    margin: 0 0 6px 0 !important;
+
+    &-default {
+      color: var(--wlx-gray-2);
+    }
+
+    option {
+      border: var(--wlx-gray-2) 1px solid;
+      &:hover {
+        background-color: var(--wlx-gray-2);
+      }
+    }
+  }
+
+  &::after {
+    content: "\276F";
+    color: var(--wlx-gray-arrows);
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    text-align: center;
+    cursor: default;
+    font-weight: 600;
+    font-size: 0.8em;
+    pointer-events: none;
+  }
+}

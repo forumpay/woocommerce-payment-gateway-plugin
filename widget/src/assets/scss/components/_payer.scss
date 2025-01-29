@@ -1,0 +1,66 @@
+.forumpay-pgw {
+  &-payer {
+    &-type {
+      display: flex;
+      gap: 1.8em;
+      margin-bottom: .8em;
+      width: 100%;
+
+      a {
+        flex: 1;
+        text-align: center;
+        text-decoration: none;
+        background-color: var(--wlx-gray-4);
+        color: var(--wlx-black);
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 0.8em;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        box-shadow: none !important;
+        outline: none !important;
+
+        &:hover {
+          background-color: var(--wlx-green-2);
+          box-shadow: none !important;
+          outline: none !important;
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+
+        &.active {
+          background-color: var(--wlx-green-2);
+        }
+      }
+    }
+
+    &-input {
+      margin: 0 0 6px 0 !important;
+      padding: 10px !important;
+      height: revert !important;
+      border: 1px solid transparent !important;
+      border-radius: 5px !important;
+      outline: none !important;
+      box-shadow: none !important;
+      font-weight: 600 !important;
+      font-size: 0.8em !important;
+
+      &:focus {
+        box-shadow: none !important;
+        outline: none !important;
+      }
+    }
+
+    &-label {
+      font-size: 0.8em !important;
+      font-weight: 800 !important;
+
+      span {
+        color: var(--wlx-gray-2);
+      }
+    }
+  }
+}

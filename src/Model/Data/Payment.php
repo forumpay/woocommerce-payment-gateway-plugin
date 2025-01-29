@@ -2,6 +2,7 @@
 
 namespace ForumPay\PaymentGateway\WoocommercePlugin\Model\Data;
 
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payment\BeneficiaryVaspDetails;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payment\Notice;
 
 /**
@@ -92,6 +93,12 @@ class Payment
     private string $statsToken;
 
     /**
+     * @var BeneficiaryVaspDetails|null
+     */
+    private ?BeneficiaryVaspDetails $beneficiaryVaspDetails;
+
+
+    /**
      * Payment DTO constructor
      *
      * @param string $paymentId
@@ -106,6 +113,7 @@ class Payment
      * @param string $qrAltImg
      * @param array $notices
      * @param string $statsToken
+     * @param BeneficiaryVaspDetails|null $beneficiaryVaspDetails
      */
     public function __construct(
         string $paymentId,
@@ -119,7 +127,8 @@ class Payment
         string $qrImg,
         string $qrAltImg,
         array $notices = [],
-        string $statsToken = ''
+        string $statsToken = '',
+        ?BeneficiaryVaspDetails $beneficiaryVaspDetails = null
     ) {
         $this->paymentId = $paymentId;
         $this->address = $address;
@@ -133,6 +142,7 @@ class Payment
         $this->qrAltImg = $qrAltImg;
         $this->notices = $notices;
         $this->statsToken = $statsToken;
+        $this->beneficiaryVaspDetails = $beneficiaryVaspDetails;
     }
 
     /**
@@ -232,6 +242,14 @@ class Payment
     }
 
     /**
+     * @return BeneficiaryVaspDetails|null
+     */
+    public function getBeneficiaryVaspDetails(): ?BeneficiaryVaspDetails
+    {
+        return $this->beneficiaryVaspDetails;
+    }
+
+    /**
      * Return associative array of all the properties
      *
      * @return array
@@ -254,6 +272,7 @@ class Payment
             ),
             'payment_id' => $this->paymentId,
             'stats_token' => $this->statsToken,
+            'beneficiary_vasp_details' => $this->beneficiaryVaspDetails ? $this->beneficiaryVaspDetails->toArray() : null,
         ];
     }
 }

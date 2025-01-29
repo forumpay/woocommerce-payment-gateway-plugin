@@ -40,6 +40,8 @@ const getDefaultState = () => ({
   showInstructions: true,
   showCancel: false,
   userCanceled: false,
+  payerRequired: false,
+  payer: {},
 });
 
 export default createStore({
@@ -132,6 +134,12 @@ export default createStore({
     setUserCanceled(state, userCanceled) {
       state.userCanceled = userCanceled;
     },
+    setPayerRequired(state, payerRequired) {
+      state.payerRequired = payerRequired;
+    },
+    setPayer(state, payer) {
+      state.payer = payer;
+    },
   },
   actions: {
     async resetPlugin({ commit }) {
@@ -216,10 +224,13 @@ export default createStore({
       try {
         commit('setLoading', true);
         commit('setKycError', null);
+        commit('setPayerRequired', false);
+
         const route = formatRoute(this.pluginConfig.restStartPaymentUri);
 
         const data = {
           currency: cryptoCurrency.currency,
+          payer: state.payer,
           ...(state.kycRequired && state.kycPin && { kycPin: state.kycPin }),
           ...route.params,
         };
@@ -235,6 +246,8 @@ export default createStore({
         commit('setLoading', false);
         if (error.response.data.code === 3051) {
           commit('setKycRequired', true);
+        } else if (error.response.data.code === 3056) {
+          commit('setPayerRequired', true);
         } else if (error.response.data.code === 3052
           || error.response.data.code === 3053
           || error.response.data.code === 3054

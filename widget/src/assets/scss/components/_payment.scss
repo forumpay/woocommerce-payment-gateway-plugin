@@ -184,6 +184,11 @@
         span {
           box-sizing: border-box;
           font-weight: 600;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 88%;
+          display: inline-block;
         }
 
           &-copy_button:focus {
@@ -191,6 +196,11 @@
           }
 
         &--address {
+          span {
+            font-size: 0.8em;
+          }
+        }
+        &--beneficiary-details {
           span {
             font-size: 0.8em;
           }
@@ -252,6 +262,10 @@
             font-weight: 800;
             color: var(--wlx-text-1);
           }
+        }
+
+        &__margin {
+          margin: 10px 0 10px 0;
         }
       }
     }

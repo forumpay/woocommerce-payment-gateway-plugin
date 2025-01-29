@@ -83,6 +83,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     private string $fp_currency;
 
     /**
+     * @var string
+     */
+    private string $fp_installation_id;
+
+    /**
      * Constructor for the gateway.
      */
     public function __construct(
@@ -93,6 +98,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $this->icon = FORUMPAY_ICON;
 
         $this->has_fields = false;
+
+        $this->fp_installation_id = get_option('forumpay_installation_id', '');
 
         $this->init_form_fields();
         $this->init_settings();
@@ -401,6 +408,14 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'type' => 'checkbox',
                 'label' => __('Automatically accept the payment if transaction was received late and either the paid amount is similar to requested or accepting it is allowed by the other Auto-Accept conditions.', 'forumpay'),
                 'default' => 'no'),
+            'installation_id' => array(
+                'title' => __('Installation Id', 'forumpay'),
+                'type' => 'text',
+                'default' => __($this->fp_installation_id, 'forumpay'),
+                'custom_attributes' => array(
+                    'readonly' => 'readonly'
+                ),
+            ),
         );
     }
 
@@ -688,6 +703,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $templatehtml .= '<span id="forumpay-cancelurl" data="' . esc_url($cancel_url) . '"></span>';
         $templatehtml .= '<span id="forumpay-forumpayapiurl" data="' . esc_url($forumPayApiUrl) . '"></span>';
         $templatehtml .= '<span id="forumpay-orderid" data="' . esc_attr($order_id) . '"></span>';
+        $templatehtml .= '<span id="forumpay-payerfirstname" data="' . esc_attr($order->get_billing_first_name()) . '"></span>';
+        $templatehtml .= '<span id="forumpay-payerlastname" data="' . esc_attr($order->get_billing_last_name()) . '"></span>';
+        $templatehtml .= '<span id="forumpay-payeremail" data="' . esc_attr($order->get_billing_email()) . '"></span>';
+        $templatehtml .= '<span id="forumpay-payercompany" data="' . esc_attr($order->get_billing_company()) . '"></span>';
+        $templatehtml .= '<span id="forumpay-payercountry" data="' . esc_attr($order->get_billing_country()) . '"></span>';
 
         return $templatehtml;
     }
@@ -902,5 +922,13 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function getCurrency(): string
     {
         return $this->fp_currency;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInstallationId(): ?string
+    {
+        return $this->fp_installation_id;
     }
 }

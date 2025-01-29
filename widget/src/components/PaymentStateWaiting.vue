@@ -88,6 +88,10 @@ const PaymentStateWaiting = {
         return [];
       },
     },
+    beneficiaryVaspDetails: {
+      type: [Object, null],
+      default: null,
+    },
     minConfirmations: {
       type: Number,
       default: 0,
@@ -130,6 +134,7 @@ const PaymentStateWaiting = {
       isBackupQR: false,
       isPaymentStatusVisible: false,
       isTransactionInfoVisible: false,
+      isBeneficiaryDetailsVisible: false,
     };
   },
   mounted() {
@@ -151,6 +156,9 @@ const PaymentStateWaiting = {
     toggleTransactionInfo() {
       this.isTransactionInfoVisible = !this.isTransactionInfoVisible;
     },
+    toggleBeneficiaryDetails() {
+      this.isBeneficiaryDetailsVisible = !this.isBeneficiaryDetailsVisible;
+    },
     handleCancelPayment(event) {
       if (event) {
         event.preventDefault();
@@ -162,6 +170,15 @@ const PaymentStateWaiting = {
     },
     handleAmountCopy() {
       cryptoPaymentStatsHandler.event('amountCopy');
+    },
+    handleBeneficiaryNameCopy() {
+      cryptoPaymentStatsHandler.event('beneficiaryNameCopy');
+    },
+    handleBeneficiaryVaspCopy() {
+      cryptoPaymentStatsHandler.event('beneficiaryVaspCopy');
+    },
+    handleBeneficiaryVaspDidCopy() {
+      cryptoPaymentStatsHandler.event('beneficiaryVaspDidCopy');
     },
     onQRCodeLoad(success) {
       cryptoPaymentStatsHandler.event('QRCodeLoad', success);
@@ -335,7 +352,10 @@ export default PaymentStateWaiting;
         <span>Transaction details</span>
       </div>
 
-      <div class="forumpay-pgw-payment-transaction-content">
+      <div
+        class="forumpay-pgw-payment-transaction-content"
+        :class="{ 'forumpay-pgw-payment-transaction-content__margin': isTransactionInfoVisible }"
+      >
         <ul v-if="isTransactionInfoVisible" class="forumpay-pgw-payment-transaction-content-ul">
           <li class="forumpay-pgw-payment-transaction-content-li">
             <span class="forumpay-pgw-payment-transaction-content-li__title-font">Payment ID:</span>
@@ -362,6 +382,64 @@ export default PaymentStateWaiting;
             <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ amount }}</span>
           </li>
         </ul>
+      </div>
+
+      <div v-if="beneficiaryVaspDetails">
+        <div
+          class="forumpay-pgw-payment-transaction"
+          role="button"
+          tabIndex="0"
+          @keyup="toggleBeneficiaryDetails"
+          @click="toggleBeneficiaryDetails"
+        >
+          <span>Beneficiary details</span>
+        </div>
+
+        <div
+          v-if="isBeneficiaryDetailsVisible"
+          class="forumpay-pgw-payment-transaction-content"
+          :class="{ 'forumpay-pgw-payment-transaction-content__margin': isBeneficiaryDetailsVisible }"
+        >
+          <div class="forumpay-pgw-payment-beneficiary-details">
+            <p class="forumpay-pgw-payment-amount-label">
+              Beneficiary Details
+            </p>
+            <p class="forumpay-pgw-payment-details-text">
+              When depositing from another service,
+              they may ask you for the following information about us.
+            </p>
+          </div>
+          <div>
+            <span class="forumpay-pgw-payment-amount-label">Beneficiary Name</span>
+            <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--beneficiary-details">
+              <span>{{ beneficiaryVaspDetails.beneficiary_name }}</span>
+              <Copy
+                :value="beneficiaryVaspDetails.beneficiary_name"
+                :on-copy="handleBeneficiaryNameCopy"
+              />
+            </div>
+          </div>
+          <div>
+            <span class="forumpay-pgw-payment-amount-label">Beneficiary Vasp</span>
+            <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--beneficiary-details">
+              <span>{{ beneficiaryVaspDetails.beneficiary_vasp }}</span>
+              <Copy
+                :value="beneficiaryVaspDetails.beneficiary_vasp"
+                :on-copy="handleBeneficiaryVaspCopy"
+              />
+            </div>
+          </div>
+          <div v-if="beneficiaryVaspDetails.beneficiary_vasp_did">
+            <span class="forumpay-pgw-payment-amount-label">Beneficiary Vasp Did</span>
+            <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--beneficiary-details">
+              <span>{{ beneficiaryVaspDetails.beneficiary_vasp_did }}</span>
+              <Copy
+                :value="beneficiaryVaspDetails.beneficiary_vasp_did"
+                :on-copy="handleBeneficiaryVaspDidCopy"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </Container>
   </div>

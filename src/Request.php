@@ -54,6 +54,9 @@ class Request
         }
 
         if (isset($bodyParams[$param])) {
+            if (is_array($bodyParams[$param])) {
+                return array_map('sanitize_text_field', wp_unslash($bodyParams[$param]));
+            }
             return sanitize_text_field(wp_unslash($bodyParams[$param]));
         }
 

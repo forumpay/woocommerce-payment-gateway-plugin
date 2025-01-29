@@ -4,6 +4,7 @@ import RateContainer from './containers/RateContainer.vue';
 import PaymentContainer from './containers/PaymentContainer.vue';
 import Container from './components/Container.vue';
 import Loader from './components/Loader.vue';
+import PayerContainer from './containers/PayerContainer.vue';
 
 const App = {
   components: {
@@ -12,6 +13,7 @@ const App = {
     PaymentContainer,
     Container,
     Loader,
+    PayerContainer,
   },
   data() {
     return {
@@ -30,6 +32,9 @@ const App = {
     },
     loading() {
       return this.store.state.loading;
+    },
+    payerRequired() {
+      return this.store.state.payerRequired;
     },
   },
   methods: {
@@ -124,7 +129,7 @@ export default App;
     </div>
 
     <KycContainer v-else-if="!payment && kycRequired" />
-
+    <PayerContainer v-else-if="payerRequired" />
     <RateContainer v-else-if="!payment" />
 
     <PaymentContainer

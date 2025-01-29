@@ -6,11 +6,13 @@ use ForumPay\PaymentGateway\PHPClient\Response\RequestKycResponse;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ApiHttpException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\OrderNotFoundException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\ForumPayLogger;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payer\Payer;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
 use ForumPay\PaymentGateway\WoocommercePlugin\Request;
 use ForumPay\PaymentGateway\PHPClient\Http\Exception\ApiExceptionInterface;
 use ForumPay\PaymentGateway\PHPClient\Response\StartPaymentResponse;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payment\BeneficiaryVaspDetails;
 
 class StartPayment
 {
@@ -57,17 +59,22 @@ class StartPayment
 
         try {
             $currency = $request->getRequired('currency');
+            $payer = $request->getRequired('payer');
             $kyc = $request->get('kycPin');
+
+            $payer = Payer::valueOf($payer);
 
             $this->logger->info('StartPayment entrypoint called.', ['currency' => $currency]);
 
             /** @var StartPaymentResponse $response */
-            $response = $this->forumPay->startPayment($orderId, $currency, '', $kyc);
+            $response = $this->forumPay->startPayment($orderId, $currency, '', $kyc, $payer);
 
             $notices = [];
             foreach ($response->getNotices() as $notice) {
                 $notices[] = new Payment\Notice($notice['code'], $notice['message']);
             }
+
+            $beneficiaryVaspDetails = BeneficiaryVaspDetails::fromArray($response->getBeneficiaryVaspDetails());
 
             $payment = new Payment(
                 $response->getPaymentId(),
@@ -82,6 +89,7 @@ class StartPayment
                 $response->getQrAltImg(),
                 $notices,
                 $response->getStatsToken(),
+                $beneficiaryVaspDetails,
             );
 
             $this->logger->info('StartPayment entrypoint finished.');
@@ -105,6 +113,8 @@ class StartPayment
                 throw new ApiHttpException($e, 3051);
             } elseif (substr($errorCode, 0, 5) === 'payer') {
                 throw new ApiHttpException($e, 3052);
+            } elseif ($errorCode === 'missingPayerData' || $errorCode === 'incompletePayerData') {
+                throw new ApiHttpException($e, 3056);
             } else {
                 throw new ApiHttpException($e, 3050);
             }

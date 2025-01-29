@@ -14,6 +14,7 @@ use ForumPay\PaymentGateway\PHPClient\Response\CheckPaymentResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\GetCurrencyListResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\GetRateResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\StartPaymentResponse;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payer\Payer;
 use Psr\Log\LoggerInterface;
 use WC_Meta_Data;
 
@@ -161,6 +162,7 @@ class ForumPay
      * @param string $currency
      * @param string $paymentId
      * @param string|null $kycPin
+     * @param Payer|null $payer
      * @return StartPaymentResponse
      * @throws ApiExceptionInterface
      */
@@ -168,7 +170,8 @@ class ForumPay
         string $orderId,
         string $currency,
         string $paymentId,
-        ?string $kycPin
+        ?string $kycPin,
+        ?Payer $payer
     ): StartPaymentResponse
     {
         $response = $this->apiClient->startPayment(
@@ -181,7 +184,7 @@ class ForumPay
             $this->gateway->isAcceptZeroConfirmations() ? 'true' : 'false',
             $this->orderManager->getOrderCustomerIpAddress($orderId),
             $this->orderManager->getOrderCustomerEmail($orderId),
-            $this->orderManager->getOrderCustomerId($orderId),
+            $this->orderManager->getOrderCustomerId($orderId) . '_' . $this->gateway->getInstallationId(),
             $this->gateway->getAcceptUnderpayment()['enabled'] ? 'true':'false',
             $this->calculateMinimumOrderValue($this->gateway->getAcceptUnderpayment(), $orderId),
             $this->gateway->getAcceptOverpayment()['enabled'] ? 'true':'false',
@@ -195,7 +198,8 @@ class ForumPay
             $this->gateway->getWebhookUrl(),
             null,
             null,
-            $this->calculateMaximumOrderValue($this->gateway->getAcceptOverpayment(), $orderId)
+            $this->calculateMaximumOrderValue($this->gateway->getAcceptOverpayment(), $orderId),
+            $payer ? $payer->toArray() : null,
         );
 
         $this->orderManager->saveOrderMetaData($orderId, 'startPayment', $response->toArray());

@@ -1,0 +1,18 @@
+.forumpay-pgw-dob {
+  display: flex;
+  gap: .6em;
+  width: 100%;
+
+  &-field {
+    flex: 1;
+
+    &-year {
+      flex: 2;
+    }
+
+    input {
+      margin: 0 !important;
+      height: revert !important;
+    }
+  }
+}
