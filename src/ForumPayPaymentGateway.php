@@ -101,6 +101,12 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
 
         $this->fp_installation_id = get_option('forumpay_installation_id', '');
 
+        if ($this->fp_installation_id === '') {
+            $uuid = wp_generate_uuid4();
+            add_option('forumpay_installation_id', $uuid, '', false);
+            $this->fp_installation_id = $uuid;
+        }
+
         $this->init_form_fields();
         $this->init_settings();
         $this->title = $this->settings['title'] ?? '';
