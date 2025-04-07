@@ -3,6 +3,17 @@ jQuery(document).ready(function($) {
   const apiUrl = gatewaySettings.apiUrl;
   const nonce = gatewaySettings.nonce;
 
+  $(
+    '#woocommerce_forumpay_accept_overpayment_threshold, #woocommerce_forumpay_accept_underpayment_threshold'
+  ).on('blur', function () {
+    if (!isNaN(this.value) && this.value !== "") {
+      let numericValue = parseFloat(this.value);
+      if (numericValue % 1 !== 0) {
+        this.value = numericValue.toFixed(2);
+      }
+    }
+  });
+
   function initializeFieldHandlers(field) {
     $(`#woocommerce_${gatewayId}_${field}`).change(() => {
       togglePaymentOptions(field);

@@ -582,7 +582,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             throw new \Exception($errorMessage);
         }
 
-        if ($value < 0) {
+        if ($value < 0.01) {
             WC_Admin_Settings::add_error($errorMessage);
             throw new \Exception($errorMessage);
         }
