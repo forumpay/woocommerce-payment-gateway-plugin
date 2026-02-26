@@ -11,9 +11,11 @@
 @import './components/_underpayment.scss';
 @import './components/_instruction.scss';
 @import './components/_cancel.scss';
+@import './components/_qr-alternatives.scss';
 
 @import './components/_rate.scss';
 @import './components/_payment.scss';
+@import './components/_payment-waiting.scss';
 @import './components/_payer.scss';
 @import './components/_dob_input.scss';
 @import './components/_select_input.scss';
@@ -28,14 +30,16 @@ body.ForumPayPaymentGatewayWidgetBody {
   * {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
+    outline: none!important;
   }
 
   *:before, *:after {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
+    outline: none!important;
   }
   font-family: "Be Vietnam", sans-serif !important;
-  font-size: 16px;
+  font-size: 14px;
   min-width: 320px;
   min-height: 500px;
   position: relative;
@@ -56,7 +60,7 @@ body.ForumPayPaymentGatewayWidgetBody {
   &-center {
     min-height: 200px;
     min-width: 200px;
-    max-width: 370px;
+    max-width: 330px;
     margin: 0 auto;
     margin-top: 20px;
     padding: 20px;
@@ -83,9 +87,9 @@ body.ForumPayPaymentGatewayWidgetBody {
 
     &-thin-font-weight {
       font-weight: 300;
-      font-size: 0.8em;
+      font-size: 13px;
       color: black;
-      line-height: 1.6em;
+      line-height: 26px;
 
       b {
         font-weight: bold;
@@ -93,8 +97,8 @@ body.ForumPayPaymentGatewayWidgetBody {
     }
 
     &-alert {
-      color: var(--wlx-red-1);
-      margin-bottom: 1em;
+      color: var(--pgw-color-danger-1);
+      margin-bottom: 16px;
     }
 
     &-font-size-medium {
@@ -103,17 +107,19 @@ body.ForumPayPaymentGatewayWidgetBody {
   }
 
   input {
-    background-color: var(--wlx-gray-4);
+    background-color: var(--pgw-color-gray-3);
     display: block;
-    margin-bottom: 1em;
+    margin-bottom: 0;
     width: 100%;
-    font-size: small;
-    padding-top: 0.7rem;
-    padding-bottom: 1em;
+    font-size: 12px;
+    padding-top: 11px;
+    padding-bottom: 16px;
     padding-left: 20px;
     border-radius: 10px;
     border-style: none;
-    height: 3.5rem;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
     font-family: "Be Vietnam", sans-serif;
     font-weight: 500;
   }
@@ -122,12 +128,12 @@ body.ForumPayPaymentGatewayWidgetBody {
     display: flex;
     justify-content: flex-end;
     width: 100%;
-    padding-top: 0.8rem;
+    padding-top: 13px;
     font-family: "Be Vietnam", sans-serif;
     font-weight: 600;
 
     button {
-      height: 3em;
+      height: 48px;
     }
 
     .forumpay-pgw-button {
@@ -137,7 +143,7 @@ body.ForumPayPaymentGatewayWidgetBody {
 
     .forumpay-pgw-button:first-child {
       flex: 1;
-      margin-right: 1.2em;
+      margin-right: 19px;
     }
 
     .forumpay-pgw-button:last-child {
@@ -146,29 +152,55 @@ body.ForumPayPaymentGatewayWidgetBody {
   }
 
   &-button {
-    background-color: var(--wlx-yellow);
-    color: var(--wlx-main);
-    font-weight: 800;
-    border-radius: 5px;
-    padding: 8px;
+    background-color: var(--pgw-color-primary);
+    color: var(--pgw-color-black);
+    font-weight: 600;
+    border-radius: 3px;
+    padding: 8px 16px;
+    height: 37px;
     cursor: pointer;
-    letter-spacing: -1px;
     border: none;
     margin: 0 auto;
     text-decoration: none;
+    font-size: 13px;
+    line-height: 1;
 
     &:hover {
       border: 0;
     }
 
     &--cancel {
-      color: var(--wlx-white);
-      background-color: var(--wlx-red-1);
+      color: var(--pgw-color-white);
+      background-color: var(--pgw-color-danger-1);
+      &:hover {
+        opacity: .5;
+      }
+    }
+
+    &--outline {
+      color: var(--pgw-color-black) !important;
+      background-color: var(--pgw-color-white) !important;
+      border: 1px solid var(--pgw-color-gray-4);
+      border-radius: var(--pgw-default-radius-1);
+      padding: 11px 16px;
+      letter-spacing: 0;
+      font-weight: 600;
+      white-space: pre-line;
+      outline: none;
 
       &:hover {
-        color: var(--wlx-text-1);
-        background-color: var(--wlx-red-1);
-        border: 0;
+        color: var(--pgw-color-black) !important;
+        background-color: var(--pgw-color-white) !important;
+        border: 1px solid var(--pgw-color-gray-4);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+
+      &:active {
+        outline: none;
       }
     }
 
@@ -178,12 +210,12 @@ body.ForumPayPaymentGatewayWidgetBody {
     }
 
     &--warning {
-      color: var(--wlx-main);
-      background-color: var(--wlx-yellow);
+      color: var(--pgw-color-secondary);
+      background-color: var(--pgw-color-primary);
 
       &:hover {
-        color: var(--wlx-text-1);
-        background-color: var(--wlx-yellow);
+        color: var(--pgw-color-text-primary);
+        background-color: var(--pgw-color-primary);
         border: 0;
       }
     }
@@ -200,5 +232,225 @@ body.ForumPayPaymentGatewayWidgetBody {
     overflow: visible;
     border: 0;
     border-top: 1px solid #eee;
+    opacity: 1!important;
+  }
+
+  // Slide transitions
+  .slide-forward-enter-active,
+  .slide-forward-leave-active,
+  .slide-backward-enter-active,
+  .slide-backward-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .slide-forward-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  .slide-forward-leave-to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .slide-backward-enter-from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .slide-backward-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  // CMS override fixes - ensure consistent styling across all platforms
+  // These rules use !important only where CMS themes commonly override
+
+  // Fix form group styling - remove CMS grid layout interference
+  .form-group,
+  .form-control-label {
+    display: block !important;
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  // Fix any row/col issues from CMS grid systems
+  .row {
+    margin: 0 !important;
+    display: block !important;
+  }
+
+  [class*="col-"] {
+    float: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  // Hide CMS-specific elements that might interfere
+  .help-block,
+  .form-control-comment {
+    display: none !important;
+  }
+
+  // Fix general input styling within the widget
+  input[type="text"],
+  input[type="email"],
+  input[type="date"],
+  input[type="number"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    box-shadow: none !important;
+  }
+
+  // Fix select/dropdown styling
+  select {
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+  }
+
+  // Fix label styling
+  label {
+    text-align: left !important;
+    float: none !important;
+    width: 100% !important;
+    display: block !important;
+    padding: 0 !important;
+    margin-bottom: 0!important;
+  }
+
+  // Network selection items - ensure proper layout
+  &-network-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  &-network-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 11px !important;
+    background-color: var(--pgw-color-background-secondary);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    text-decoration: none !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background-color: var(--pgw-color-background-tertiary);
+      text-decoration: none !important;
+    }
+
+    &.selected {
+      background-color: var(--pgw-color-background-tertiary);
+      border: 1px solid var(--pgw-color-primary);
+    }
+
+    &-icon {
+      margin-right: 8px;
+      flex-shrink: 0;
+      width: 40px;
+
+      img {
+        width: auto;
+        height: 30px;
+        max-width: 40px !important;
+        max-height: 30px !important;
+      }
+    }
+
+    &-details {
+      flex: 1;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    &-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--pgw-color-text-primary);
+      margin-bottom: 2px;
+    }
+
+    &-info {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      font-size: 11px;
+      padding-top: 2px;
+    }
+
+    &-amount,
+    &-wait-time {
+      color: var(--pgw-color-gray-2);
+    }
+  }
+
+  &-network-tag {
+    white-space: nowrap;
+    background-color: black;
+    border-radius: 9999px;
+    color: white;
+    padding: 3px 13px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  &-network-title {
+    font-weight: 800;
+    font-size: 18px;
+    margin: 0 0 10px 0;
+    color: var(--pgw-color-text-primary);
+  }
+
+  &-network-subtitle {
+    font-size: 11px;
+    color: var(--pgw-color-gray-2);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  // QR code protection - ensure proper sizing
+  .qr,
+  [class*="qr"] {
+    img {
+      width: 100%;
+      height: auto;
+      max-width: 180px;
+      max-height: 180px;
+    }
+  }
+
+  // Currency icon in headers - constrain size (but not QR codes)
+  &-network > &-container > div[style*="flex-wrap"] img:not([class*="qr"] img) {
+    max-width: 30px !important;
+    max-height: 30px !important;
+  }
+
+  &-payment_status-list {
+    text-align: center;
   }
 }

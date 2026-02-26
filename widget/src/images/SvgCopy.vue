@@ -1,8 +1,22 @@
 <script>
+export default {
+  props: {
+    width: {
+      type: [String, Number],
+      default: 16,
+    },
+    height: {
+      type: [String, Number],
+      default: 16,
+    },
+  },
+};
 </script>
 
 <template>
   <svg
+    :width="width"
+    :height="height"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 512 512"
   >

@@ -17,10 +17,7 @@ export default PageLogo;
   <div class="forumpay-pgw-logo">
     <div>
       <div class="forumpay-pgw-logo-powered-by">
-        <span class="forumpay-pgw-logo-powered-by-lock">
-          <SvgLock />
-        </span>
-        <span class="forumpay-pgw-logo-powered-by-copy">Crypto powered by</span>
+        <span class="forumpay-pgw-logo-powered-by-copy">Powered by</span>
       </div>
       <CurrencyIcon
         class="forumpay-pgw-logo-img"

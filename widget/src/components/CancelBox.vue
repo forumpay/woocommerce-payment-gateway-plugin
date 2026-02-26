@@ -4,6 +4,7 @@ const CancelBox = {
     return {
       reason: null,
       description: '',
+      enableClickOutside: false,
     };
   },
   computed: {
@@ -13,22 +14,43 @@ const CancelBox = {
     isReasonSelected() {
       return !!this.reason;
     },
+    paymentStatus() {
+      return this.$store.state.paymentCheck;
+    },
+  },
+  watch: {
+    isCancelVisible(newVal) {
+      if (newVal) {
+        // Delay enabling click-outside to avoid immediate trigger
+        setTimeout(() => {
+          this.enableClickOutside = true;
+        }, 100);
+      } else {
+        this.enableClickOutside = false;
+      }
+    },
+    reason(newVal) {
+      if (newVal) {
+        this.description = '';
+      }
+    },
   },
   methods: {
     onHide() {
+      if (
+        this.paymentStatus
+        && this.paymentStatus.state === 'cancelled'
+        && this.paymentStatus.status === 'Cancelled'
+      ) {
+        this.$emit('onCancelPaymentConfirm', '', '');
+      }
+
       this.reason = null;
       this.description = '';
       this.$store.dispatch('hideCancel');
     },
     onConfirmCancel() {
       this.$emit('onCancelPaymentConfirm', this.reason, this.description);
-    },
-  },
-  watch: {
-    reason(newVal) {
-      if (newVal) {
-        this.description = '';
-      }
     },
   },
 };
@@ -39,7 +61,7 @@ export default CancelBox;
 <template>
   <div v-if="isCancelVisible" class="forumpay-pgw-cancel">
     <div
-      v-click-outside="onHide"
+      v-click-outside="enableClickOutside ? onHide : () => {}"
       class="forumpay-pgw-cancel-content"
     >
       <div class="forumpay-pgw-cancel-container">
@@ -74,9 +96,9 @@ export default CancelBox;
                 <span>QR code does not work</span>
               </label>
             </li>
-            <li v-if="reason === 'qr_code_problem'">
+            <li v-if="reason === 'qr_code_problem'" style="margin:0">
               <div>
-                <label for="cancellation_reason_description_qr">Which wallet do you use?</label><br />
+                <label for="cancellation_reason_description_qr">Which wallet do you use?</label>
                 <textarea id="cancellation_reason_description_qr" v-model="description" />
               </div>
             </li>
@@ -128,9 +150,9 @@ export default CancelBox;
                 <span>Other</span>
               </label>
             </li>
-            <li v-if="reason === 'other'">
+            <li v-if="reason === 'other'" style="margin:0">
               <div>
-                <label for="cancellation_reason_description">Please explain</label><br />
+                <label for="cancellation_reason_description">Please explain</label>
                 <textarea id="cancellation_reason_description" v-model="description" />
               </div>
             </li>
@@ -138,11 +160,12 @@ export default CancelBox;
               <button
                 :disabled="!isReasonSelected"
                 type="button"
+                style="margin-left:auto;margin-right:0;"
                 class="forumpay-pgw-button forumpay-pgw-button--cancel"
                 @click="onConfirmCancel()"
                 @keyup="onConfirmCancel()"
               >
-                Confirm cancel
+                Confirm Cancel
               </button>
             </li>
           </ul>

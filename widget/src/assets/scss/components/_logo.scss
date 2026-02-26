@@ -2,29 +2,26 @@
   &-logo {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 28px;
+    width: 100%;
 
     &-img {
-      width: 100px;
-      padding: 5px;
+      width: auto;
+      height: 25px!important;
     }
 
     &-powered-by {
       display: flex;
       flex-direction: row;
-      justify-content: space-around;
+      justify-content: start;
       align-items: center;
       color: var(--wlx-gray-2);
-
-      &-lock {
-        width: 20px;
-        height: 20px;
-      }
+      margin-left: 3px;
 
       &-copy {
-        font-size: 0.6em;
+        font-size: 10px;
       }
     }
   }

@@ -3,18 +3,18 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      padding: 25px;
+      padding: 20px;
       font-weight: 600;
 
     &-timer {
-      color: var(--wlx-yellow);
+      color: var(--pgw-color-primary);
 
       &-container {
         display: flex;
         align-items: center;
 
         &-remaining_time {
-          font-size: 1.45em;
+          font-size: 24px;
         }
 
         &-icon {
@@ -26,7 +26,7 @@
     }
 
     &-row {
-      border-bottom: 1px solid var(--wlx-gray-1);
+      border-bottom: 1px solid var(--pgw-color-gray-4);
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -35,22 +35,22 @@
       margin-bottom: 15px;
 
       &-processing-label {
-        color: var(--wlx-yellow);
+        color: var(--pgw-color-primary);
       }
 
       &-row-tag {
-        font-size: 1.2em;
-        color: var(--wlx-black);
+        font-size: 18px;
+        color: var(--pgw-color-black);
         margin-top: 10px;
       }
 
       small {
-        color: var(--wlx-gray-2);
+        color: var(--pgw-color-gray-2);
       }
 
       &-text {
-        color: var(--wlx-yellow);
-        font-size: 0.8em;
+        color: var(--pgw-color-primary);
+        font-size: 13px;
         margin: 0;
       }
     }
@@ -58,10 +58,102 @@
     &-list {
       li {
         font-size: .8em;
+        margin-bottom: 0;
         span {
           font-weight: 900;
         }
       }
     }
+  }
+}
+
+// Payment ID Section
+.payment-id-section {
+  width: 100%;
+  padding: 6px 12px;
+  background: var(--pgw-color-background-secondary);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: normal;
+
+  .payment-id-label {
+    font-size: 11px;
+    color: var(--pgw-color-black);
+    display: block;
+  }
+
+  .payment-id-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .payment-id-value {
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--pgw-color-black);
+    word-break: break-all;
+    flex: 1;
+  }
+}
+
+// Payment state classes for Container component
+.payment-state-cancelled,
+.payment-state-blocked {
+  font-weight: 600 !important;
+  color: var(--pgw-color-text-danger);
+}
+
+.payment-state-confirmed,
+.payment-state-zero_confirmed {
+  font-weight: 600 !important;
+  color: var(--pgw-color-text-success);
+}
+
+// Final payment details
+.payment-details-final {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+
+  .payment-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--pgw-color-gray-2);
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: var(--pgw-color-black);
+    }
+  }
+}
+
+// Powered by ForumPay
+.powered-by-forumpay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding-top: 16px;
+
+  span {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--pgw-color-gray-2);
+  }
+
+  svg {
+    height: 18px;
+    width: auto;
   }
 }

@@ -4,7 +4,7 @@ const formatCurrencyName = (currency) => {
     return currency;
   }
 
-  return `${currency.slice(0, underscoreIndex)} (${currency.slice(underscoreIndex + 1)})`;
+  return currency.slice(0, underscoreIndex);
 };
 
 export default formatCurrencyName;

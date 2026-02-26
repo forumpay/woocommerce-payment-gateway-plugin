@@ -6,14 +6,19 @@
 > Make sure you have at least WordPress Version 6.2 or higher and WooCommerce plugin is up-to-date.
 
 > You should already have downloaded the latest release of ForumPay plugin from [this link](https://github.com/forumpay/woocommerce-payment-gateway-plugin/releases/latest).
-Download the file named forumpay-crypto-payments-v2.2.10
+Download the file named forumpay-crypto-payments-v2.3.1
 
 ## Installation
 
 ### Using admin panel
 
+#### 1. Recommended method – install via WordPress Plugin Directory
+Open your admin panel and select **Plugins** tab. Click **Add New** and then search for **ForumPay Crypto Payments for WooCommerce**.
+Then click the **Install Now** button. After the installation is complete, click the **Activate** button.
+
+#### 2. Alternative method – install by uploading the plugin manually
 Open your admin panel and select **Plugins** tab. Click **Add New** and then **Upload Plugin**.
-Select the downloaded ForumPay module .zip file.
+Select the downloaded ForumPay module .zip file. Go back to the **Plugins** page and activate it.
 
 ### Manual method (through filesystem):
 
@@ -23,6 +28,14 @@ Directory structure should be as follows: **/wp-content/plugins/woocommerce-foru
 After the module is installed, go back to the **Plugins** page and activate it.
 
 ## Upgrade from previous version
+
+### Using admin panel
+
+#### 1. Recommended method – upgrade via WordPress Plugin Directory
+
+Open your admin panel and select **Plugins** tab. Click **Installed Plugins**, find the plugin, in the update warning message click on link **update now**.
+
+#### 2. Alternative method – upgrade by uploading the plugin manually
 
 Open your admin panel and select **Plugins** tab. Click **Add New** and then **Upload Plugin**.
 Select the downloaded ForumPay module .zip file.

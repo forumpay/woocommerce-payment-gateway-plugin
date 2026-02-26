@@ -1,15 +1,17 @@
 <script>
-import CountryInput from './CountryInput.vue';
+import Dropdown from './Dropdown.vue';
 import DateInput from './DateInput.vue';
+import countries from '../utils/countries';
 
 const PayerIndividualForm = {
   components: {
     DateInput,
-    CountryInput,
+    Dropdown,
   },
   data() {
     return {
       store: this.$store,
+      countries,
     };
   },
   computed: {
@@ -93,51 +95,73 @@ export default PayerIndividualForm;
 
 <template>
   <div>
-    <label for="payer_individual-first_name" class="forumpay-pgw-payer-label">First name*</label>
+    <label for="payer_individual-first_name" class="forumpay-pgw-payer-label">First Name</label>
     <input
       id="payer_individual-first_name"
       v-model="payerFirstName"
       class="forumpay-pgw-payer-input"
       type="text"
-      placeholder="Enter your first name here"
+      placeholder="First Name"
       required
       @blur="handleTextBlur('setPayer', 'payer_first_name', payerFirstName)"
     />
-    <label for="payer_individual-last_name" class="forumpay-pgw-payer-label">Last name*</label>
+    <label for="payer_individual-last_name" class="forumpay-pgw-payer-label">Last Name</label>
     <input
       id="payer_individual-last_name"
       v-model="payerLastName"
       class="forumpay-pgw-payer-input"
       type="text"
-      placeholder="Enter your last name here"
+      placeholder="Last Name"
       required
       @blur="handleTextBlur('setPayer', 'payer_last_name', payerLastName)"
     />
-    <label for="payer_individual-email" class="forumpay-pgw-payer-label">Email</label>
+    <Dropdown
+      v-model="payerCountry"
+      label="Country of Residence"
+      :options="countries"
+      option-key="code"
+      filter-property="name"
+      placeholder="Select a country"
+      class="forumpay-pgw-payer-dropdown"
+      mark-as-optional
+    >
+      <template #selected="{ selected }">
+        <span>{{ selected ? selected.name : 'Country of Residence' }}</span>
+      </template>
+      <template #option="{ option, markText }">
+        <span v-html="markText(option.name)" />
+      </template>
+    </Dropdown>
+    <label for="payer_individual-email" class="forumpay-pgw-payer-label">Email Address <span>(optional)</span></label>
     <input
       id="payer_individual-email"
       v-model="payerEmail"
       class="forumpay-pgw-payer-input"
       type="email"
-      placeholder="Enter your email here"
+      placeholder="Email Address"
       readonly
-    />
-    <CountryInput
-      v-model="payerCountry"
-      label="Country of residence"
-      :computed-country="payerCountry"
     />
     <DateInput
       v-model="payerDateOfBirth"
-      label="Date of birth*"
+      label="Date of Birth"
       :computed-date="payerDateOfBirth"
       :is-required="true"
     />
-    <CountryInput
+    <Dropdown
       v-model="payerCountryOfBirth"
-      label="Country of birth*"
-      :computed-country="payerCountryOfBirth"
-      :is-required="true"
-    />
+      label="Country of Birth"
+      :options="countries"
+      option-key="code"
+      filter-property="name"
+      placeholder="Select a country"
+      class="forumpay-pgw-payer-dropdown"
+    >
+      <template #selected="{ selected }">
+        <span>{{ selected ? selected.name : 'Country of Birth' }}</span>
+      </template>
+      <template #option="{ option, markText }">
+        <span v-html="markText(option.name)" />
+      </template>
+    </Dropdown>
   </div>
 </template>

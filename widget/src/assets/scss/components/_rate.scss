@@ -1,19 +1,28 @@
 .forumpay-pgw {
   &-rate {
+    &-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--pgw-color-text-primary);
+      margin: 0 0 16px 0;
+      text-align: left;
+      width: 100%;
+    }
+
     &-details {
       &-list {
         li {
           font-weight: 800;
-          font-size: 0.8em;
-          border-bottom: 1px solid var(--wlx-gray-1);
+          font-size: 13px;
+          border-bottom: 1px solid var(--pgw-color-gray-4);
           margin-bottom: 10px;
           padding-bottom: 10px;
         }
       }
 
       &-help-text {
-        color: var(--wlx-gray-3);
-        font-size: 0.6em;
+        color: var(--pgw-color-gray-2);
+        font-size: 10px;
         font-weight: 600;
       }
     }

@@ -51,6 +51,13 @@ class PaymentDetails
     private ?string $amount;
 
     /**
+     * Original total amount to pay (before auto-accept adjustment)
+     *
+     * @var string|null
+     */
+    private ?string $originalAmount;
+
+    /**
      * Minimum confirmations to wait (this is informal data. Always wait till confirmed=true)
      *
      * @var int
@@ -184,6 +191,34 @@ class PaymentDetails
     private ?Underpayment $underpayment;
 
     /**
+     * Item name being purchased
+     *
+     * @var string|null
+     */
+    private ?string $itemName;
+
+    /**
+     * Processing fee/surcharge amount
+     *
+     * @var string|null
+     */
+    private ?string $invoiceSurchargeAmount;
+
+    /**
+     * Total invoice amount including surcharge
+     *
+     * @var string|null
+     */
+    private ?string $invoiceAmountWithSurcharge;
+
+    /**
+     * Surcharge percentage
+     *
+     * @var string|null
+     */
+    private ?string $invoiceSurchargePercent;
+
+    /**
      * PaymentDetails DTO constructor
      *
      * @param string|null $referenceNo
@@ -192,6 +227,7 @@ class PaymentDetails
      * @param string $type
      * @param string $invoiceCurrency
      * @param string|null $amount
+     * @param string|null $originalAmount
      * @param int $minConfirmations
      * @param bool $acceptZeroConfirmations
      * @param bool $requireKytForConfirmation
@@ -211,6 +247,10 @@ class PaymentDetails
      * @param string|null $printString
      * @param string $state
      * @param Underpayment|null $underpayment
+     * @param string|null $itemName
+     * @param string|null $invoiceSurchargeAmount
+     * @param string|null $invoiceAmountWithSurcharge
+     * @param string|null $invoiceSurchargePercent
      */
     public function __construct(
         ?string $referenceNo,
@@ -219,6 +259,7 @@ class PaymentDetails
         string $type,
         string $invoiceCurrency,
         ?string $amount,
+        ?string $originalAmount,
         int $minConfirmations,
         bool $acceptZeroConfirmations,
         bool $requireKytForConfirmation,
@@ -237,7 +278,11 @@ class PaymentDetails
         ?string $cancelledTime,
         ?string $printString,
         string $state,
-        ?Underpayment $underpayment = null
+        ?Underpayment $underpayment = null,
+        ?string $itemName = null,
+        ?string $invoiceSurchargeAmount = null,
+        ?string $invoiceAmountWithSurcharge = null,
+        ?string $invoiceSurchargePercent = null
     ) {
         $this->referenceNo = $referenceNo;
         $this->inserted = $inserted;
@@ -245,6 +290,7 @@ class PaymentDetails
         $this->type = $type;
         $this->invoiceCurrency = $invoiceCurrency;
         $this->amount = $amount;
+        $this->originalAmount = $originalAmount;
         $this->minConfirmations = $minConfirmations;
         $this->acceptZeroConfirmations = $acceptZeroConfirmations;
         $this->requireKytForConfirmation = $requireKytForConfirmation;
@@ -264,6 +310,10 @@ class PaymentDetails
         $this->printString = $printString;
         $this->state = $state;
         $this->underpayment = $underpayment;
+        $this->itemName = $itemName;
+        $this->invoiceSurchargeAmount = $invoiceSurchargeAmount;
+        $this->invoiceAmountWithSurcharge = $invoiceAmountWithSurcharge;
+        $this->invoiceSurchargePercent = $invoiceSurchargePercent;
     }
 
     /**
@@ -312,6 +362,14 @@ class PaymentDetails
     public function getAmount(): ?string
     {
         return $this->amount;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOriginalAmount(): ?string
+    {
+        return $this->originalAmount;
     }
 
     /**
@@ -467,6 +525,38 @@ class PaymentDetails
     }
 
     /**
+     * @return string|null
+     */
+    public function getItemName(): ?string
+    {
+        return $this->itemName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInvoiceSurchargeAmount(): ?string
+    {
+        return $this->invoiceSurchargeAmount;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInvoiceAmountWithSurcharge(): ?string
+    {
+        return $this->invoiceAmountWithSurcharge;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInvoiceSurchargePercent(): ?string
+    {
+        return $this->invoiceSurchargePercent;
+    }
+
+    /**
      * Return associative array of all the properties
      *
      * @return array
@@ -480,6 +570,7 @@ class PaymentDetails
             'type' => $this->type,
             'invoice_currency' => $this->invoiceCurrency,
             'amount' => $this->amount,
+            'original_amount' => $this->originalAmount,
             'min_confirmations' => $this->minConfirmations,
             'accept_zero_confirmations' => $this->acceptZeroConfirmations,
             'require_kyt_for_confirmation' => $this->requireKytForConfirmation,
@@ -499,6 +590,10 @@ class PaymentDetails
             'cancelled_time' => $this->cancelledTime,
             'print_string' => $this->printString,
             'state' => $this->state,
+            'item_name' => $this->itemName,
+            'invoice_surcharge_amount' => $this->invoiceSurchargeAmount,
+            'invoice_amount_with_surcharge' => $this->invoiceAmountWithSurcharge,
+            'invoice_surcharge_percent' => $this->invoiceSurchargePercent,
         ];
     }
 }

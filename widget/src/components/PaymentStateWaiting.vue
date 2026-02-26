@@ -1,25 +1,30 @@
 <script>
 import Container from './Container.vue';
 import Copy from './Copy.vue';
-import PaymentStatusIcon from './PaymentStatusIcon.vue';
 import CurrencyIcon from './CurrencyIcon.vue';
-import PaymentStatus from './PaymentStatus.vue';
-import Loader from './Loader.vue';
-import SvgIconQr from '../images/SvgIconQr.vue';
-import SvgIconNotice from '../images/SvgIconNotice.vue';
+import PaymentCountdown from './PaymentCountdown.vue';
+import PageLogo from './PageLogo.vue';
+import QrCodeAlternatives from './QrCodeAlternatives.vue';
+import SvgInfo from '../images/SvgInfo.vue';
+import SvgHelp from '../images/SvgHelp.vue';
+import SvgClose from '../images/SvgClose.vue';
+import SvgChevronDown from '../images/SvgChevronDown.vue';
 import formatCurrencyName from '../utils/formatCurrency';
-import cryptoPaymentStatsHandler from '../utils/cryptoPaymentStatsHandler';
+import getNetworkDisplayName from '../utils/getNetworkDisplayName';
+import shortenAddress from '../utils/shortenAddress';
 
 const PaymentStateWaiting = {
   components: {
     Container,
     Copy,
-    PaymentStatusIcon,
     CurrencyIcon,
-    PaymentStatus,
-    Loader,
-    SvgIconQr,
-    SvgIconNotice,
+    PaymentCountdown,
+    QrCodeAlternatives,
+    SvgInfo,
+    SvgHelp,
+    SvgClose,
+    SvgChevronDown,
+    PageLogo,
   },
   props: {
     loading: Boolean,
@@ -128,36 +133,66 @@ const PaymentStateWaiting = {
       type: String,
       default: '',
     },
+    itemName: {
+      type: String,
+      default: '',
+    },
+    invoiceSurchargeAmount: {
+      type: String,
+      default: '',
+    },
+    invoiceAmountWithSurcharge: {
+      type: String,
+      default: '',
+    },
   },
+  emits: ['cancel-payment', 'regenerate-qr'],
   data() {
     return {
       isBackupQR: false,
-      isPaymentStatusVisible: false,
-      isTransactionInfoVisible: false,
       isBeneficiaryDetailsVisible: false,
+      isPaymentDetailsVisible: false,
+      isQrAlternativesModalVisible: false,
     };
   },
-  mounted() {
-    if (!this.isBackupQR) {
-      cryptoPaymentStatsHandler.event('QRCodeInit');
-    }
+  computed: {
+    formattedCurrency() {
+      // Use network display name format: "USDT on Tron" instead of "USDT (TRC-20)"
+      return getNetworkDisplayName(this.currency);
+    },
+    shortenedAddress() {
+      return shortenAddress(this.address);
+    },
+    gasFeeTooHigh() {
+      return this.fastTransactionFee && parseFloat(this.fastTransactionFee) > 0;
+    },
+    exposedNotices() {
+      if (!this.notices || this.notices.length === 0) {
+        return [];
+      }
+      const exposedNoticeCodes = [
+        'useEthErc20',
+        'useTrxTrc20',
+        'useEth',
+        'usePolygonErc20',
+        'usePolygonPol',
+        'polygonUSDCvsUSDCE',
+        'polygonUseCorrectUSDC',
+        'useSolSPL',
+      ];
+      return this.notices.filter((notice) => exposedNoticeCodes.includes(notice.code));
+    },
   },
   methods: {
     formatCurrencyName,
-    toggleQRCode() {
+    toggleBackupQR() {
       this.isBackupQR = !this.isBackupQR;
-      if (this.isBackupQR) {
-        cryptoPaymentStatsHandler.event('QRAltCodeInit');
-      }
-    },
-    togglePaymentStatus() {
-      this.isPaymentStatusVisible = !this.isPaymentStatusVisible;
-    },
-    toggleTransactionInfo() {
-      this.isTransactionInfoVisible = !this.isTransactionInfoVisible;
     },
     toggleBeneficiaryDetails() {
       this.isBeneficiaryDetailsVisible = !this.isBeneficiaryDetailsVisible;
+    },
+    togglePaymentDetails() {
+      this.isPaymentDetailsVisible = !this.isPaymentDetailsVisible;
     },
     handleCancelPayment(event) {
       if (event) {
@@ -165,26 +200,19 @@ const PaymentStateWaiting = {
       }
       this.$emit('cancel-payment');
     },
-    handleAddressCopy() {
-      cryptoPaymentStatsHandler.event('addressCopy');
+    openQrAlternativesModal() {
+      this.isQrAlternativesModalVisible = true;
     },
-    handleAmountCopy() {
-      cryptoPaymentStatsHandler.event('amountCopy');
+    closeQrAlternativesModal() {
+      this.isQrAlternativesModalVisible = false;
     },
-    handleBeneficiaryNameCopy() {
-      cryptoPaymentStatsHandler.event('beneficiaryNameCopy');
+    onSelectBasicQr() {
+      this.isBackupQR = true;
+      this.closeQrAlternativesModal();
     },
-    handleBeneficiaryVaspCopy() {
-      cryptoPaymentStatsHandler.event('beneficiaryVaspCopy');
-    },
-    handleBeneficiaryVaspDidCopy() {
-      cryptoPaymentStatsHandler.event('beneficiaryVaspDidCopy');
-    },
-    onQRCodeLoad(success) {
-      cryptoPaymentStatsHandler.event('QRCodeLoad', success);
-    },
-    onQRAltCodeLoad(success) {
-      cryptoPaymentStatsHandler.event('QRAltCodeLoad', success);
+    onSelectWalletQr(wallet) {
+      this.$emit('regenerate-qr', wallet);
+      this.closeQrAlternativesModal();
     },
   },
 };
@@ -193,254 +221,230 @@ export default PaymentStateWaiting;
 </script>
 
 <template>
-  <div class="forumpay-pgw-content forumpay-pgw-center forumpay-pgw-payment">
-    <p class="forumpay-pgw-guide-text">
-      Use your camera to scan the QR code or
-      copy and paste the amount and address below to your wallet
-    </p>
+  <div class="forumpay-pgw-content forumpay-pgw-center" style="padding: 0 24px;">
+    <Container>
+      <!-- Top amount -->
+      <div style="font-size: 16px; font-weight: 700; text-align: right; margin-bottom: 16px;">
+        {{ invoiceAmount }} {{ invoiceCurrency }}
+      </div>
 
-    <Container class="forumpay-pgw-container--gap">
-      <div class="forumpay-pgw-payment-header">
-        <span class="forumpay-pgw-payment-header-circle">
-          <SvgIconQr class="forumpay-pgw-payment-header-icon-qr" />
-        </span>
-        <div class="forumpay-pgw-payment-header-amount">
-          <div class="forumpay-pgw-payment-header-amount-total">
-            <span>{{ amount }} {{ formatCurrencyName(currency.currency) }}</span>
-            <CurrencyIcon
-              class="forumpay-pgw-payment-header-amount-total-icon"
-              :currency="currency"
-            />
-          </div>
+      <!-- Payment ID -->
+      <div class="payment-id-section">
+        <span class="payment-id-label">Payment ID</span>
+        <div class="payment-id-row">
+          <span class="payment-id-value">{{ invoiceNo }}</span>
+          <Copy style="width: 18px;height:18px;" :value="invoiceNo" />
         </div>
-        <PaymentStatusIcon
-          :status="status"
-          :inserted="inserted"
-          @click="togglePaymentStatus"
-        />
       </div>
 
-      <hr>
-      <PaymentStatus
-        v-if="isPaymentStatusVisible"
-        :wait-time="waitTime"
-        :status="status"
-        :inserted="inserted"
-        :amount="amount"
-        :amount-currency="amountCurrency"
-      />
+      <hr style="width: calc(100% + 40px);margin: 0 -20px 20px -20px;" />
 
-      <img
-        v-if="!isBackupQR"
-        id="qr"
-        class="forumpay-pgw-payment-qr"
-        :src="qrImg"
-        alt="qr"
-        @load="onQRCodeLoad(true)"
-        @error="onQRCodeLoad(false)"
-      >
-      <img
-        v-else
-        id="qralt"
-        class="forumpay-pgw-payment-qr"
-        :src="qrAltImg"
-        alt="alt-qr"
-        @load="onQRAltCodeLoad(true)"
-        @error="onQRAltCodeLoad(false)"
-      />
-
-      <div
-        v-if="!isBackupQR"
-        class="forumpay-pgw-payment-backup-qr"
-      >
-        <CurrencyIcon :currency="currency" />
-        <span class="forumpay-pgw-payment-backup-qr-help-text">If this QR is not populating your wallet, please use this one.</span>
-        <button
-          type="button"
-          @click="toggleQRCode"
-        >
-          Backup QR
-        </button>
-      </div>
-      <div
-        v-else
-        class="forumpay-pgw-payment-return-qr"
-      >
-        <CurrencyIcon :currency="currency" />
-        <span
-          class="forumpay-pgw-payment-backup-qr-help-text forumpay-pgw-payment-backup-qr-help-text--pointer"
-          role="button"
-          tabIndex="0"
-          @keyup="toggleQRCode"
-          @click="toggleQRCode"
-        >
-          <i
-            class="fa fa-angle-left"
-            aria-hidden="true"
-          />
-          Go back to original QR
-        </span>
+      <!-- Currency header with timer -->
+      <div style="width: 100%; display: inline-flex; justify-content: space-between; align-items: center; gap: 16px;">
+        <div style="display: inline-flex; gap: 8px; align-items: center; width: 100%;">
+          <CurrencyIcon :currency="currency" style="height: 25px;" />
+          <span class="text-heading">Pay with {{ formattedCurrency }}</span>
+        </div>
+        <PaymentCountdown :status="status" />
       </div>
 
-      <div
-        v-for="notice in notices"
-        :key="notice.message"
-        class="forumpay-pgw-payment-notice"
-      >
-        <SvgIconNotice />
+      <!-- Exposed notices (network warnings) -->
+      <div v-for="notice in exposedNotices" :key="notice.code" class="notice-message" style="margin-top: 12px;">
         {{ notice.message }}
       </div>
 
-      <div class="forumpay-pgw-payment-link-wrapper">
-        <button
-          class="forumpay-pgw-button forumpay-pgw-button--cancel"
-          type="button"
-          @click.stop="handleCancelPayment"
-        >
-          Cancel payment
-        </button>
+      <div class="start-payment-details">
+        <!-- Payment details group with info icon, amount, and copy -->
+        <div v-click-outside="() => isPaymentDetailsVisible = false" class="payment-details-group">
+          <div
+            role="button"
+            tabindex="0"
+            style="cursor: pointer; width: 40px;"
+            @click="togglePaymentDetails"
+            @keyup.enter="togglePaymentDetails"
+          >
+            <SvgInfo style="width: 20px; height: 20px;" />
+          </div>
+
+          <!-- Transaction details popup -->
+          <div v-if="isPaymentDetailsVisible" class="payment-details-overview">
+            <div class="payment-details-header">
+              <span class="payment-details-title">Transaction details</span>
+              <SvgClose
+                role="button"
+                tabindex="0"
+                style="cursor: pointer; width: 16px; height: 16px;"
+                @click="isPaymentDetailsVisible = false"
+                @keyup.enter="isPaymentDetailsVisible = false"
+              />
+            </div>
+            <div v-if="itemName">
+              <span>Item:</span>
+              <span>{{ itemName }}</span>
+            </div>
+            <div v-if="invoiceSurchargeAmount">
+              <span>Processing Fee:</span>
+              <span>{{ invoiceSurchargeAmount }} {{ invoiceCurrency }}</span>
+            </div>
+            <div>
+              <span>Total Amount:</span>
+              <span>{{ invoiceAmountWithSurcharge || invoiceAmount }} {{ invoiceCurrency }}</span>
+            </div>
+            <div>
+              <span>Exchange Rate:</span>
+              <span>{{ rate }} {{ invoiceCurrency }}/{{ formatCurrencyName(amountCurrency) }}</span>
+            </div>
+            <div>
+              <span>Exchange Amount:</span>
+              <span>{{ amountExchange }} {{ formatCurrencyName(amountCurrency) }}</span>
+            </div>
+            <div>
+              <span>Network Cost:</span>
+              <span>{{ networkProcessingFee }} {{ formatCurrencyName(amountCurrency) }}</span>
+            </div>
+            <div>
+              <span>Total to Send:</span>
+              <span>{{ amount }} {{ formatCurrencyName(amountCurrency) }}</span>
+            </div>
+          </div>
+
+          <span class="payment-amount-holder">{{ amount }} {{ formatCurrencyName(amountCurrency) }}</span>
+          <div style="width: 40px;">
+            <Copy :value="amount" />
+          </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="qr">
+          <div>
+            <img v-if="!isBackupQR" :src="qrImg" alt="QR Code">
+            <img v-else :src="qrAltImg" alt="Alternative QR Code">
+          </div>
+
+          <span
+            v-if="qrAlt"
+            role="button"
+            tabindex="0"
+            class="qr-code-help"
+            @click="openQrAlternativesModal"
+            @keyup.enter="openQrAlternativesModal"
+          >
+            Try alternative QR code.
+          </span>
+        </div>
+
+        <QrCodeAlternatives
+          :visible="isQrAlternativesModalVisible"
+          :qr-alt-img="qrAltImg"
+          @close="closeQrAlternativesModal"
+          @select-wallet-qr="onSelectWalletQr"
+          @select-basic-qr="onSelectBasicQr"
+        />
+
+        <!-- Wallet Address -->
+        <div v-if="address">
+          <div class="payment-details-group">
+            <span
+              class="payment-amount-holder"
+              style="border: none; outline:none; width: 100%;border-top-right-radius: 0;border-bottom-right-radius: 0;min-height:unset;"
+              type="text"
+              :value="address"
+            >
+              {{ shortenedAddress }}
+            </span>
+            <div style="width: 40px;">
+              <Copy :value="address" />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Loader
-        :loading="!loading && refreshing"
-        :small="true"
-      />
-    </Container>
+      <!-- Gas fee / Wait time notice -->
+      <div v-if="(fastTransactionFee && fastTransactionFee !== '' && fastTransactionFee !== '0') || waitTime" style="margin: 16px 0; display: flex; flex-direction: column;">
+        <div v-if="fastTransactionFee && fastTransactionFee !== '' && fastTransactionFee !== '0'" class="payment-help-container">
+          <span class="wlx-widget-help-text" style="text-align:center;">
+            <span v-if="minConfirmations > 0">
+              Set your wallet TX fee to at least:
+            </span>
+            <span v-else>For instant approval set tx fees to:</span>
+            <span class="highlight">
+              HIGH
+            </span>
+          </span>
 
-    <Container class="forumpay-pgw-payment-wrapper">
-      <div v-if="fastTransactionFee" class="forumpay-pgw-payment-details">
-        <span class="forumpay-pgw-payment-details-text">
-          {{ minConfirmations > 0 ? "Set your wallet TX fee to at least:" : "For instant approval set tx fees to" }}
-          {{ fastTransactionFee }}
-          {{ fastTransactionFeeCurrency }}
+          <div class="payment-help">
+            <SvgHelp style="width: 20px; height: 20px;" class="help-icon" />
+            <Container class="payment-help-tooltip">
+              <p>
+                For instant approval ensure you are using fast fees or manually set to
+                {{ fastTransactionFee }} {{ fastTransactionFeeCurrency }}.
+              </p>
+            </Container>
+          </div>
+        </div>
+        <span v-if="waitTime" class="wlx-widget-help-text" style="text-align: center;">
+          Expected time to confirm: {{ waitTime }}.
         </span>
-
-        <div class="forumpay-pgw-payment-details-info">
-          <CurrencyIcon icon="help" />
-          <Container class="forumpay-pgw-payment-details-info-tooltip">
-            <p>
-              For instant approval ensure you are using fast fees or manually set to this amount.
-            </p>
-          </Container>
-        </div>
       </div>
 
-      <div class="forumpay-pgw-payment-amount">
-        <span class="forumpay-pgw-payment-amount-label">Amount</span>
-        <div class="forumpay-pgw-payment-amount-field">
-          <span>{{ amount }} {{ formatCurrencyName(currency.currency) }}</span>
-          <Copy :value="amount" :on-copy="handleAmountCopy" />
-        </div>
-      </div>
-      <div>
-        <span class="forumpay-pgw-payment-amount-label">Address</span>
-        <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--address">
-          <span>{{ address }}</span>
-          <Copy :value="address" :on-copy="handleAddressCopy" />
-        </div>
-      </div>
+      <hr style="width: calc(100% + 40px);margin: 0 -20px 20px -20px;" />
 
-      <span class="forumpay-pgw-payment-confirm">Expected time to confirm: {{ waitTime }}</span>
-
-      <div
-        class="forumpay-pgw-payment-transaction"
-        role="button"
-        tabIndex="0"
-        @keyup="toggleTransactionInfo"
-        @click="toggleTransactionInfo"
-      >
-        <span>Transaction details</span>
-      </div>
-
-      <div
-        class="forumpay-pgw-payment-transaction-content"
-        :class="{ 'forumpay-pgw-payment-transaction-content__margin': isTransactionInfoVisible }"
-      >
-        <ul v-if="isTransactionInfoVisible" class="forumpay-pgw-payment-transaction-content-ul">
-          <li class="forumpay-pgw-payment-transaction-content-li">
-            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Payment ID:</span>
-            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ invoiceNo }}</span>
-          </li>
-          <li class="forumpay-pgw-payment-transaction-content-li">
-            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Order Amount:</span>
-            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ invoiceAmount }} {{ formatCurrencyName(invoiceCurrency) }}</span>
-          </li>
-          <li class="forumpay-pgw-payment-transaction-content-li">
-            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Exchange Rate:</span>
-            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ rate }}/{{ formatCurrencyName(amountCurrency) }}</span>
-          </li>
-          <li class="forumpay-pgw-payment-transaction-content-li">
-            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Exchange Amount:</span>
-            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ amountExchange }} {{ formatCurrencyName(amountCurrency) }}</span>
-          </li>
-          <li class="forumpay-pgw-payment-transaction-content-li">
-            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Network Cost:</span>
-            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ networkProcessingFee }} {{ formatCurrencyName(amountCurrency) }}</span>
-          </li>
-          <li class="forumpay-pgw-payment-transaction-content-li">
-            <span class="forumpay-pgw-payment-transaction-content-li__title-font">Total to Send:</span>
-            <span class="forumpay-pgw-payment-transaction-content-li__data-font">{{ amount }}</span>
-          </li>
-        </ul>
-      </div>
-
+      <!-- Beneficiary Details -->
       <div v-if="beneficiaryVaspDetails">
         <div
-          class="forumpay-pgw-payment-transaction"
           role="button"
-          tabIndex="0"
-          @keyup="toggleBeneficiaryDetails"
+          tabindex="0"
+          class="beneficiary-details-toggle"
+          :class="{ open: isBeneficiaryDetailsVisible }"
           @click="toggleBeneficiaryDetails"
+          @keyup.enter="toggleBeneficiaryDetails"
         >
-          <span>Beneficiary details</span>
+          <span class="payment-details-label">Beneficiary Details</span>
+          <SvgChevronDown class="chevron-icon" />
         </div>
 
-        <div
-          v-if="isBeneficiaryDetailsVisible"
-          class="forumpay-pgw-payment-transaction-content"
-          :class="{ 'forumpay-pgw-payment-transaction-content__margin': isBeneficiaryDetailsVisible }"
-        >
-          <div class="forumpay-pgw-payment-beneficiary-details">
-            <p class="forumpay-pgw-payment-amount-label">
-              Beneficiary Details
-            </p>
-            <p class="forumpay-pgw-payment-details-text">
-              When depositing from another service,
-              they may ask you for the following information about us.
-            </p>
-          </div>
+        <div v-if="isBeneficiaryDetailsVisible">
+          <p class="wlx-widget-help-text" style="margin-top: 5px;margin-bottom:10px;">
+            When depositing from another service, they may ask you for the following
+            information about us.
+          </p>
           <div>
-            <span class="forumpay-pgw-payment-amount-label">Beneficiary Name</span>
-            <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--beneficiary-details">
-              <span>{{ beneficiaryVaspDetails.beneficiary_name }}</span>
-              <Copy
-                :value="beneficiaryVaspDetails.beneficiary_name"
-                :on-copy="handleBeneficiaryNameCopy"
-              />
+            <span class="payment-details-label">Beneficiary Name</span>
+            <div class="payment-details-field">
+              <span style="font-size: 10px;">{{ beneficiaryVaspDetails.beneficiary_name }}</span>
+              <Copy :value="beneficiaryVaspDetails.beneficiary_name" />
             </div>
           </div>
           <div>
-            <span class="forumpay-pgw-payment-amount-label">Beneficiary Vasp</span>
-            <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--beneficiary-details">
-              <span>{{ beneficiaryVaspDetails.beneficiary_vasp }}</span>
-              <Copy
-                :value="beneficiaryVaspDetails.beneficiary_vasp"
-                :on-copy="handleBeneficiaryVaspCopy"
-              />
+            <span class="payment-details-label">Beneficiary VASP</span>
+            <div class="payment-details-field">
+              <span style="font-size: 10px;">{{ beneficiaryVaspDetails.beneficiary_vasp }}</span>
+              <Copy :value="beneficiaryVaspDetails.beneficiary_vasp" />
             </div>
           </div>
           <div v-if="beneficiaryVaspDetails.beneficiary_vasp_did">
-            <span class="forumpay-pgw-payment-amount-label">Beneficiary Vasp Did</span>
-            <div class="forumpay-pgw-payment-amount-field forumpay-pgw-payment-amount-field--beneficiary-details">
-              <span>{{ beneficiaryVaspDetails.beneficiary_vasp_did }}</span>
-              <Copy
-                :value="beneficiaryVaspDetails.beneficiary_vasp_did"
-                :on-copy="handleBeneficiaryVaspDidCopy"
-              />
+            <span class="payment-details-label">Beneficiary VASP DID</span>
+            <div class="payment-details-field">
+              <span style="font-size: 10px;">{{ beneficiaryVaspDetails.beneficiary_vasp_did }}</span>
+              <Copy :value="beneficiaryVaspDetails.beneficiary_vasp_did" />
             </div>
           </div>
         </div>
       </div>
+
+      <PageLogo />
     </Container>
+
+    <!-- Cancel Payment Button -->
+    <div>
+      <button
+        type="button"
+        class="forumpay-pgw-button forumpay-pgw-button--cancel"
+        style="margin: 32px auto 0 auto; width: 100%;width:fit-content;"
+        @click="handleCancelPayment"
+      >
+        Cancel Payment
+      </button>
+    </div>
   </div>
 </template>

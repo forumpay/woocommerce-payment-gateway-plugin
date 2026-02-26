@@ -78,6 +78,7 @@ class CheckPayment
                 $response->getType(),
                 $response->getInvoiceCurrency(),
                 $response->getAmount(),
+                $response->getOriginalAmount(),
                 $response->getMinConfirmations(),
                 $response->isAcceptZeroConfirmations(),
                 $response->isRequireKytForConfirmation(),
@@ -97,6 +98,10 @@ class CheckPayment
                 $response->getPrintString(),
                 $response->getState(),
                 $underPayment ?? null,
+                $response->getItemName(),
+                $response->getInvoiceSurchargeAmount(),
+                $response->getInvoiceAmountWithSurcharge(),
+                $response->getInvoiceSurchargePercent(),
             );
 
             $this->logger->info('CheckPayment entrypoint finished.');

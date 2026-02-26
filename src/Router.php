@@ -10,6 +10,8 @@ use ForumPay\PaymentGateway\WoocommercePlugin\Model\CancelPayment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\CheckPayment;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyList;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyRate;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyRates;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetWalletApps;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Ping;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\RestoreCart;
@@ -62,12 +64,14 @@ class Router
             'ping' => new Ping($this->forumPay, $this->logger),
             'currencies' => new GetCurrencyList($this->forumPay, $this->logger),
             'getRate' => new GetCurrencyRate($this->forumPay, $this->logger),
+            'getRates' => new GetCurrencyRates($this->forumPay, $this->logger),
             'startPayment' => new StartPayment($this->forumPay, $this->logger),
             'checkPayment' => new CheckPayment($this->forumPay, $this->logger),
             'cancelPayment' => new CancelPayment($this->forumPay, $this->logger),
             'webhook' => new Webhook($this->forumPay, $this->logger),
             'restoreCart' => new RestoreCart($this->forumPay, $this->logger),
             'syncPayment' => new CheckPayment($this->forumPay, $this->logger),
+            'getWalletApps' => new GetWalletApps($this->forumPay, $this->logger),
         ];
     }
 

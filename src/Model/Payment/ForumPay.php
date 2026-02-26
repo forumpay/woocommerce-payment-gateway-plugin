@@ -13,6 +13,7 @@ use ForumPay\PaymentGateway\PHPClient\Response\PingResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\CheckPaymentResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\GetCurrencyListResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\GetRateResponse;
+use ForumPay\PaymentGateway\PHPClient\Response\GetWalletAppsResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\StartPaymentResponse;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payer\Payer;
 use Psr\Log\LoggerInterface;
@@ -146,6 +147,34 @@ class ForumPay
     }
 
     /**
+     * Get rates for multiple currencies
+     *
+     * @param string $orderId
+     * @param string $currencies Comma-separated list of currency codes (e.g., "BTC,ETH")
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getRates(string $orderId, string $currencies)
+    {
+        $order = $this->orderManager->getOrder($orderId);
+        if (!$order) {
+            throw new \Exception("Order is not active. Order is already created.");
+        }
+
+        return $this->apiClient->getRates(
+            $this->gateway->getPosId(),
+            $this->orderManager->getOrderCurrency($orderId),
+            $this->orderManager->getOrderTotal($orderId),
+            $currencies,
+            $this->gateway->isAcceptZeroConfirmations() ? 'true' : 'false',
+            null,
+            null,
+            null,
+            null
+        );
+    }
+
+    /**
      * @param string $orderId
      * @return RequestKycResponse
      * @throws ApiExceptionInterface
@@ -163,6 +192,7 @@ class ForumPay
      * @param string $paymentId
      * @param string|null $kycPin
      * @param Payer|null $payer
+     * @param string|null $walletAppId
      * @return StartPaymentResponse
      * @throws ApiExceptionInterface
      */
@@ -171,7 +201,8 @@ class ForumPay
         string $currency,
         string $paymentId,
         ?string $kycPin,
-        ?Payer $payer
+        ?Payer $payer,
+        ?string $walletAppId = null
     ): StartPaymentResponse
     {
         $response = $this->apiClient->startPayment(
@@ -189,7 +220,7 @@ class ForumPay
             $this->calculateMinimumOrderValue($this->gateway->getAcceptUnderpayment(), $orderId),
             $this->gateway->getAcceptOverpayment()['enabled'] ? 'true':'false',
             null,
-            null,
+            $walletAppId,
             $this->gateway->getSid(),
             null,
             null,
@@ -213,12 +244,18 @@ class ForumPay
     /**
      * Get detailed payment information for ForumPay
      *
+     * @param string $orderId
      * @param string $paymentId
+     * @param bool $webhookUsed
      * @return CheckPaymentResponse
-     * @throws ForumPayException
+     * @throws ApiExceptionInterface
      */
-    public function checkPayment(string $orderId, string $paymentId): CheckPaymentResponse
+    public function checkPayment(string $orderId, string $paymentId, bool $webhookUsed = false): CheckPaymentResponse
     {
+        if ($webhookUsed) {
+            $this->orderManager->saveOrderMetaData($orderId, 'payment_formumpay_webhook_used', date('Y-m-d h:i:sa'));
+        }
+
         $meta = $this->getStartPaymentMetaData($orderId, $paymentId);
 
         $address = $meta['address'];
@@ -352,7 +389,7 @@ class ForumPay
      *
      * @param string $orderId
      * @param string $paymentId
-     * @return array
+     * @return array|null
      */
     private function getStartPaymentMetaData(string $orderId, string $paymentId): ?array
     {
@@ -371,6 +408,10 @@ class ForumPay
     private function calculateMinimumOrderValue(array $underPaymentOptions, string $orderId): string
     {
         if (!$underPaymentOptions['enabled']) {
+            return '';
+        }
+
+        if ($underPaymentOptions['threshold'] === '') {
             return '';
         }
 
@@ -398,6 +439,17 @@ class ForumPay
         $maximumOrderValue = (1 + $percentage / 100) * $total;
 
         return (string)round($maximumOrderValue, 2);
+    }
+
+    /**
+     * Get list of available wallet apps
+     *
+     * @return GetWalletAppsResponse
+     * @throws ApiExceptionInterface
+     */
+    public function getWalletApps(): GetWalletAppsResponse
+    {
+        return $this->apiClient->getWalletApps();
     }
 
     private function initApiClient($apiUrl, $piUser, $apiSecret): PaymentGatewayApiInterface

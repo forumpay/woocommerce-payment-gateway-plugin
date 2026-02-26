@@ -5,7 +5,6 @@ import PaymentStateBlocked from '../components/PaymentStateBlocked.vue';
 import PaymentStateOther from '../components/PaymentStateOther.vue';
 import PaymentStateWaiting from '../components/PaymentStateWaiting.vue';
 import Loader from '../components/Loader.vue';
-import InstructionBox from '../components/InstructionBox.vue';
 import CancelBox from '../components/CancelBox.vue';
 import cryptoPaymentStatsHandler from '../utils/cryptoPaymentStatsHandler';
 
@@ -17,7 +16,6 @@ const PaymentContainer = {
     PaymentStateOther,
     PaymentStateWaiting,
     Loader,
-    InstructionBox,
     CancelBox,
   },
   data() {
@@ -90,6 +88,9 @@ const PaymentContainer = {
         },
       );
     },
+    onRegenerateQr(walletAppId) {
+      this.store.dispatch('regeneratePaymentQr', walletAppId);
+    },
   },
 };
 
@@ -98,10 +99,6 @@ export default PaymentContainer;
 
 <template>
   <Loader v-if="!paymentStatus" />
-
-  <InstructionBox
-    :notices="payment.notices"
-  />
 
   <CancelBox
     @on-cancel-payment-confirm="onCancelPaymentConfirm"
@@ -130,17 +127,22 @@ export default PaymentContainer;
     :qr-alt-img="payment.qr_alt_img"
 
     :invoice-no="payment.payment_id"
-    :invoice-amount="rate.invoice_amount"
-    :invoice-currency="rate.invoice_currency"
+    :invoice-amount="paymentStatus.invoice_amount"
+    :invoice-currency="paymentStatus.invoice_currency"
     :rate="rate.rate"
     :amount-exchange="rate.amount_exchange"
     :network-processing-fee="rate.network_processing_fee"
+
+    :item-name="payment.item_name"
+    :invoice-surcharge-amount="payment.invoice_surcharge_amount"
+    :invoice-amount-with-surcharge="payment.invoice_amount_with_surcharge"
 
     :notices="payment.notices"
 
     :beneficiary-vasp-details="payment.beneficiary_vasp_details ?? null"
 
     @cancel-payment="onCancelPayment"
+    @regenerate-qr="onRegenerateQr"
   />
 
   <PaymentStateProcessing
@@ -148,12 +150,19 @@ export default PaymentContainer;
     :status="paymentStatus.status"
     :wait-time="paymentStatus.wait_time"
     :amount="paymentStatus.amount"
+    :original-amount="paymentStatus.original_amount"
     :payment="paymentStatus.payment ?? '0'"
     :amount-currency="paymentStatus.currency"
+    :payment-id="payment.payment_id"
+    :invoice-amount="paymentStatus.invoice_amount"
+    :invoice-currency="paymentStatus.invoice_currency"
   />
 
   <PaymentStateUnderpayment
     v-else-if="paymentStatus && paymentStatus.state === 'underpayment'"
+    :invoice-no="payment.payment_id"
+    :invoice-amount="paymentStatus.invoice_amount"
+    :invoice-currency="paymentStatus.invoice_currency"
     :currency="cryptoCurrency"
     :status="paymentStatus.status"
     :state="paymentStatus.state"
@@ -185,5 +194,8 @@ export default PaymentContainer;
     :amount="paymentStatus.amount"
     :amount-currency="paymentStatus.currency"
     :payment="paymentStatus.payment ?? '0'"
+    :payment-id="payment.payment_id"
+    :invoice-amount="paymentStatus.invoice_amount"
+    :invoice-currency="paymentStatus.invoice_currency"
   />
 </template>

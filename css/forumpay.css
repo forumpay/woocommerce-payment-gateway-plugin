@@ -1,0 +1,13 @@
+/* Fix for widget page in wordpress checkout */
+body {
+    width: 100%;
+}
+.woocommerce-checkout main .woocommerce {
+    max-width: unset;
+}
+
+.forumpay-pgw {
+    h3  {
+        font-size: 16px;
+    }
+}

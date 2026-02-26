@@ -1,9 +1,10 @@
 <script>
 
 import SvgCopy from '../images/SvgCopy.vue';
+import SvgCheck from '../images/SvgCheck.vue';
 
 const Copy = {
-  components: { SvgCopy },
+  components: { SvgCopy, SvgCheck },
   props: {
     value: String,
     onCopy: Function,
@@ -12,18 +13,23 @@ const Copy = {
     return {
       isClipboardAvailable: window.isSecureContext && navigator.clipboard,
       isCopied: false,
+      tooltipText: 'Copy',
     };
   },
   methods: {
     copyToClipboard() {
       navigator.clipboard.writeText(this.value);
       this.isCopied = true;
+      this.tooltipText = 'Copied!';
 
       if (typeof this.onCopy === 'function') {
         this.onCopy();
       }
 
-      setTimeout(() => { this.isCopied = false; }, 1000);
+      setTimeout(() => {
+        this.isCopied = false;
+        this.tooltipText = 'Copy';
+      }, 1000);
     },
   },
 };
@@ -34,18 +40,18 @@ export default Copy;
 
 <template>
   <div
-    class="forumpay-pgw-payment-amount-field-copy_button"
-    style="width:24px; height:24px; cursor: pointer;"
+    class="copy-wrapper"
     role="button"
     tabIndex="0"
     @keyup="copyToClipboard"
     @click="copyToClipboard"
   >
-    <SvgCopy v-if="isClipboardAvailable && !isCopied" />
-    <small
-      v-if="isCopied"
-      class="forumpay-pgw-copy-copy"
-      @click.stop
-    >Copied!</small>
+    <div class="svg-container">
+      <SvgCheck v-if="isCopied" :width="16" :height="16" style="color: var(--pgw-color-black); outline: none;" />
+      <SvgCopy v-else-if="isClipboardAvailable" :width="16" :height="16" style="outline: none;" />
+    </div>
+    <div class="copy-tooltip">
+      {{ tooltipText }}
+    </div>
   </div>
 </template>

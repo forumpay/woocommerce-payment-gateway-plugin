@@ -61,13 +61,14 @@ class StartPayment
             $currency = $request->getRequired('currency');
             $payer = $request->getRequired('payer');
             $kyc = $request->get('kycPin');
+            $walletAppId = $request->get('walletAppId');
 
             $payer = Payer::valueOf($payer);
 
             $this->logger->info('StartPayment entrypoint called.', ['currency' => $currency]);
 
             /** @var StartPaymentResponse $response */
-            $response = $this->forumPay->startPayment($orderId, $currency, '', $kyc, $payer);
+            $response = $this->forumPay->startPayment($orderId, $currency, '', $kyc, $payer, $walletAppId);
 
             $notices = [];
             foreach ($response->getNotices() as $notice) {
@@ -90,6 +91,10 @@ class StartPayment
                 $notices,
                 $response->getStatsToken(),
                 $beneficiaryVaspDetails,
+                $response->getItemName(),
+                $response->getInvoiceSurchargeAmount(),
+                $response->getInvoiceAmountWithSurcharge(),
+                $response->getInvoiceSurchargePercent(),
             );
 
             $this->logger->info('StartPayment entrypoint finished.');

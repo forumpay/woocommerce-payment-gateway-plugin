@@ -32,6 +32,13 @@ const initPlugin = function () {
         'forumpay_nonce': nonce
       },
     },
+    restGetRatesUri: {
+      'path': '',
+      'params': {
+        'act': 'getRates',
+        'forumpay_nonce': nonce
+      },
+    },
     restStartPaymentUri: {
       'path': '',
       'params': {
@@ -61,9 +68,18 @@ const initPlugin = function () {
         'forumpay_nonce': nonce
       },
     },
+    restGetWalletAppsUri: {
+      'path': '',
+      'params': {
+        'act': 'getWalletApps',
+        'forumpay_nonce': nonce
+      },
+    },
     successResultUrl: forumPayData('forumpay-returnurl'),
     errorResultUrl: forumPayData('forumpay-cancelurl'),
     forumPayApiUrl: forumPayData('forumpay-forumpayapiurl'),
+    invoiceAmount: forumPayData('forumpay-invoiceamount'),
+    invoiceCurrency: forumPayData('forumpay-invoicecurrency'),
     payer: {
         'payer_type': '',
         'payer_first_name': forumPayData('forumpay-payerfirstname'),
@@ -78,7 +94,6 @@ const initPlugin = function () {
     },
     messageReceiver: function (name, data) {
     },
-    showStartPaymentButton: true,
   }
   window.forumPayPaymentGatewayWidget = new ForumPayPaymentGatewayWidget(config);
   window.forumPayPaymentGatewayWidget.init();

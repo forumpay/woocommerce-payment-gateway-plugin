@@ -1,8 +1,22 @@
 <script>
+export default {
+  props: {
+    width: {
+      type: [String, Number],
+      default: 24,
+    },
+    height: {
+      type: [String, Number],
+      default: 24,
+    },
+  },
+};
 </script>
 
 <template>
   <svg
+    :width="width"
+    :height="height"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 192 512"
   ><!-- Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) --><path

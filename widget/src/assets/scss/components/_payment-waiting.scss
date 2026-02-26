@@ -1,0 +1,351 @@
+.forumpay-pgw {
+  .wlx-widget-help-text {
+    color: var(--pgw-color-gray-2);
+    font-size: 11px;
+    font-weight: 500;
+    text-wrap: pretty;
+
+    .highlight {
+      font-weight: 700;
+      color: var(--pgw-color-primary);
+    }
+  }
+
+  .text-heading {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+    text-align: left;
+    text-wrap: balance;
+  }
+
+  .start-payment-details {
+    max-width: 250px;
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 16px;
+
+    &>*:not(:last-child) {
+      margin-bottom: 16px;
+    }
+  }
+
+  .payment-details-label {
+    font-weight: 800;
+    font-size: 12px;
+  }
+
+  .payment-details-field {
+    position: relative;
+    padding: 10px;
+    display: flex;
+    width: 100%;
+    background-color: var(--pgw-color-gray-3);
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--pgw-default-radius-1);
+    height: 38px;
+
+    span {
+      font-weight: 600;
+      padding-right: 50px;
+      white-space: nowrap;
+      overflow-x: scroll;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      font-size: 10px;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .copy-wrapper {
+      position: absolute;
+      right: 10px;
+    }
+
+    .wlx-copy-status {
+      background-color: var(--pgw-color-gray-3);
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+  }
+
+  .copy-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    outline: none !important;
+
+    .svg-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .copy-tooltip {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 3px;
+      padding: 3px 10px;
+      background-color: var(--pgw-color-white);
+      color: var(--pgw-color-black);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      border-radius: 8px;
+      pointer-events: none;
+      z-index: 100;
+      border: 1px solid var(--pgw-border-color);
+    }
+
+    &:hover .copy-tooltip {
+      display: block;
+    }
+  }
+
+  .payment-details-group {
+    position: relative;
+    display: inline-flex;
+    gap: 2px;
+    width: 100%;
+
+    &>* {
+      background-color: var(--pgw-color-background-secondary);
+      padding: 11px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .payment-amount-holder {
+      flex: 1;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    i {
+      font-size: 18px;
+      font-style: normal;
+    }
+
+    &> :first-child {
+      border-top-left-radius: 11px;
+      border-bottom-left-radius: 11px;
+    }
+
+    &> :last-child {
+      border-top-right-radius: 11px;
+      border-bottom-right-radius: 11px;
+    }
+
+    .copy-wrapper {
+      min-width: unset;
+    }
+  }
+
+  .payment-details-overview {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 50%;
+    transform: translatex(-50%);
+    width: 275px;
+    background-color: var(--pgw-color-background-primary);
+    border: 1px solid var(--pgw-color-background-secondary);
+    border-radius: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 16px;
+    z-index: 100;
+
+    span {
+      font-size: 11px;
+      font-weight: 400;
+
+      &:last-child {
+        margin-left: auto;
+      }
+    }
+
+    .payment-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .payment-details-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-left: 0;
+      }
+    }
+
+    div {
+      width: 100%;
+      display: inline-flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      word-break: break-all;
+    }
+  }
+
+  .qr {
+    text-align: center;
+    margin-bottom: 16px;
+
+    &>div:first-child {
+      overflow: hidden;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  .qr-code-help {
+    text-align: center;
+    display: block;
+    font-size: 11px;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .payment-help-container {
+    display: flex;
+    align-items: center;
+    margin: 13px 0 0 0;
+    justify-content: center;
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .payment-help {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .help-icon {
+      stroke: var(--pgw-color-primary);
+    }
+
+    &:hover .payment-help-tooltip {
+      display: block;
+    }
+  }
+
+  .payment-help-tooltip {
+    display: none;
+    min-width: 200px;
+    padding: 10px 15px;
+    position: absolute;
+    bottom: 100%;
+    right: 50%;
+    transform: translateX(50%);
+    margin-bottom: 8px;
+    z-index: 10;
+
+    p {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pgw-color-black);
+      text-align: left;
+      margin: 0px;
+      line-height: 1.4;
+    }
+  }
+
+  .beneficiary-details-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin-top: 10px;
+
+    span {
+      font-weight: 700;
+    }
+
+    .chevron-icon {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.25s;
+    }
+
+    &.open .chevron-icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  .countdown-box {
+    position: relative;
+    display: inline-block;
+
+    svg {
+      height: inherit;
+      width: inherit;
+    }
+
+    .border-static {
+      fill: none;
+      stroke: var(--pgw-border-color);
+    }
+
+    .border-animated {
+      fill: none;
+      stroke: var(--pgw-color-primary);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s;
+    }
+
+    &.start .border-animated {
+      stroke: var(--pgw-color-success-1);
+    }
+
+    &.mid .border-animated {
+      stroke: var(--pgw-color-warning-1);
+    }
+
+    &.final .border-animated {
+      stroke: var(--pgw-color-danger-1);
+    }
+
+    .countdown-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pgw-color-gray-2);
+    }
+  }
+
+  .notice-message {
+    color: var(--pgw-color-gray-2);
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin: 10px 0;
+  }
+}

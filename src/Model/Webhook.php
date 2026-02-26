@@ -61,7 +61,7 @@ class Webhook
             $this->logger->info('Webhook entrypoint called.', ['paymentId' => $paymentId, 'orderId' => $orderId]);
 
             /** @var CheckPaymentResponse $response */
-            $this->forumPay->checkPayment($orderId, $paymentId);
+            $this->forumPay->checkPayment($orderId, $paymentId, true);
 
             $this->logger->info('Webhook entrypoint finished.');
 

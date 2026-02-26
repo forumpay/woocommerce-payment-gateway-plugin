@@ -1,6 +1,15 @@
 /* global CryptoPaymentStats */
 import { createStore } from 'vuex';
 
+// View constants for navigation
+export const VIEWS = {
+  RATE_SELECTION: 'rate-selection',
+  NETWORK_SELECTION: 'network-selection',
+  PAYMENT: 'payment',
+  KYC: 'kyc',
+  PAYER: 'payer',
+};
+
 const formatRoute = (config) => {
   if (
     typeof config === 'object'
@@ -21,8 +30,16 @@ const formatRoute = (config) => {
 };
 
 const getDefaultState = () => ({
+  currentView: VIEWS.RATE_SELECTION,
   cryptoCurrencies: [],
   cryptoCurrency: null,
+  currencyRates: {},
+  ratesLoading: false,
+  invoiceAmount: '',
+  invoiceCurrency: '',
+  networks: [],
+  selectedNetwork: null,
+  networkSelectionRequired: false,
   kycError: null,
   kycPin: '',
   kycRequired: false,
@@ -37,6 +54,7 @@ const getDefaultState = () => ({
   error: null,
   loading: null,
   showStartPaymentButton: false,
+  forceShowStartPaymentButton: false,
   showInstructions: true,
   showCancel: false,
   userCanceled: false,
@@ -50,13 +68,41 @@ export default createStore({
   },
   mutations: {
     resetPlugin(state) {
-      Object.assign(state, getDefaultState());
+      Object.assign(state, {
+        ...getDefaultState(),
+        payer: state.payer,
+      });
+    },
+    setCurrentView(state, view) {
+      state.currentView = view;
     },
     setCryptoCurrencies(state, cryptoCurrencies) {
       state.cryptoCurrencies = cryptoCurrencies;
     },
     setCryptoCurrency(state, cryptoCurrency) {
       state.cryptoCurrency = cryptoCurrency;
+    },
+    setNetworks(state, networks) {
+      state.networks = networks;
+    },
+    setSelectedNetwork(state, network) {
+      state.selectedNetwork = network;
+    },
+    setNetworkSelectionRequired(state, required) {
+      state.networkSelectionRequired = required;
+    },
+    setCurrencyRates(state, rates) {
+      state.currencyRates = rates;
+    },
+    setCurrencyRate(state, { currency, rateData }) {
+      state.currencyRates[currency] = rateData;
+    },
+    setInvoiceAmount(state, { amount, currency }) {
+      state.invoiceAmount = amount;
+      state.invoiceCurrency = currency;
+    },
+    setRatesLoading(state, loading) {
+      state.ratesLoading = loading;
     },
     setKycError(state, kycError) {
       state.kycError = kycError;
@@ -71,6 +117,9 @@ export default createStore({
       state.rate = rate;
       state.rateLoading = false;
       state.showStartPaymentButton = this.pluginConfig.showStartPaymentButton;
+      if (this.pluginConfig.messageReceiver) {
+        this.pluginConfig.messageReceiver('RATE_SET', { rate });
+      }
     },
     setRateLoading(state, loading) {
       state.rateLoading = loading;
@@ -140,6 +189,9 @@ export default createStore({
     setPayer(state, payer) {
       state.payer = payer;
     },
+    setForceShowStartPaymentButton(state, forceShowStartPaymentButton) {
+      state.forceShowStartPaymentButton = forceShowStartPaymentButton;
+    },
   },
   actions: {
     async resetPlugin({ commit }) {
@@ -185,8 +237,79 @@ export default createStore({
         cryptoCurrency,
       );
     },
+    setNetworks({ commit }, networks) {
+      commit('setNetworks', networks);
+      commit('setNetworkSelectionRequired', networks.length > 1);
+      // Navigate to network selection view
+      commit('setCurrentView', VIEWS.NETWORK_SELECTION);
+    },
+    setSelectedNetwork({ commit }, network) {
+      commit('setSelectedNetwork', network);
+      commit('setNetworkSelectionRequired', false);
+    },
+    navigateToRateSelection({ commit }) {
+      commit('setNetworkSelectionRequired', false);
+      commit('setCryptoCurrency', null);
+      commit('setRate', null);
+      commit('setCurrentView', VIEWS.RATE_SELECTION);
+    },
     clearRate({ commit }) {
       commit('setRate', null);
+    },
+    async fetchAllRates({ commit, state }) {
+      commit('setRatesLoading', true);
+      const rates = {};
+
+      try {
+        // Build comma-separated list of currency codes
+        const currencyCodes = state.cryptoCurrencies
+          .map((c) => c.currency)
+          .join(',');
+
+        if (!currencyCodes) {
+          commit('setRatesLoading', false);
+          return;
+        }
+
+        const route = formatRoute(this.pluginConfig.restGetRatesUri);
+
+        const result = await this.axios.post(
+          route.path,
+          { currencies: currencyCodes, ...route.params },
+        );
+
+        // Save invoice amount from response
+        if (result.data.invoice_amount && result.data.invoice_currency) {
+          commit('setInvoiceAmount', {
+            amount: result.data.invoice_amount,
+            currency: result.data.invoice_currency,
+          });
+        }
+
+        // Parse the response - currencies are in result.data.currencies
+        const currenciesData = result.data.currencies || {};
+
+        // Map the response to our rates object
+        Object.entries(currenciesData).forEach(([currencyCode, rateData]) => {
+          if (rateData.err || rateData.err_code) {
+            // Currency has an error
+            rates[currencyCode] = { error: true, message: rateData.err };
+          } else {
+            // Currency has valid rate data
+            rates[currencyCode] = rateData;
+          }
+        });
+
+        commit('setCurrencyRates', rates);
+      } catch (error) {
+        // Failed to fetch rates - set error flag for all currencies
+        state.cryptoCurrencies.forEach((currency) => {
+          rates[currency.currency] = { error: true };
+        });
+        commit('setCurrencyRates', rates);
+      }
+
+      commit('setRatesLoading', false);
     },
     async setRate({ commit, state }, cryptoCurrency) {
       if (state.rateLoading) {
@@ -236,28 +359,39 @@ export default createStore({
         };
 
         const result = await this.axios.post(route.path, data);
+
         commit('setLoading', false);
         commit('setPayment', result.data);
+        commit('setCurrentView', VIEWS.PAYMENT);
 
         if (result.data && result.data.stats_token) {
           CryptoPaymentStats.setToken(result.data.stats_token);
         }
       } catch (error) {
         commit('setLoading', false);
-        if (error.response.data.code === 3051) {
-          commit('setKycRequired', true);
-        } else if (error.response.data.code === 3056) {
-          commit('setPayerRequired', true);
-        } else if (error.response.data.code === 3052
-          || error.response.data.code === 3053
-          || error.response.data.code === 3054
-          || error.response.data.code === 3055
-        ) {
-          const errorMsg = error.response.data.message;
-          const i = errorMsg.lastIndexOf(']');
-          commit('setKycError', i !== -1 ? errorMsg.slice(i + 2) : errorMsg);
-        } else {
-          commit('setError', error);
+        switch (error.response.data.code) {
+          case 3051:
+            commit('setKycRequired', true);
+            commit('setCurrentView', VIEWS.KYC);
+            break;
+          case 3056:
+            commit('setPayerRequired', true);
+            commit('setCurrentView', VIEWS.PAYER);
+            break;
+          case 3053:
+          case 3054:
+          case 3055: {
+            const errorMsg = error.response.data.message;
+            const i = errorMsg.lastIndexOf(']');
+            commit('setKycError', i !== -1 ? errorMsg.slice(i + 2) : errorMsg);
+            commit('setCurrentView', VIEWS.KYC);
+            break;
+          }
+          case 3052:
+          default:
+            commit('setError', error);
+            commit('setForceShowStartPaymentButton', true);
+            break;
         }
       }
     },
@@ -288,6 +422,19 @@ export default createStore({
             'setCheckPaymentError',
             error.response.data,
           );
+
+          // If user cancelled, restore cart and redirect to error page
+          // since order is no longer active
+          if (this.state.userCanceled) {
+            try {
+              const restoreCartRoute = formatRoute(this.pluginConfig.restRestoreCart);
+              await this.axios.post(restoreCartRoute.path, { ...restoreCartRoute.params });
+            } catch (restoreError) {
+              // Continue with redirect even if restore fails
+            }
+            this.pluginConfig.messageReceiver('PAYMENT_CANCELED', {});
+            window.location.href = this.pluginConfig.errorResultUrl;
+          }
           return;
         }
 
@@ -343,6 +490,38 @@ export default createStore({
     },
     async showCancel({ commit }) {
       commit('setShowCancel', true);
+    },
+    async getWalletApps() {
+      try {
+        const route = formatRoute(this.pluginConfig.restGetWalletAppsUri);
+        const response = await this.axios.post(route.path, route.params);
+        return response.data.walletApps || [];
+      } catch (error) {
+        console.error('Failed to fetch wallet apps:', error);
+        return [];
+      }
+    },
+    async regeneratePaymentQr({ commit, state }, walletAppId) {
+      try {
+        commit('setLoading', true);
+
+        const route = formatRoute(this.pluginConfig.restStartPaymentUri);
+
+        const data = {
+          currency: state.cryptoCurrency.currency,
+          payer: state.payer,
+          walletAppId,
+          ...route.params,
+        };
+
+        const result = await this.axios.post(route.path, data);
+
+        commit('setLoading', false);
+        commit('setPayment', result.data);
+      } catch (error) {
+        commit('setLoading', false);
+        commit('setError', error);
+      }
     },
   },
 });

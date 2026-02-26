@@ -158,6 +158,59 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         add_action('before_woocommerce_init', array($this, 'before_woocommerce_hpos'));
         // Registers WooCommerce Blocks integration.
         add_action('woocommerce_init',  array( __CLASS__, 'woocommerce_forumpay_gateway_block_support' ));
+
+        add_action('admin_notices', array($this, 'forumpay_order_status_notice'));
+    }
+
+    /**
+     * @throws \Exception
+     */
+    function forumpay_order_status_notice() {
+        $last_run = get_transient('commerce_forumpay_last_check');
+        $time_now = time();
+
+        if (!$last_run || ($time_now - $last_run) > (15 * 60)) {
+            $query = new \WC_Order_Query(array(
+                'payment_method' => 'forumpay',
+                'limit' => 1,
+                'orderby' => 'modified',
+                'order' => 'DESC',
+                'meta_query' => array(
+                    array(
+                        'key' => 'startPayment',
+                        'compare' => 'EXISTS',
+                    ),
+                ),
+                'date_query' => array(
+                    array(
+                        'column' => 'post_modified',
+                        'before' => '15 minutes ago',
+                        'inclusive' => false,
+                    ),
+                ),
+            ));
+
+            $orders = $query->get_orders();
+
+            if (empty($orders)) {
+                return;
+            }
+
+            $webhookUsed = reset($orders)->get_meta('payment_formumpay_webhook_used', true);
+
+            set_transient('commerce_forumpay_has_webhook_error', !$webhookUsed, 15 * 60);
+            set_transient('commerce_forumpay_last_check', $time_now, 15 * 60);
+        }
+
+        if (get_transient('commerce_forumpay_has_webhook_error')) {
+            $class = 'notice notice-warning';
+            $message = __(
+                'Some orders have not received a webhook notification for more than 15 minutes. Please check your settings and ensure the webhook is configured correctly.',
+                'sample-text-domain'
+            );
+
+            printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
+        }
     }
 
     function before_woocommerce_hpos() {
@@ -199,18 +252,34 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             return;
         }
 
-        wp_enqueue_script('forumpay_payment_gateway_admin_script', FORUMPAY_PLUGIN_DIR . '/js/admin-gateway-settings.js', array('jquery'), '1.0', true);
+        wp_enqueue_script('jquery-ui-dialog');
+        wp_enqueue_style('wp-jquery-ui-dialog');
+        wp_enqueue_script('forumpay_payment_gateway_admin_script', FORUMPAY_PLUGIN_DIR . '/js/admin-gateway-settings.js', array('jquery', 'jquery-ui-dialog'), '1.0', true);
+        
+        // Add inline CSS to fix jQuery UI dialog close button bug
+        wp_add_inline_style('wp-jquery-ui-dialog', '
+            .ui-dialog-titlebar-close:before { 
+                content: unset!important; 
+            }
+        ');
 
         // Pass variables to JavaScript
         wp_localize_script('forumpay_payment_gateway_admin_script', 'gatewaySettings', array(
             'gatewayId' => $this->id,
             'apiUrl' => get_site_url() . '/wp-json/wc-api/wc_forumpay',
+            'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wp_rest'),
         ));
     }
 
     function forumpay_payment_gateway_enqueue_order_edit_scripts($hook) {
-        if ('woocommerce_page_wc-orders' !== $hook) {
+        $screen = get_current_screen();
+
+        if (!$screen) {
+            return;
+        }
+
+        if ($screen->post_type !== 'shop_order') {
             return;
         }
 
@@ -333,11 +402,17 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             ),
             'webhook_url' => array(
                 'title' => __('Webhook URL', 'forumpay'),
-                'type' => 'text',
+                'type' => 'webhook_with_button',
                 'description' => sprintf(
-                    __('Optional: This URL should point to the endpoint that will handle the webhook events.<br> Typically, it should be: <b><i>%s</i></b><br> This URL will override the default setting for your API keys on your ForumPay Account.<br> Ensure that the URL is publicly accessible and can handle the incoming webhook events securely.', 'forumpay'),
-                    str_replace('localhost', 'my-site', get_site_url()) . "/wp-json/wc-api/wc_forumpay?act=webhook"
+                    __('Optional: This URL should point to the endpoint that will handle the webhook events.<br> Typically, it should be one of these formats:<br> <b><i>%s</i></b><br> <b><i>%s</i></b><br> This URL will override the default setting for your API keys on your ForumPay Account.<br> Ensure that the URL is publicly accessible and can handle the incoming webhook events securely.', 'forumpay'),
+                    str_replace('localhost', 'my-site', get_site_url()) . "/wp-json/wc-api/wc_forumpay?act=webhook",
+                    str_replace('localhost', 'my-site', get_site_url()) . "/?wc-api=wc_forumpay&act=webhook"
                 )
+            ),
+            'webhook_test_button' => array(
+                'title' => __('', 'forumpay'),
+                'type' => 'title',
+                'description' => '<button type="button" id="woocommerce_forumpay_test_webhook" class="button button-secondary">Test webhook</button> <p class="description">Click to test the webhook URL entered above.</p>'
             ),
             'api_url_override' => array(
                 'title' => __('Custom environment URL', 'forumpay'),
@@ -370,7 +445,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             'accept_underpayment_threshold' => array(
                 'title' => __('', 'forumpay'),
                 'type' => 'text',
-                'description' => __('Enter the maximum percentage (0-100) of the order total that can be underpaid for the order to be accepted automatically.', 'forumpay')
+                'description' => __('Enter the maximum percentage (0-100) of the order total that can be underpaid for the order to be accepted automatically or leave blank to accept any underpayment amount.', 'forumpay')
             ),
 
             'accept_underpayment_modify_order_total' => array(
@@ -513,8 +588,12 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     public function validate_accept_underpayment_threshold_field($key, $value) {
         $isEnabled = (bool)$this->get_post_data()['woocommerce_forumpay_accept_underpayment'];
-        $errorMessage = __('Invalid underpayment threshold. Please enter a valid percentage between 0 and 100.', 'forumpay');
+        $errorMessage = __('Invalid underpayment threshold. Please enter a valid percentage between 0 and 100 or leave blank to accept any underpayment amount.', 'forumpay');
         if (!$isEnabled) {
+            return '';
+        }
+
+        if ($value === '') {
             return '';
         }
 
@@ -523,7 +602,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             throw new \Exception($errorMessage);
         }
 
-        if (($value < 0) || ($value > 100)) {
+        if (($value < 0.01) || ($value > 99.99)) {
             WC_Admin_Settings::add_error($errorMessage);
             throw new \Exception($errorMessage);
         }
@@ -714,6 +793,8 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $templatehtml .= '<span id="forumpay-payeremail" data="' . esc_attr($order->get_billing_email()) . '"></span>';
         $templatehtml .= '<span id="forumpay-payercompany" data="' . esc_attr($order->get_billing_company()) . '"></span>';
         $templatehtml .= '<span id="forumpay-payercountry" data="' . esc_attr($order->get_billing_country()) . '"></span>';
+        $templatehtml .= '<span id="forumpay-invoiceamount" data="' . esc_attr($order->get_total()) . '"></span>';
+        $templatehtml .= '<span id="forumpay-invoicecurrency" data="' . esc_attr($order->get_currency()) . '"></span>';
 
         return $templatehtml;
     }
@@ -739,16 +820,16 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
      */
     function on_api_callback()
     {
-        $forumPayLogger = new ForumPayLogger(new WcPsrLoggerAdapter(new WC_Logger(), 'ForumPayWebApi'));
-        $forumPayLogger->addParser(new PrivateTokenMasker());
-        $forumPay = new ForumPay(
-            $this,
-            new OrderManager(),
-            $forumPayLogger
-        );
+            $forumPayLogger = new ForumPayLogger(new WcPsrLoggerAdapter(new WC_Logger(), 'ForumPayWebApi'));
+            $forumPayLogger->addParser(new PrivateTokenMasker());
+            $forumPay = new ForumPay(
+                $this,
+                new OrderManager(),
+                $forumPayLogger
+            );
 
-        $router = new Router($forumPay, $forumPayLogger);
-        $response = $router->execute(new Request());
+            $router = new Router($forumPay, $forumPayLogger);
+            $response = $router->execute(new Request());
 
         echo $response;die;
     }
@@ -936,5 +1017,58 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function getInstallationId(): ?string
     {
         return $this->fp_installation_id;
+    }
+
+    /**
+     * Generate custom webhook field with inline button
+     */
+    public function generate_webhook_with_button_html($key, $data)
+    {
+        $field_key = $this->get_field_key($key);
+        $defaults = array(
+            'title'             => '',
+            'disabled'          => false,
+            'class'             => '',
+            'css'               => '',
+            'placeholder'       => '',
+            'type'              => 'text',
+            'desc_tip'          => false,
+            'description'       => '',
+            'custom_attributes' => array(),
+        );
+
+        $data = wp_parse_args($data, $defaults);
+
+        ob_start();
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="<?php echo esc_attr($field_key); ?>"><?php echo wp_kses_post($data['title']); ?></label>
+            </th>
+            <td class="forminp">
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php echo wp_kses_post($data['title']); ?></span></legend>
+                    <div style="display: flex; align-items: center; gap: 0; max-width: 100%;width: fit-content;">
+                        <input 
+                            class="input-text regular-input <?php echo esc_attr($data['class']); ?>" 
+                            type="text" 
+                            name="<?php echo esc_attr($field_key); ?>" 
+                            id="<?php echo esc_attr($field_key); ?>" 
+                            style="<?php echo esc_attr($data['css']); ?> flex: 1; min-width: 0;" 
+                            value="<?php echo esc_attr($this->get_option($key)); ?>" 
+                            placeholder="<?php echo esc_attr($data['placeholder']); ?>"
+                            <?php echo $this->get_custom_attribute_html($data); ?>
+                        />
+                        <button style="margin-left:10px;" type="button" id="woocommerce_forumpay_autoconfigure_webhook" class="button button-secondary" style="white-space: nowrap;">
+                            Autoconfigure webhook
+                        </button>
+                        <span class="woocommerce-help-tip" data-tip="This button will automatically test common webhook endpoints for your site and configure the working URL. It tests both legacy and new format endpoints to find one that works with ForumPay."></span>
+                    </div>
+                    <?php echo $this->get_description_html($data); ?>
+                </fieldset>
+            </td>
+        </tr>
+        <?php
+        return ob_get_clean();
     }
 }

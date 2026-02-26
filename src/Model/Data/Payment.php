@@ -97,6 +97,25 @@ class Payment
      */
     private ?BeneficiaryVaspDetails $beneficiaryVaspDetails;
 
+    /**
+     * @var string|null
+     */
+    private ?string $itemName;
+
+    /**
+     * @var string|null
+     */
+    private ?string $invoiceSurchargeAmount;
+
+    /**
+     * @var string|null
+     */
+    private ?string $invoiceAmountWithSurcharge;
+
+    /**
+     * @var string|null
+     */
+    private ?string $invoiceSurchargePercent;
 
     /**
      * Payment DTO constructor
@@ -114,6 +133,10 @@ class Payment
      * @param array $notices
      * @param string $statsToken
      * @param BeneficiaryVaspDetails|null $beneficiaryVaspDetails
+     * @param string|null $itemName
+     * @param string|null $invoiceSurchargeAmount
+     * @param string|null $invoiceAmountWithSurcharge
+     * @param string|null $invoiceSurchargePercent
      */
     public function __construct(
         string $paymentId,
@@ -128,7 +151,11 @@ class Payment
         string $qrAltImg,
         array $notices = [],
         string $statsToken = '',
-        ?BeneficiaryVaspDetails $beneficiaryVaspDetails = null
+        ?BeneficiaryVaspDetails $beneficiaryVaspDetails = null,
+        ?string $itemName = null,
+        ?string $invoiceSurchargeAmount = null,
+        ?string $invoiceAmountWithSurcharge = null,
+        ?string $invoiceSurchargePercent = null
     ) {
         $this->paymentId = $paymentId;
         $this->address = $address;
@@ -143,6 +170,10 @@ class Payment
         $this->notices = $notices;
         $this->statsToken = $statsToken;
         $this->beneficiaryVaspDetails = $beneficiaryVaspDetails;
+        $this->itemName = $itemName;
+        $this->invoiceSurchargeAmount = $invoiceSurchargeAmount;
+        $this->invoiceAmountWithSurcharge = $invoiceAmountWithSurcharge;
+        $this->invoiceSurchargePercent = $invoiceSurchargePercent;
     }
 
     /**
@@ -250,6 +281,38 @@ class Payment
     }
 
     /**
+     * @return string|null
+     */
+    public function getItemName(): ?string
+    {
+        return $this->itemName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInvoiceSurchargeAmount(): ?string
+    {
+        return $this->invoiceSurchargeAmount;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInvoiceAmountWithSurcharge(): ?string
+    {
+        return $this->invoiceAmountWithSurcharge;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInvoiceSurchargePercent(): ?string
+    {
+        return $this->invoiceSurchargePercent;
+    }
+
+    /**
      * Return associative array of all the properties
      *
      * @return array
@@ -273,6 +336,10 @@ class Payment
             'payment_id' => $this->paymentId,
             'stats_token' => $this->statsToken,
             'beneficiary_vasp_details' => $this->beneficiaryVaspDetails ? $this->beneficiaryVaspDetails->toArray() : null,
+            'item_name' => $this->itemName,
+            'invoice_surcharge_amount' => $this->invoiceSurchargeAmount,
+            'invoice_amount_with_surcharge' => $this->invoiceAmountWithSurcharge,
+            'invoice_surcharge_percent' => $this->invoiceSurchargePercent,
         ];
     }
 }

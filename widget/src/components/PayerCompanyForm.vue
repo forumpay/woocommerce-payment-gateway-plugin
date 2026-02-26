@@ -1,15 +1,17 @@
 <script>
-import CountryInput from './CountryInput.vue';
+import Dropdown from './Dropdown.vue';
 import DateInput from './DateInput.vue';
+import countries from '../utils/countries';
 
 const PayerCompanyForm = {
   components: {
     DateInput,
-    CountryInput,
+    Dropdown,
   },
   data() {
     return {
       store: this.$store,
+      countries,
     };
   },
   computed: {
@@ -71,34 +73,44 @@ export default PayerCompanyForm;
 
 <template>
   <div>
-    <label for="payer_company-name" class="forumpay-pgw-payer-label">Company name*</label>
+    <label for="payer_company-name" class="forumpay-pgw-payer-label">Company</label>
     <input
       id="payer_company-name"
       v-model="payerCompany"
       class="forumpay-pgw-payer-input"
       type="text"
-      placeholder="Enter your company name here"
+      placeholder="Company"
       required
       @blur="handleTextBlur('setPayer', 'payer_company', payerCompany)"
     />
-    <label for="payer_individual-email" class="forumpay-pgw-payer-label">Email</label>
+    <Dropdown
+      v-model="payerCountryOfIncorporation"
+      label="Country"
+      :options="countries"
+      option-key="code"
+      filter-property="name"
+      placeholder="Select a country"
+      class="forumpay-pgw-payer-dropdown"
+    >
+      <template #selected="{ selected }">
+        <span>{{ selected ? selected.name : 'Country' }}</span>
+      </template>
+      <template #option="{ option, markText }">
+        <span v-html="markText(option.name)" />
+      </template>
+    </Dropdown>
+    <label for="payer_individual-email" class="forumpay-pgw-payer-label">Email Address <span>(optional)</span></label>
     <input
       id="payer_individual-email"
       v-model="payerEmail"
       class="forumpay-pgw-payer-input"
       type="email"
-      placeholder="Enter your email here"
+      placeholder="Email Address"
       readonly
-    />
-    <CountryInput
-      v-model="payerCountryOfIncorporation"
-      label="Country of incorporation*"
-      :computed-country="payerCountryOfIncorporation"
-      :is-required="true"
     />
     <DateInput
       v-model="payerDateOfIncorporation"
-      label="Date of incorporation*"
+      label="Date of Incorporation"
       :computed-date="payerDateOfIncorporation"
       :is-required="true"
     />

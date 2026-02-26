@@ -7,6 +7,8 @@ const Dropdown = {
     filterProperty: { type: String },
     optionKey: { type: String }, // only needed when modelValue is string
     modelValue: { type: [Object, String] },
+    placeholder: { type: String, default: '' },
+    markAsOptional: { type: Boolean, default: false },
   },
   emits: ['update:modelValue'],
   data() {
@@ -17,6 +19,7 @@ const Dropdown = {
       optionsFiltered: this.options,
       activeOption: this.options[0],
       selectedOption: null,
+      shouldAutoScroll: true,
     };
   },
   mounted() {
@@ -27,6 +30,7 @@ const Dropdown = {
   watch: {
     isActive(active) {
       if (active) {
+        this.shouldAutoScroll = true;
         this.optionsFiltered = this.options;
         this.$refs.input.focus();
 
@@ -49,7 +53,15 @@ const Dropdown = {
     },
   },
   methods: {
+    onListScroll() {
+      this.shouldAutoScroll = false;
+    },
     open() {
+      if (!this.isActive) {
+        this.isActive = true;
+      }
+    },
+    toggle() {
       this.isActive = !this.isActive;
     },
     close() {
@@ -64,12 +76,10 @@ const Dropdown = {
     onDelete() {
       this.selectedOption = null;
     },
-    onKeypress(event) {
-      if (this.selectedOption) {
-        event.preventDefault();
-      }
-    },
     onInput() {
+      this.shouldAutoScroll = true;
+      this.selectedOption = null;
+
       if (!this.isActive) {
         this.open();
       }
@@ -96,6 +106,8 @@ const Dropdown = {
         return;
       }
 
+      this.shouldAutoScroll = true;
+
       const index = this.optionsFiltered.findIndex(
         (option) => option[this.filterProperty] === this.activeOption[this.filterProperty],
       );
@@ -109,6 +121,8 @@ const Dropdown = {
         return;
       }
 
+      this.shouldAutoScroll = true;
+
       const index = this.optionsFiltered.findIndex(
         (option) => option[this.filterProperty] === this.activeOption[this.filterProperty],
       );
@@ -117,6 +131,7 @@ const Dropdown = {
       }
     },
     onOptionClick() {
+      this.shouldAutoScroll = true;
       this.selectedOption = this.activeOption;
       this.close();
     },
@@ -132,15 +147,15 @@ const Dropdown = {
     },
   },
   computed: {
-    placeholder() {
-      if (!this.selectedOption && this.options.length) {
-        return this.options[0][this.filterProperty];
+    computedPlaceholder() {
+      if (!this.selectedOption) {
+        return this.placeholder || '';
       }
       return null;
     },
   },
   updated() {
-    if (this.isActive && this.optionsFiltered) {
+    if (this.isActive && this.optionsFiltered && this.shouldAutoScroll) {
       const el = this.$el.getElementsByClassName('active-field')[0];
       el?.scrollIntoView({ block: 'nearest' });
     }
@@ -159,14 +174,15 @@ export default Dropdown;
     <span
       v-if="label"
       class="forumpay-pgw-dropdown-label"
-    >{{ label }}</span>
+    >{{ label }} <span v-if="markAsOptional">(optional)</span></span>
     <div
       class="forumpay-pgw-dropdown-search"
       :class="{ 'dropdown-outline': focused }"
       role="button"
       tabIndex="0"
-      @keyup="open"
-      @click="open"
+      @keyup.enter="toggle"
+      @keyup.space="toggle"
+      @click="toggle"
     >
       <div
         v-if="selectedOption"
@@ -181,8 +197,9 @@ export default Dropdown;
         ref="input"
         v-model="searchValue"
         type="text"
-        :placeholder="placeholder"
+        :placeholder="computedPlaceholder"
         aria-label="search"
+        @click.stop="open"
         @input="onInput"
         @keyup.enter="onEnter"
         @keyup.delete="onDelete"
@@ -190,7 +207,6 @@ export default Dropdown;
         @keydown.down="onDown"
         @keydown.esc="close"
         @keydown.tab="close"
-        @keypress="onKeypress($event)"
         @focus="focused = true"
         @blur="focused = false"
       >
@@ -198,6 +214,7 @@ export default Dropdown;
     <div
       v-if="isActive"
       class="forumpay-pgw-dropdown-list"
+      @scroll="onListScroll"
     >
       <div
         v-for="option in optionsFiltered"

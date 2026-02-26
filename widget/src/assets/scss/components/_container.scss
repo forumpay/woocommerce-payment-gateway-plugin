@@ -1,61 +1,75 @@
 .forumpay-pgw {
   &-container {
-    border-radius: 15px;
-    background-color: var(--wlx-white);
-    box-shadow: 0 5px 15px hsla(0, 0%, 0.1%, 0.1);
+    border-radius: 11px;
+    background-color: var(--pgw-color-background-primary);
     width: 100%;
     margin: 0;
     display: flex;
     flex-direction: column;
     padding: 20px;
     box-sizing: content-box !important;
+    position: relative;
+    border: 1px solid var(--pgw-border-color);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      height: 100%;
+      width: 100%;
+      border-radius: inherit;
+      background-color: inherit;
+      filter: drop-shadow(var(--pgw-box-shadow));
+    }
 
     p {
         margin: 0;
     }
 
     &-success {
-      color: var(--wlx-green-1);
-      background-color: var(--wlx-green-2);
+      color: var(--pgw-color-success-1);
+      background-color: var(--pgw-color-success-4);
     }
 
     &-warning {
-      color: var(--wlx-orange-1 );
+      color: var(--pgw-color-warning-1);
       font-weight: 400;
-      background-color: var(--wlx-orange-2);
+      background-color: var(--pgw-color-warning-2);
       a {
         cursor: pointer;
         text-decoration: underline;
-        color: var(--wlx-orange-1);
+        color: var(--pgw-color-warning-1);
         font-weight: 600;
       }
 
       p {
-        color: var(--wlx-orange-1);
+        color: var(--pgw-color-warning-1);
       }
     }
 
     &-danger {
-      color: var(--wlx-red-1);
-      background-color: var(--wlx-red-2);
+      color: var(--pgw-color-danger-1);
+      background-color: var(--pgw-color-danger-5);
       p {
-          color: var(--wlx-red-1);
+          color: var(--pgw-color-danger-1);
       }
     }
 
     &-state-confirmed {
       font-weight: 600 !important;
-      color: var(--wlx-green-1);
+      color: var(--pgw-color-success-1);
     }
 
     &-state-cancelled {
       font-weight: 600 !important;
-      color: var(--wlx-red-1);
+      color: var(--pgw-color-danger-1);
     }
 
     &-state-blocked {
       font-weight: 600 !important;
-      color: var(--wlx-red-1);
+      color: var(--pgw-color-danger-1);
     }
 
     &-success svg,
@@ -77,7 +91,7 @@
       }
 
       p {
-        font-size: 0.9em;
+        font-size: 14px;
         word-break: break-word;
       }
     }

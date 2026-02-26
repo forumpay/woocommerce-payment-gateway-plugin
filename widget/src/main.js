@@ -35,6 +35,13 @@ class ForumPayPaymentGatewayWidget {
       store.commit('setPayer', this.config.payer);
     }
 
+    if (this.config.invoiceAmount && this.config.invoiceCurrency) {
+      store.commit('setInvoiceAmount', {
+        amount: this.config.invoiceAmount,
+        currency: this.config.invoiceCurrency,
+      });
+    }
+
     if (this.config.forumPayApiUrl !== '') {
       const scriptLimitlex = document.createElement('script');
       scriptLimitlex.type = 'text/javascript';

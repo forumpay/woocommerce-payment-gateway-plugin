@@ -1,21 +1,107 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* ForumPay Widget Color Palette */
 :root {
-  --wlx-text-1: #0e1726;
-  --wlx-main: #2b2f73;
+  /* Font families */
+  --pgw-font-family-roboto: 'Roboto', -apple-system, BlinkMacSystemFont, Helvetica, Arial, Lucida, sans-serif;
+  --pgw-font-family-be-vietnam: 'Be Vietnam', -apple-system, BlinkMacSystemFont, Helvetica, Arial, Lucida, sans-serif;
+
+  /* Primary and Secondary Colors */
+  --pgw-color-primary: #ac8e50;
+  --pgw-color-primary-light: #c1a46d;
+  --pgw-color-secondary: #2b2f73;
+  --pgw-color-secondary-light: #55588f;
+
+  /* Base Colors */
+  --pgw-color-white: #fff;
+  --pgw-color-black: #000;
+
+  /* Status Colors - Danger */
+  --pgw-color-danger-1: #f02d3a;
+  --pgw-color-danger-2: #df7373;
+  --pgw-color-danger-3: #f7a399;
+  --pgw-color-danger-4: #FFD7D8;
+  --pgw-color-danger-5: #ffe6e6;
+
+  /* Status Colors - Warning */
+  --pgw-color-warning-1: #FFB22C;
+  --pgw-color-warning-2: #FEE9CC;
+
+  /* Status Colors - Success */
+  --pgw-color-success-1: #2dc653;
+  --pgw-color-success-2: #6bbf59;
+  --pgw-color-success-3: #c5edac;
+  --pgw-color-success-4: #d7f8e6;
+
+  /* Gray Scale */
+  --pgw-color-gray-1: #162a3b;
+  --pgw-color-gray-2: #6c757d;
+  --pgw-color-gray-3: #f5f5f5;
+  --pgw-color-gray-4: #dee2e6;
+
+  /* Background Colors */
+  --pgw-color-background-primary: #fff;
+  --pgw-color-background-secondary: #f0eeeb;
+  --pgw-color-background-tertiary: #f6f5f3;
+  --pgw-color-background-input: #fafafa;
+  --pgw-color-background-skeleton: rgba(0, 0, 0, 0.075);
+
+  /* Text Colors */
+  --pgw-color-text-primary: #0e1726;
+  --pgw-color-text-secondary: #fff;
+  --pgw-color-text-tertiary: #e9ecef;
+  --pgw-color-text-danger: #d82d2d;
+  --pgw-color-text-success: #00db7f;
+
+  /* Text Colors - Dark Mode */
+  --pgw-color-text-dark-primary: #ebebf0;
+  --pgw-color-text-dark-secondary: #dee2e6;
+  --pgw-color-text-dark-tertiary: #adb5bd;
+  --pgw-color-text-dark-quaternary: #686969;
+
+  /* Border Colors */
+  --pgw-border-color: #ebebeb;
+  --pgw-border-color-2: #ddd;
+
+  /* Border Radius */
+  --pgw-default-radius-1: 3px;
+  --pgw-default-radius-2: 15px;
+  --pgw-default-radius-3: 25px;
+
+  /* Shadows */
+  --pgw-box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --pgw-box-shadow-2: 0 1px 7px hsla(0, 0%, 0.1%, 0.1);
+
+  /* Legacy color aliases for backward compatibility */
+  --wlx-text-1: var(--pgw-color-text-primary);
+  --wlx-main: var(--pgw-color-secondary);
   --wlx-main-2: rgba(43, 47, 115, 0.398);
   --wlx-gray-arrows: rgba(131, 131, 131, 0.2);
-  --wlx-green-1: #00db7f;
-  --wlx-green-2: #d7f8e6;
-  --wlx-yellow: #fbbb0e;
-  --wlx-red-1: rgb(216, 45, 45);
-  --wlx-red-2: rgba(255, 154, 154, 0.398);
-  --wlx-orange-1: rgb(241, 152, 18);
-  --wlx-orange-2: rgba(241, 152, 18, 0.398);
-  --wlx-white: #fff;
-  --wlx-black: #000;
-
-  --wlx-gray-1: rgb(226, 226, 226);
+  --wlx-green-1: var(--pgw-color-text-success);
+  --wlx-green-2: var(--pgw-color-success-4);
+  --wlx-yellow: var(--pgw-color-primary);
+  --wlx-red-1: var(--pgw-color-danger-1);
+  --wlx-red-2: var(--pgw-color-danger-5);
+  --wlx-orange-1: var(--pgw-color-warning-1);
+  --wlx-orange-2: var(--pgw-color-warning-2);
+  --wlx-white: var(--pgw-color-white);
+  --wlx-black: var(--pgw-color-black);
+  --wlx-gray-1: #e2e2e2;
   --wlx-gray-2: rgba(80, 80, 80, 0.788);
   --wlx-gray-3: rgb(80, 80, 80);
-  --wlx-gray-4: rgb(248, 248, 248);
+  --wlx-gray-4: var(--pgw-color-gray-3);
+}
+
+/* Dark Mode Support */
+:root.pgw-dark {
+  --pgw-color-text-primary: #fff;
+  --pgw-color-text-secondary: #000;
+
+  --pgw-color-background-primary: #0d0d0d;
+  --pgw-color-background-secondary: #181818;
+  --pgw-color-background-tertiary: #242424;
+  --pgw-color-background-skeleton: rgba(255, 255, 255, 0.075);
+
+  --pgw-border-color: #202020;
+  --pgw-border-color-2: #5b5b5b;
+
+  --pgw-color-gray-2: #ccc;
 }

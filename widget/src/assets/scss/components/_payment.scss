@@ -12,7 +12,7 @@
       &-circle {
         height: 25px;
         width: 25px;
-        background-color: var(--wlx-orange-1);
+        background-color: var(--pgw-color-warning-1);
         border-radius: 50%;
         display: flex;
         justify-content: center;
@@ -70,11 +70,11 @@
       align-items: center;
 
       button {
-        background-color: var(--wlx-white);
-        color: var(--wlx-yellow);
-        border: 1px solid var(--wlx-yellow);
+        background-color: var(--pgw-color-white);
+        color: var(--pgw-color-primary);
+        border: 1px solid var(--pgw-color-primary);
         border-radius: 5px;
-        font-size: 0.8em;
+        font-size: 13px;
         font-weight: 600;
         padding: 4px 10px;
         white-space: nowrap;
@@ -88,12 +88,12 @@
       }
 
       button:hover {
-        color: var(--wlx-text-1);
+        color: var(--pgw-color-text-primary);
       }
 
       &-help-text {
-        color: var(--wlx-gray-3);
-        font-size: 0.7em;
+        color: var(--pgw-color-gray-2);
+        font-size: 11px;
         font-weight: 600;
         padding-right: 10px;
 
@@ -104,9 +104,9 @@
     }
 
     &-notice {
-      color: var(--wlx-text-1);
+      color: var(--pgw-color-text-primary);
       text-align: center;
-      font-size: 0.8em;
+      font-size: 13px;
       font-weight: 800;
 
       svg {
@@ -124,8 +124,8 @@
       align-items: center;
 
       &-text {
-        color: var(--wlx-gray-3);
-        font-size: 0.7em;
+        color: var(--pgw-color-gray-2);
+        font-size: 11px;
         font-weight: 600;
       }
 
@@ -154,9 +154,9 @@
           z-index: 10;
 
           p {
-            font-size: 0.8em;
+            font-size: 13px;
             font-weight: 600;
-            color: var(--wlx-gray-2);
+            color: var(--pgw-color-gray-2);
             text-align: left;
             margin: 0;
           }
@@ -168,7 +168,7 @@
       &-label {
         box-sizing: border-box;
         font-weight: 800;
-        font-size: 0.9em;
+        font-size: 14px;
       }
 
       &-field {
@@ -187,7 +187,7 @@
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          max-width: 88%;
+          max-width: 85%;
           display: inline-block;
         }
 
@@ -197,20 +197,20 @@
 
         &--address {
           span {
-            font-size: 0.8em;
+            font-size: 13px;
           }
         }
         &--beneficiary-details {
           span {
-            font-size: 0.8em;
+            font-size: 13px;
           }
         }
       }
     }
 
     &-confirm {
-      color: var(--wlx-gray-3);
-      font-size: 0.7em;
+      color: var(--pgw-color-gray-2);
+      font-size: 11px;
       font-weight: 600;
     }
 
@@ -221,13 +221,13 @@
 
       span {
         padding: 10px;
-        color: var(--wlx-gray-3);
-        font-size: 0.8em;
+        color: var(--pgw-color-gray-2);
+        font-size: 13px;
         font-weight: 600;
 
         &::after {
           content: "";
-          border: solid var(--wlx-gray-3);
+          border: solid var(--pgw-color-gray-2);
           border-width: 0 2px 2px 0;
           display: inline-block;
           padding: 2px;
@@ -248,19 +248,19 @@
           justify-content: space-between;
           list-style: none;
           margin: 0;
-          border-bottom: 1px solid var(--wlx-gray-1);
+          border-bottom: 1px solid var(--pgw-color-gray-4);
           padding: 10px 0;
 
           &__title-font {
-            font-size: 0.83em;
+            font-size: 14px;
             font-weight: 600;
-            color: var(--wlx-text-1);
+            color: var(--pgw-color-text-primary);
           }
 
           &__data-font {
-            font-size: 0.83em;
+            font-size: 14px;
             font-weight: 800;
-            color: var(--wlx-text-1);
+            color: var(--pgw-color-text-primary);
           }
         }
 
