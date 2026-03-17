@@ -459,6 +459,15 @@ jQuery(document).ready(function($) {
   // Initial update of button states
   updateTestButtonState();
 
+  // Toggle merchant notice based on fee payer selection
+  function toggleMerchantNotice() {
+    const value = $(`#woocommerce_${gatewayId}_network_processing_fee_paid_by`).val();
+    $(`#woocommerce_${gatewayId}_network_processing_fee_paid_by_merchant_notice`).toggle(value === 'merchant');
+  }
+
+  $(`#woocommerce_${gatewayId}_network_processing_fee_paid_by`).change(toggleMerchantNotice);
+  toggleMerchantNotice();
+
   // Show messages in dialog
   function showDialog(title, message) {
     $dialog.dialog('option', 'title', title);

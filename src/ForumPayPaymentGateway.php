@@ -499,7 +499,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
             'network_processing_fee_paid_by' => array(
                 'title' => __('Network Processing Fee Paid By', 'forumpay'),
                 'description' => __('Set who will pay for the network processing fee.', 'forumpay'),
-                'type' => 'select',
+                'type' => 'select_with_merchant_notice',
                 'default' => 'payer',
                 'options' => array(
                     'payer'    => __('Payer', 'forumpay'),
@@ -1096,5 +1096,28 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         </tr>
         <?php
         return ob_get_clean();
+    }
+
+    public function generate_select_with_merchant_notice_html($key, $data)
+    {
+        $html = parent::generate_select_html($key, $data);
+
+        $notice = sprintf(
+            '%s <a href="mailto:support@forumpay.com">support@forumpay.com</a>',
+            esc_html__("This option must be enabled for your account before you can select 'Merchant'. Contact your account representative or", 'forumpay')
+        );
+
+        $field_key = $this->get_field_key($key);
+        $current_value = $this->get_option($key);
+        $display = ($current_value === 'merchant') ? '' : 'display:none;';
+
+        $notice_html = sprintf(
+            '<p id="%s_merchant_notice" style="%s">%s</p>',
+            esc_attr($field_key),
+            $display,
+            $notice
+        );
+
+        return str_replace('</fieldset>', $notice_html . '</fieldset>', $html);
     }
 }
