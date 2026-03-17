@@ -75,6 +75,11 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     /**
      * @var string
      */
+    private string $fp_network_processing_fee_paid_by;
+
+    /**
+     * @var string
+     */
     private $fp_api_url_override;
 
     /**
@@ -134,6 +139,7 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
         $this->fp_accept_late_payment = [
             'enabled' => ($this->settings['accept_latepayment'] ?? 'no') === 'yes'
         ];
+        $this->fp_network_processing_fee_paid_by = $this->settings['network_processing_fee_paid_by'] ?? 'payer';
 
         $this->fp_api_url_override = $this->settings['api_url_override'] ?? '';
         $this->fp_currency = get_woocommerce_currency();
@@ -489,6 +495,18 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
                 'type' => 'checkbox',
                 'label' => __('Automatically accept the payment if transaction was received late and either the paid amount is similar to requested or accepting it is allowed by the other Auto-Accept conditions.', 'forumpay'),
                 'default' => 'no'),
+
+            'network_processing_fee_paid_by' => array(
+                'title' => __('Network Processing Fee Paid By', 'forumpay'),
+                'description' => __('Set who will pay for the network processing fee.', 'forumpay'),
+                'type' => 'select',
+                'default' => 'payer',
+                'options' => array(
+                    'payer'    => __('Payer', 'forumpay'),
+                    'merchant' => __('Merchant', 'forumpay'),
+                ),
+            ),
+
             'installation_id' => array(
                 'title' => __('Installation Id', 'forumpay'),
                 'type' => 'text',
@@ -993,6 +1011,14 @@ class ForumPayPaymentGateway extends WC_Payment_Gateway
     public function getAcceptLatePayment(): array
     {
         return $this->fp_accept_late_payment;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNetworkProcessingFeePaidBy(): string
+    {
+        return $this->fp_network_processing_fee_paid_by;
     }
 
     /**

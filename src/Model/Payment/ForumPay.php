@@ -231,6 +231,7 @@ class ForumPay
             null,
             $this->calculateMaximumOrderValue($this->gateway->getAcceptOverpayment(), $orderId),
             $payer ? $payer->toArray() : null,
+            $this->gateway->getNetworkProcessingFeePaidBy(),
         );
 
         $this->orderManager->saveOrderMetaData($orderId, 'startPayment', $response->toArray());
