@@ -50,6 +50,10 @@ const App = {
 
       return !forbiddenErrorCodes.includes(this.getErrorCode(this.error));
     },
+    showErrorAlert() {
+      const suppressAlertCodes = [4003, 'rest_cookie_invalid_nonce'];
+      return !suppressAlertCodes.includes(this.getErrorCode(this.error));
+    },
     networkSelectionRequired() {
       return this.store.state.networkSelectionRequired;
     },
@@ -131,7 +135,7 @@ export default App;
           {{ payment?.payment_id }}
         </p>
       </Container>
-      <Container :alert="'warning'">
+      <Container v-if="showErrorAlert" :alert="'warning'">
         <p v-if="paymentRetry">
           There was an error processing the payment. <br />
           If you think this might be a temporary problem,

@@ -219,6 +219,13 @@ class PaymentDetails
     private ?string $invoiceSurchargePercent;
 
     /**
+     * Whether the WooCommerce order status changed as a result of the sync
+     *
+     * @var bool
+     */
+    private bool $orderStatusChanged = false;
+
+    /**
      * PaymentDetails DTO constructor
      *
      * @param string|null $referenceNo
@@ -557,6 +564,22 @@ class PaymentDetails
     }
 
     /**
+     * @param bool $changed
+     */
+    public function setOrderStatusChanged(bool $changed): void
+    {
+        $this->orderStatusChanged = $changed;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOrderStatusChanged(): bool
+    {
+        return $this->orderStatusChanged;
+    }
+
+    /**
      * Return associative array of all the properties
      *
      * @return array
@@ -594,6 +617,7 @@ class PaymentDetails
             'invoice_surcharge_amount' => $this->invoiceSurchargeAmount,
             'invoice_amount_with_surcharge' => $this->invoiceAmountWithSurcharge,
             'invoice_surcharge_percent' => $this->invoiceSurchargePercent,
+            'order_status_changed' => $this->orderStatusChanged,
         ];
     }
 }

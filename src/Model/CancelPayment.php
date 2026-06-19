@@ -3,6 +3,8 @@
 namespace ForumPay\PaymentGateway\WoocommercePlugin\Model;
 
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ApiHttpException;
+use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ForumPayException;
+use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ForumPayHttpException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\OrderNotFoundException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\ForumPayLogger;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
@@ -61,6 +63,11 @@ class CancelPayment
         } catch (ApiExceptionInterface $e) {
             $this->logger->logApiException($e);
             throw new ApiHttpException($e, 5050);
+        } catch (ForumPayException $e) {
+            $this->logger->error($e->getMessage(), $e->getTrace());
+            throw $e;
+        } catch (ForumPayHttpException $e) {
+            throw $e;
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage(), $e->getTrace());
             throw new \Exception($e->getMessage(), 5100, $e);

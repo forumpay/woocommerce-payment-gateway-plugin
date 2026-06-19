@@ -13,6 +13,7 @@ use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyRate;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetCurrencyRates;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\GetWalletApps;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\ForumPay;
+use ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment\OrderManager;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Ping;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\RestoreCart;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\StartPayment;
@@ -31,6 +32,11 @@ class Router
     private ForumPay $forumPay;
 
     /**
+     * @var OrderManager
+     */
+    private OrderManager $orderManager;
+
+    /**
      * @var ForumPayLogger
      */
     private ForumPayLogger $logger;
@@ -46,13 +52,16 @@ class Router
      * Constructor
      *
      * @param ForumPay $forumPay
+     * @param OrderManager $orderManager
      * @param ForumPayLogger $logger
      */
     public function __construct(
         ForumPay $forumPay,
+        OrderManager $orderManager,
         ForumPayLogger $logger
     ) {
         $this->forumPay = $forumPay;
+        $this->orderManager = $orderManager;
         $this->logger = $logger;
 
         $this->initRoutes();
@@ -92,6 +101,7 @@ class Router
             }
 
             if (array_key_exists($route, $this->routes)) {
+                $this->assertRouteAccess($route, $request);
                 $service = $this->routes[$route];
                 $response = $service->execute($request);
                 if ($response !== null) {
@@ -124,6 +134,33 @@ class Router
         }
 
         return null;
+    }
+
+    /**
+     * @param string $route
+     * @param Request $request
+     * @throws ForumPayHttpException
+     */
+    private function assertRouteAccess(string $route, Request $request): void
+    {
+        if (in_array($route, ['webhook', 'restoreCart'], true)) {
+            return;
+        }
+
+        if (in_array($route, ['ping', 'syncPayment'], true)) {
+            $this->orderManager->validateAdminAccess();
+            return;
+        }
+
+        $orderId = $this->orderManager->resolveOrderId($request);
+        $this->orderManager->validateOrderAccess($orderId);
+
+        if (in_array($route, ['checkPayment', 'cancelPayment'], true)) {
+            $paymentId = $request->get('payment_id');
+            if ($paymentId !== null && $paymentId !== '') {
+                $this->orderManager->validatePaymentBelongsToOrder($orderId, (string)$paymentId);
+            }
+        }
     }
 
     /**

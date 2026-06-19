@@ -3,6 +3,7 @@
 namespace ForumPay\PaymentGateway\WoocommercePlugin\Model;
 
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ApiHttpException;
+use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ForumPayHttpException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\OrderNotFoundException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Exception\TransactionDetailsMissingException;
 use ForumPay\PaymentGateway\WoocommercePlugin\Logger\ForumPayLogger;
@@ -56,8 +57,14 @@ class CheckPayment
             $paymentId = $request->getRequired('payment_id');
             $this->logger->info('CheckPayment entrypoint called.', ['paymentId' => $paymentId]);
 
+            $wcOrderBefore = wc_get_order((int)$orderId);
+            $statusBefore = $wcOrderBefore ? $wcOrderBefore->get_status() : null;
+
             /** @var CheckPaymentResponse $response */
             $response = $this->forumPay->checkPayment($orderId, $paymentId);
+
+            $wcOrderAfter = wc_get_order((int)$orderId);
+            $statusAfter = $wcOrderAfter ? $wcOrderAfter->get_status() : null;
 
             if ($response->getUnderpayment()) {
                 $underPayment = new Underpayment(
@@ -104,12 +111,16 @@ class CheckPayment
                 $response->getInvoiceSurchargePercent(),
             );
 
+            $paymentDetails->setOrderStatusChanged($statusBefore !== $statusAfter);
+
             $this->logger->info('CheckPayment entrypoint finished.');
 
             return $paymentDetails;
         } catch (TransactionDetailsMissingException $e) {
             $this->logger->error($e->getMessage(), $e->getTrace());
             throw new TransactionDetailsMissingException($e->getMessage(), 4006, $e);
+        } catch (ForumPayHttpException $e) {
+            throw $e;
         } catch (ApiExceptionInterface $e) {
             $this->logger->logApiException($e);
             throw new ApiHttpException($e, 4050);

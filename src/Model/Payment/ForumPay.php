@@ -4,7 +4,6 @@ namespace ForumPay\PaymentGateway\WoocommercePlugin\Model\Payment;
 
 use ForumPay\PaymentGateway\PHPClient\Http\Exception\ApiExceptionInterface;
 use ForumPay\PaymentGateway\PHPClient\Response\RequestKycResponse;
-use ForumPay\PaymentGateway\WoocommercePlugin\Exception\ForumPayException;
 use ForumPay\PaymentGateway\WoocommercePlugin\ForumPayPaymentGateway;
 use ForumPay\PaymentGateway\PHPClient\Response\GetTransactions\TransactionInvoice;
 use ForumPay\PaymentGateway\PHPClient\PaymentGatewayApi;
@@ -17,7 +16,6 @@ use ForumPay\PaymentGateway\PHPClient\Response\GetWalletAppsResponse;
 use ForumPay\PaymentGateway\PHPClient\Response\StartPaymentResponse;
 use ForumPay\PaymentGateway\WoocommercePlugin\Model\Data\Payer\Payer;
 use Psr\Log\LoggerInterface;
-use WC_Meta_Data;
 
 /**
  * ForumPay payment method model
@@ -257,7 +255,7 @@ class ForumPay
             $this->orderManager->saveOrderMetaData($orderId, 'payment_formumpay_webhook_used', date('Y-m-d h:i:sa'));
         }
 
-        $meta = $this->getStartPaymentMetaData($orderId, $paymentId);
+        $meta = $this->orderManager->getPaymentMetaData($orderId, $paymentId);
 
         $address = $meta['address'];
         $cryptoCurrency = $meta['currency'];
@@ -303,7 +301,7 @@ class ForumPay
      */
     public function cancelPaymentByPaymentId(string $orderId, string $paymentId, string $reason = '', string $description = '')
     {
-        $meta = $this->getStartPaymentMetaData($orderId, $paymentId);
+        $meta = $this->orderManager->getPaymentMetaData($orderId, $paymentId);
         $currency = $meta['currency'];
         $address = $meta['address'];
         $this->cancelPayment($paymentId, $currency, $address, $reason, $description);
@@ -383,27 +381,6 @@ class ForumPay
         }
 
         return true;
-    }
-
-    /**
-     * Get return startPayment response from metadata for given paymentId
-     *
-     * @param string $orderId
-     * @param string $paymentId
-     * @return array|null
-     */
-    private function getStartPaymentMetaData(string $orderId, string $paymentId): ?array
-    {
-        $startPaymentResponses = $this->orderManager->getOrderMetaData($orderId, 'startPayment');
-
-        /** @var WC_Meta_Data $response */
-        foreach ($startPaymentResponses as $response) {
-            if ($response->get_data()['value']['payment_id'] === $paymentId) {
-                return $response->get_data()['value'];
-            }
-        }
-
-        return null;
     }
 
     private function calculateMinimumOrderValue(array $underPaymentOptions, string $orderId): string

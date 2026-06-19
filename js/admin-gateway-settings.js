@@ -403,8 +403,8 @@ jQuery(document).ready(function($) {
     }
 
     if (field === 'accept_overpayment' && isChecked) {
-      thresholdElement.attr('pattern', '^(?:0\\.\\d{2,}|[1-9]\\d*(\\.\\d{1,2})?)$');
-      thresholdElement.attr('title', 'Please enter a valid percentage or leave blank to accept any overpayment amount.');
+      thresholdElement.attr('pattern', '^(?!0+(\\.0{1,2})?$)(\\d{1,2})(\\.\\d{1,2})?$');
+      thresholdElement.attr('title', 'Please enter a valid percentage between 0 and 100 or leave blank to accept any overpayment amount.');
     }
 
     if (!isChecked) {
