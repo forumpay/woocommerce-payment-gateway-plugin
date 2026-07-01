@@ -1,0 +1,76 @@
+.forumpay-pgw {
+  .wallet-connect {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wallet-connect .wallet-action-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin: 0;
+    padding: 10px 16px;
+    border: 1px solid var(--pgw-border-color-2, var(--pgw-border-color));
+    border-radius: var(--pgw-default-radius-1, 11px);
+    background: var(--pgw-color-background-primary) !important;
+    color: var(--pgw-color-text-primary) !important;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    img {
+      display: block;
+      height: 16px;
+      width: 16px;
+    }
+  }
+
+  .wallet-connect .connected-wallet {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    small {
+      color: var(--pgw-color-gray-2);
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+
+  .wallet-connect .disconnect-btn {
+    outline: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    height: 1rem;
+    width: 1rem;
+    padding: 0;
+    color: var(--pgw-color-gray-2);
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .wallet-connect .wallet-status {
+    color: var(--pgw-color-text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+
+    &.error {
+      color: var(--pgw-color-danger-1, #d63638);
+    }
+  }
+}

@@ -90,6 +90,7 @@ class StartPayment
                 $response->getQrAltImg(),
                 $notices,
                 $response->getStatsToken(),
+                $response->getWcToken(),
                 $beneficiaryVaspDetails,
                 $response->getItemName(),
                 $response->getInvoiceSurchargeAmount(),

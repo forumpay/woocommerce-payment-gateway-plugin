@@ -5,6 +5,7 @@ import CurrencyIcon from './CurrencyIcon.vue';
 import PaymentCountdown from './PaymentCountdown.vue';
 import PageLogo from './PageLogo.vue';
 import QrCodeAlternatives from './QrCodeAlternatives.vue';
+import WalletConnect from './WalletConnect.vue';
 import SvgInfo from '../images/SvgInfo.vue';
 import SvgHelp from '../images/SvgHelp.vue';
 import SvgClose from '../images/SvgClose.vue';
@@ -20,6 +21,7 @@ const PaymentStateWaiting = {
     CurrencyIcon,
     PaymentCountdown,
     QrCodeAlternatives,
+    WalletConnect,
     SvgInfo,
     SvgHelp,
     SvgClose,
@@ -142,6 +144,10 @@ const PaymentStateWaiting = {
       default: '',
     },
     invoiceAmountWithSurcharge: {
+      type: String,
+      default: '',
+    },
+    wcToken: {
       type: String,
       default: '',
     },
@@ -331,6 +337,8 @@ export default PaymentStateWaiting;
           >
             Try alternative QR code.
           </span>
+
+          <WalletConnect :wc-token="wcToken" />
         </div>
 
         <QrCodeAlternatives

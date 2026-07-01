@@ -93,6 +93,11 @@ class Payment
     private string $statsToken;
 
     /**
+     * @var string|null
+     */
+    private ?string $wcToken;
+
+    /**
      * @var BeneficiaryVaspDetails|null
      */
     private ?BeneficiaryVaspDetails $beneficiaryVaspDetails;
@@ -132,6 +137,7 @@ class Payment
      * @param string $qrAltImg
      * @param array $notices
      * @param string $statsToken
+     * @param string|null $wcToken
      * @param BeneficiaryVaspDetails|null $beneficiaryVaspDetails
      * @param string|null $itemName
      * @param string|null $invoiceSurchargeAmount
@@ -151,6 +157,7 @@ class Payment
         string $qrAltImg,
         array $notices = [],
         string $statsToken = '',
+        ?string $wcToken = null,
         ?BeneficiaryVaspDetails $beneficiaryVaspDetails = null,
         ?string $itemName = null,
         ?string $invoiceSurchargeAmount = null,
@@ -169,6 +176,7 @@ class Payment
         $this->qrAltImg = $qrAltImg;
         $this->notices = $notices;
         $this->statsToken = $statsToken;
+        $this->wcToken = $wcToken;
         $this->beneficiaryVaspDetails = $beneficiaryVaspDetails;
         $this->itemName = $itemName;
         $this->invoiceSurchargeAmount = $invoiceSurchargeAmount;
@@ -273,6 +281,14 @@ class Payment
     }
 
     /**
+     * @return string|null
+     */
+    public function getWcToken(): ?string
+    {
+        return $this->wcToken;
+    }
+
+    /**
      * @return BeneficiaryVaspDetails|null
      */
     public function getBeneficiaryVaspDetails(): ?BeneficiaryVaspDetails
@@ -335,6 +351,7 @@ class Payment
             ),
             'payment_id' => $this->paymentId,
             'stats_token' => $this->statsToken,
+            'wc_token' => $this->wcToken,
             'beneficiary_vasp_details' => $this->beneficiaryVaspDetails ? $this->beneficiaryVaspDetails->toArray() : null,
             'item_name' => $this->itemName,
             'invoice_surcharge_amount' => $this->invoiceSurchargeAmount,

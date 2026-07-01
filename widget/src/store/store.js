@@ -1,5 +1,6 @@
 /* global CryptoPaymentStats */
 import { createStore } from 'vuex';
+import loadWalletConnectSdk from '../utils/loadWalletConnectSdk';
 
 // View constants for navigation
 export const VIEWS = {
@@ -364,12 +365,21 @@ export default createStore({
         commit('setPayment', result.data);
         commit('setCurrentView', VIEWS.PAYMENT);
 
-        if (result.data && result.data.stats_token) {
+        if (result.data && result.data.stats_token && typeof CryptoPaymentStats !== 'undefined') {
           CryptoPaymentStats.setToken(result.data.stats_token);
+        }
+
+        if (result.data?.wc_token) {
+          try {
+            await loadWalletConnectSdk();
+          } catch (error) {
+            console.error('WalletConnect SDK load failed:', error);
+          }
         }
       } catch (error) {
         commit('setLoading', false);
-        switch (error.response.data.code) {
+        const errorCode = error.response?.data?.code;
+        switch (errorCode) {
           case 3051:
             commit('setKycRequired', true);
             commit('setCurrentView', VIEWS.KYC);
@@ -518,6 +528,14 @@ export default createStore({
 
         commit('setLoading', false);
         commit('setPayment', result.data);
+
+        if (result.data?.wc_token) {
+          try {
+            await loadWalletConnectSdk();
+          } catch (error) {
+            console.error('WalletConnect SDK load failed:', error);
+          }
+        }
       } catch (error) {
         commit('setLoading', false);
         commit('setError', error);
